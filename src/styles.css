@@ -1,0 +1,4 @@
+/* You can add global styles to this file, and also import other style files */
+* { box-sizing: border-box; }
+body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+.page-container { max-width: 900px; margin: 0 auto; }

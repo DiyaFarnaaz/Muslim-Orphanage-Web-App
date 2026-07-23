@@ -1,0 +1,17 @@
+.main-nav ul {
+  display: flex;
+  list-style: none;
+  background-color: #6b8e23; /* Matching your theme color */
+  padding: 15px;
+  margin: 0;
+}
+
+.main-nav li {
+  margin-right: 20px;
+}
+
+.main-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}

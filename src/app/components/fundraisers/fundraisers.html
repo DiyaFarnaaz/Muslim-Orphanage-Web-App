@@ -1,0 +1,30 @@
+<div class="page-container">
+  <!-- Back Button on Top -->
+  <div class="header-nav">
+    <button type="button" (click)="goBack()" class="back-btn">← Back</button>
+  </div>
+
+  <!-- Header with Title and Add Button on the Right -->
+  <header class="page-header">
+    <h2>Fundraiser Dashboard</h2>
+    <button *ngIf="isAdmin" class="primary-btn" routerLink="/fund-entry">
+      + Add New Entry
+    </button>
+  </header>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="report-card">
+      <p>Total Collected</p>
+      <h3>{{ totalCollected | currency:'INR':'symbol':'1.2-2' }}</h3>
+    </div>
+    <div class="report-card">
+      <p>Total Used</p>
+      <h3>{{ totalUsed | currency:'INR':'symbol':'1.2-2' }}</h3>
+    </div>
+    <div class="report-card">
+      <p>Current Balance</p>
+      <h3>{{ currentBalance | currency:'INR':'symbol':'1.2-2' }}</h3>
+    </div>
+  </div>
+</div>

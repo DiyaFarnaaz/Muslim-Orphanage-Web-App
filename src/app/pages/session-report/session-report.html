@@ -1,0 +1,84 @@
+<div class="report-container">
+  <div class="header-nav">
+    <button type="button" (click)="goBack()" class="back-btn">
+      ← Back
+    </button>
+  </div>
+
+  <h2>Session Report</h2>
+  
+  <form (submit)="submitReport()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Session Lead Name</label>
+        <input type="text" [(ngModel)]="report.session_lead_name" name="session_lead_name" placeholder="Enter session lead name..." required>
+      </div>
+
+      <div class="form-group">
+        <label>Topic</label>
+        <input type="text" [(ngModel)]="report.topic" name="topic" placeholder="Enter topic...">
+      </div>
+
+      <div class="form-group">
+        <label>Date</label>
+        <input type="date" [(ngModel)]="report.session_date" name="session_date">
+      </div>
+
+      <div class="form-group">
+        <label>Class Group</label>
+        <select [(ngModel)]="report.class_group" name="class_group">
+          <option value="" disabled>Select Class Group</option>
+          <option *ngFor="let group of classGroups" [value]="group">{{ group }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Start Time</label>
+        <select [(ngModel)]="report.start_time" name="start_time">
+          <option value="" disabled>Select Start Time</option>
+          <option *ngFor="let time of timeSlots" [value]="time">{{ time }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>End Time</label>
+        <select [(ngModel)]="report.end_time" name="end_time">
+          <option value="" disabled>Select End Time</option>
+          <option *ngFor="let time of timeSlots" [value]="time">{{ time }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Activity</label>
+        <input type="text" [(ngModel)]="report.activity" name="activity" placeholder="Activity details...">
+      </div>
+
+      <div class="form-group">
+        <label>Winner</label>
+        <input type="text" [(ngModel)]="report.winner" name="winner" placeholder="Winner details...">
+      </div>
+    </div>
+
+    <div class="form-group full-width">
+      <label>Feedback</label>
+      <textarea [(ngModel)]="report.feedback" name="feedback" rows="4" placeholder="Enter session feedback..."></textarea>
+    </div>
+
+    <div class="file-uploads">
+      <div class="form-group">
+        <label>Upload Document(s) (PDF/DOC)</label>
+        <input type="file" multiple (change)="onFilesSelected($event, 'doc')" accept=".pdf,.doc,.docx">
+        <small *ngIf="docCount > 0" class="file-count">{{ docCount }} file(s) selected</small>
+      </div>
+      <div class="form-group">
+        <label>Upload Media (Images/Videos)</label>
+        <input type="file" multiple (change)="onFilesSelected($event, 'media')" accept="image/*,video/*">
+        <small *ngIf="mediaCount > 0" class="file-count">{{ mediaCount }} file(s) selected</small>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Submitting...' : 'Submit Report' }}
+    </button>
+  </form>
+</div>

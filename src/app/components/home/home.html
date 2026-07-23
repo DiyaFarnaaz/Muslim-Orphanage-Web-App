@@ -1,0 +1,134 @@
+<div class="home-page">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container top-bar-content">
+      <div class="contact-info">
+        <span class="info-item">📍 43, Dickenson Road, Bengaluru - 560042</span>
+        <span class="info-item">📞 080 - 2557 2059</span>
+      </div>
+      <div class="top-bar-right">
+        <span>For Members Only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Navbar -->
+  <header class="site-header">
+    <div class="container header-container">
+      <div class="logo-container" (click)="scrollToSection('home')" style="cursor: pointer;">
+        <span class="logo-text">
+          <span class="brand-name">MUSLIM ORPHANAGE</span>
+        </span>
+      </div>
+      <nav class="nav-links">
+        <a (click)="scrollToSection('home')" class="active">Home</a>
+        <a (click)="scrollToSection('about-section')">About Us</a>
+        <a (click)="scrollToSection('contact-section')">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero-container">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content-wrapper">
+      <div class="hero-text-content">
+        <h1>Together We Can<br>Build Brighter Futures</h1>
+        <p>For over a century, providing a secure, loving home, quality education, and holistic care for children in need.</p>
+        <div class="hero-btn-group">
+          <button class="btn-primary" (click)="navigateTo('register')">Register</button>
+          <button class="btn-outline" (click)="navigateTo('login')">Login</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About / Who We Are Section -->
+  <section id="about-section" class="about-section">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-images-stack">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJuMdRLHcjgUXFQRFOuFGPiROk1EjHpLBGl16uLtMcuw&s=10" alt="Muslim Orphanage Building" class="img-primary">
+        </div>
+        <div class="about-text-content">
+          <span class="section-tag">About Muslim Orphanage</span>
+          <h2>Serving Children with Compassion, Education and Care for Generations</h2>
+          <p>
+            For over a century, Muslim Orphanage, Dickenson Road, Bengaluru has been a home for children in need. We provide them with quality education, shelter, guidance and opportunities to grow with dignity and confidence.
+          </p>
+          <div class="features-list">
+            <div class="feature-item">
+              <div class="feature-icon">📚</div>
+              <div>
+                <h4>Quality Education & ITI</h4>
+                <p>Equipping students with academic knowledge and vocational technical training.</p>
+              </div>
+            </div>
+            <div class="feature-item">
+              <div class="feature-icon">🏡</div>
+              <div>
+                <h4>A Loving Home Ecosystem</h4>
+                <p>A secure, disciplined, and nurturing environment fostering complete well-being.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery Section -->
+  <section class="gallery-section">
+    <div class="container">
+      <div class="section-header-center">
+        <h2>Our Life & Campus</h2>
+        <p>A glimpse into daily life, studies, and activities at our facility.</p>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item"><img src="https://images.jdmagicbox.com/comp/bangalore/04/080p3039204/catalogue/muslim-orphanage-industrial-training-institute-dickenson-road-bangalore-institutes-sbmbeizm9b.jpg" alt="Campus"></div>
+        <div class="gallery-item"><img src="https://content.jdmagicbox.com/v2/comp/bangalore/04/080p3039204/catalogue/muslim-orphanage-industrial-training-institute-dickenson-road-bangalore-institutes-qpxd3zq3ik.jpg" alt="Campus Activity"></div>
+        <div class="gallery-item"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTnjm21Nwx1iXUkXcT8RBw6XAaudnl9oTn2ewlAYAZK7w&s=10" alt="Activity"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Professional Footer / Contact Section -->
+  <footer id="contact-section" class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-col brand-col">
+        <div class="footer-logo">
+          <span class="brand-name">MUSLIM ORPHANAGE</span>
+          <span class="brand-sub-footer">Dickenson Road, Bengaluru</span>
+        </div>
+        <p class="footer-desc">
+          Empowering hearts, changing lives together since generations on Dickenson Road, Bengaluru.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a (click)="scrollToSection('home')">Home</a></li>
+          <li><a (click)="scrollToSection('about-section')">About Us</a></li>
+          <li><a (click)="scrollToSection('contact-section')">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Member Access</h4>
+        <ul>
+          <li><a routerLink="/register">Register</a></li>
+          <li><a routerLink="/login">Login</a></li>
+        </ul>
+      </div>
+      <div class="footer-col contact-details-col">
+        <h4>Contact Us</h4>
+        <p><strong>Address:</strong> 43, Dickenson Road, near Hasanath College For Women, Halasuru, Bengaluru, Karnataka 560042</p>
+        <p><strong>Phone:</strong> 080 - 2557 2059</p>
+        <p><strong>Email:</strong> support@muslimorphanage.in</p>
+        <p class="note-text"><em>Note: This platform is for authorized members only. If you are a member, please login or register.</em></p>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; 2026 Muslim Orphanage, Dickenson Road, Bengaluru. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

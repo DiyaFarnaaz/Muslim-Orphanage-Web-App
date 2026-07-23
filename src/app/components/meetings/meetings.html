@@ -1,0 +1,53 @@
+<div class="page-container">
+  <div class="header-nav">
+    <button type="button" (click)="goBack()" class="back-btn">← Back</button>
+  </div>
+
+  <div class="header-actions">
+    <h2>Meeting Logs</h2>
+    <a routerLink="/add-meeting" class="submit-btn" style="text-decoration: none; padding: 10px 20px;">
+      + Add New Meeting
+    </a>
+  </div>
+
+  <div class="date-card" *ngFor="let date of getKeys(groupedMeetings)">
+    <h3>{{ date | date: 'fullDate' }}</h3>
+    
+    <div class="session-list">
+      <div class="session-item" *ngFor="let m of groupedMeetings[date]">
+        
+        <div (click)="onSelectMeeting(m)" style="cursor: pointer;">
+          <!-- Removed the duplicate date here -->
+          <h4>Meeting Plan</h4>
+          <p><strong>Click to view class-wise details & links</strong></p>
+        </div>
+
+        <div class="report-card" *ngIf="selectedMeeting === m">
+          <h3>Details</h3>
+
+          <div class="link-banner">
+            <strong>Meeting Link:</strong> 
+            <a [href]="m.meeting_link" target="_blank" class="link-text">{{ m.meeting_link }}</a>
+          </div>
+
+          <div class="tasks-grid">
+            <div class="task-box" *ngFor="let group of classGroups">
+              <h4 class="group-title">Class {{ group }}</h4>
+              <div class="task-content">
+                <p><strong>Lead:</strong> {{ parseJSON(m.session_lead)[group] || '-' }}</p>
+                <p><strong>Prep:</strong> {{ parseJSON(m.session_prep)[group] || '-' }}</p>
+                <p><strong>Activity:</strong> {{ parseJSON(m.activity)[group] || '-' }}</p>
+                <p><strong>Gifts & Props:</strong> {{ parseJSON(m.gifts_props)[group] || '-' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <button (click)="selectedMeeting = null" class="submit-btn" style="background-color: #34495e;">
+            Close
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

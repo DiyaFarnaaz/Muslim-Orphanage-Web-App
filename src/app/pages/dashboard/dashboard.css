@@ -1,0 +1,133 @@
+/* --- Layout --- */
+.dashboard-container { 
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh; 
+}
+
+/* --- Header --- */
+.top-bar { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 20px 40px; 
+    background: #2c3e50; 
+    color: white; 
+}
+
+.brand-title { font-size: 1.8rem; font-weight: bold; letter-spacing: 1px; }
+.user-profile { font-size: 1.1rem; }
+.spacer { flex: 1; }
+
+/* --- Sidebar --- */
+.dashboard-wrapper { display: flex; flex: 1; }
+.sidebar { width: 250px; background: #2c3e50; color: white; padding: 0; }
+.sidebar ul { padding: 0; margin: 0; }
+
+.sidebar li { 
+    list-style: none; 
+    border-bottom: 1px solid #3e4f5f;
+    transition: background 0.2s;
+}
+
+.sidebar li a {
+    display: block;
+    padding: 15px 20px;
+    color: white;
+    text-decoration: none;
+    cursor: pointer !important;
+}
+
+.sidebar li:hover { background: #3e5871; }
+
+.sidebar li a.active { 
+    background: #3e5871; 
+    font-weight: bold; 
+    border-left: 4px solid #3498db;
+}
+
+/* Angular Material Nav List custom styling support */
+mat-nav-list {
+    padding-top: 0 !important;
+}
+
+mat-nav-list a[mat-list-item] {
+    color: white !important;
+    border-bottom: 1px solid #3e4f5f;
+}
+
+mat-nav-list a[mat-list-item]:hover {
+    background: #3e5871 !important;
+}
+
+mat-nav-list a[mat-list-item].active {
+    background: #3e5871 !important;
+    border-left: 4px solid #3498db;
+}
+
+/* --- Content Area --- */
+.content { flex: 1; padding: 40px; background: #f4f7f6; }
+
+/* --- Dashboard Cards Grid --- */
+.dashboard-cards { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(240px, 300px)); 
+    gap: 25px; 
+    margin-top: 20px;
+}
+
+.dash-card { 
+    background: white; 
+    padding: 24px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+    cursor: pointer; 
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.dash-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+}
+
+.card-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    background: #eef2f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dash-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #2c3e50;
+}
+
+.dash-card h4 { 
+    margin: 0 0 5px 0; 
+    color: #2c3e50; 
+    font-size: 1.2rem;
+}
+
+.dash-card p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+/* --- Footer --- */
+.footer { 
+    text-align: center; 
+    padding: 15px; 
+    background: #f4f7f6; 
+    border-top: 1px solid #ddd; 
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}

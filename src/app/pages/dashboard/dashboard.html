@@ -1,0 +1,77 @@
+<div class="dashboard-container">
+  <!-- Top Header using Material Toolbar -->
+  <mat-toolbar color="primary" class="top-bar">
+    <span class="brand-title">Orphanage Portal</span>
+    <span class="spacer"></span>
+    <div class="user-profile">
+      <span>Welcome, <strong>{{ userName || 'User' }}</strong></span>
+    </div>
+  </mat-toolbar>
+
+  <div class="dashboard-wrapper">
+    <!-- Sidebar using Material Nav List -->
+    <nav class="sidebar">
+      <mat-nav-list>
+        <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+          <mat-icon matListItemIcon>dashboard</mat-icon>
+          <span matListItemTitle>Dashboard</span>
+        </a>
+        <a mat-list-item routerLink="/volunteer" routerLinkActive="active">
+          <mat-icon matListItemIcon>group</mat-icon>
+          <span matListItemTitle>Volunteers</span>
+        </a>
+        <a mat-list-item class="logout-btn" (click)="onLogout()">
+          <mat-icon matListItemIcon>logout</mat-icon>
+          <span matListItemTitle>Logout</span>
+        </a>
+      </mat-nav-list>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="content">
+      <div *ngIf="showCards">
+        <h2>Dashboard Overview</h2>
+        <div class="dashboard-cards">
+          
+          <!-- Events Card -->
+          <mat-card class="dash-card" routerLink="/events">
+            <div class="card-icon-wrapper">
+              <mat-icon class="dash-icon">event</mat-icon>
+            </div>
+            <mat-card-content>
+              <h4>Sessions</h4>
+              <p>Manage and track orphanage Sessions.</p>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Meetings Card -->
+          <mat-card class="dash-card" routerLink="/meetings">
+            <div class="card-icon-wrapper">
+              <mat-icon class="dash-icon">groups</mat-icon>
+            </div>
+            <mat-card-content>
+              <h4>Meetings</h4>
+              <p>View scheduled Volunteer meetings.</p>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Fundraisers Card -->
+          <mat-card class="dash-card" routerLink="/fundraisers">
+            <div class="card-icon-wrapper">
+              <mat-icon class="dash-icon">volunteer_activism</mat-icon>
+            </div>
+            <mat-card-content>
+              <h4>Fundraisers</h4>
+              <p>Monitor active donation drives and campaigns.</p>
+            </mat-card-content>
+          </mat-card>
+
+        </div>
+      </div>
+
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <footer class="footer">© 2026 Muslim Orphanage Portal</footer>
+</div>

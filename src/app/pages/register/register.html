@@ -1,0 +1,44 @@
+<div class="login-container">
+  <div class="login-card">
+    <h2>Create Account</h2>
+    
+    <form (submit)="onRegister()">
+      <div class="input-group">
+        <label>Full Name</label>
+        <input type="text" [(ngModel)]="fullName" name="fullName" required>
+      </div>
+
+      <div class="input-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" name="email" required>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+        <input type="password" [(ngModel)]="password" name="password" required>
+      </div>
+
+      <div class="input-group">
+        <label>Role</label>
+        <select [(ngModel)]="role" name="role" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+          <option value="volunteer">Volunteer</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>Phone Number</label>
+        <input type="text" [(ngModel)]="phoneNumber" name="phoneNumber">
+      </div>
+
+      <div class="input-group">
+        <label>Age</label>
+        <input type="number" [(ngModel)]="age" name="age">
+      </div>
+
+      <button type="submit" class="btn-submit">Register</button>
+    </form>
+
+    <p class="link-text">Already have an account? <a href="/login">Login Now</a></p>
+  </div>
+</div>

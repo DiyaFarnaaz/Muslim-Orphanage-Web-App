@@ -1,0 +1,58 @@
+<div class="page-container">
+  <div class="header-nav">
+    <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
+  </div>
+
+  <div class="form-container">
+    <h2>Add New Meeting Plan</h2>
+    
+    <div class="report-card">
+      <h3>General Details</h3>
+      <div class="field-group">
+        <label>Meeting Date</label>
+        <input type="date" [(ngModel)]="meeting.meeting_date" class="input-field">
+      </div>
+      <div class="field-group">
+        <label>Meeting Link</label>
+        <input [(ngModel)]="meeting.meeting_link" placeholder="Paste video call link here" class="input-field">
+      </div>
+    </div>
+
+    <div *ngFor="let group of classGroups" class="report-card">
+      <h3 class="group-title">Class {{ group }}</h3>
+      
+      <div class="field-group">
+        <label>Session Lead(s)</label>
+        <input [(ngModel)]="tasksData[group].session_lead" placeholder="Leads names..." class="input-field">
+      </div>
+
+      <div class="field-group">
+        <label>Session Prep (Content & Guidelines)</label>
+        <textarea [(ngModel)]="tasksData[group].session_prep" placeholder="Prep details..." class="input-field textarea-field" rows="2"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label>Activity & Games</label>
+        <textarea [(ngModel)]="tasksData[group].activity" placeholder="Activities..." class="input-field textarea-field" rows="2"></textarea>
+      </div>
+
+      <div class="field-group">
+        <label>Gifts & Props</label>
+        <textarea [(ngModel)]="tasksData[group].gifts_props" placeholder="Gifts/Props notes..." class="input-field textarea-field" rows="2"></textarea>
+      </div>
+
+      <!-- Class-wise Session Document Upload -->
+      <div class="field-group">
+        <label>Session PDF / Document(s)</label>
+        <input type="file" multiple (change)="onFilesSelected($event, group)" accept=".pdf,.doc,.docx" class="input-field file-input">
+        <small *ngIf="tasksData[group].docCount > 0" class="file-success-text">
+          {{ tasksData[group].docCount }} file(s) selected & ready
+        </small>
+      </div>
+    </div>
+
+    <button (click)="saveMeeting()" class="save-btn" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Saving...' : 'Save Meeting' }}
+    </button>
+  </div>
+</div>
