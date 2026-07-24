@@ -29,7 +29,7 @@ export class EventsComponent implements OnInit {
     try {
       const { data, error } = await this.supabase.client
         .from('sessions')
-        .select('id, session_lead_name, class_group, activity, topic, winner, feedback, start_time, end_time, doc_url, media_url, session_date')
+        .select('id, session_lead_name, class_group, activity, topic, winner, feedback, doc_url, media_url, session_date')
         .order('session_date', { ascending: false });
 
       if (error) {
@@ -37,7 +37,6 @@ export class EventsComponent implements OnInit {
         return;
       }
 
-      // Process raw data to split comma-separated file URLs into arrays for easier rendering
       const formattedData = (data || []).map((report: any) => ({
         ...report,
         doc_urls: report.doc_url ? report.doc_url.split(',').filter((url: string) => url.trim() !== '') : [],
@@ -58,11 +57,16 @@ export class EventsComponent implements OnInit {
   }
 
   goBack() {
-    this.location.back();
+    this.router.navigate(['/dashboard']);
   }
 
   onSelectEvent(event: any): void {
     this.selectedEvent = event;
+  }
+
+  editEvent(eventId: string, event: Event) {
+    event.stopPropagation(); // Prevents expanding/collapsing the accordion card
+    this.router.navigate(['/session-report'], { queryParams: { id: eventId } });
   }
 
   getKeys(obj: any): string[] {

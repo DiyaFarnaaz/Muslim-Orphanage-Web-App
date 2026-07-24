@@ -1,80 +1,90 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule, NavigationEnd } from '@angular/router';
-import { SupabaseService } from '../../services/supabase';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-// Angular Material Imports
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+import { filter } from 'rxjs/operators';
+import { SupabaseService } from '../../services/supabase';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     RouterModule,
     MatToolbarModule,
     MatSidenavModule,
-    MatCardModule,
-    MatButtonModule,
+    MatListModule,
     MatIconModule,
-    MatListModule
+    MatCardModule
   ],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css']
 })
 export class DashboardComponent implements OnInit {
-  userName: string = '';
+  userName: string = 'User';
   showCards: boolean = true;
 
   constructor(
-    private supabase: SupabaseService, 
-    private router: Router
+    private router: Router,
+    private supabase: SupabaseService,
+    private cdr: ChangeDetectorRef
   ) {
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd) {
-        this.showCards = event.url === '/dashboard';
-      }
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      this.showCards = event.url === '/dashboard' || event.url === '/dashboard/';
     });
   }
 
   async ngOnInit() {
-    const { data: { session } } = await this.supabase.client.auth.getSession();
-    
-    if (!session) {
-      this.router.navigate(['/login']);
-      return;
-    }
+    this.showCards = this.router.url === '/dashboard' || this.router.url === '/dashboard/';
+    await this.loadUserProfile();
+  }
 
-    if (session?.user) {
-      const { data, error } = await this.supabase.client
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .maybeSingle();
+  async loadUserProfile() {
+    try {
+      const { data: { user }, error: authError } = await this.supabase.client.auth.getUser();
       
-      if (data && data.full_name) {
-        this.userName = data.full_name;
-      } else if (session.user.user_metadata?.['full_name'] || session.user.user_metadata?.['name']) {
-        this.userName = session.user.user_metadata['full_name'] || session.user.user_metadata['name'];
-      } else if (session.user.email) {
-        this.userName = session.user.email.split('@')[0];
+      if (authError || !user) {
+        console.error('Error fetching auth user:', authError);
+        return;
+      }
+
+      // Query profiles table safely using maybeSingle to prevent 406 errors
+      const { data: profileData, error: profileError } = await this.supabase.client
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('Error loading profile data:', profileError);
+      }
+
+      if (profileData && profileData.full_name) {
+        this.userName = profileData.full_name;
+      } else if (user.user_metadata && user.user_metadata['full_name']) {
+        this.userName = user.user_metadata['full_name'];
       } else {
         this.userName = 'User';
       }
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-      }
+      this.cdr.detectChanges();
+    } catch (err) {
+      console.error('Failed to load user profile:', err);
     }
   }
 
- async onLogout() {
-    await this.supabase.client.auth.signOut();
-    this.router.navigate(['/']); // Changed from '/login' to '/'
+  async onLogout() {
+    try {
+      await this.supabase.client.auth.signOut();
+      this.router.navigate(['/login']);
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   }
 }

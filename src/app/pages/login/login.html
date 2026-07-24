@@ -1,19 +1,22 @@
-<div class="login-container">
-  <div class="login-card">
-    <h2>Welcome Back</h2>
-    <form (submit)="onLogin()">
-      <div class="input-group">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="email" name="email" required>
-      </div>
+<div class="login-wrapper">
+  <a routerLink="/" class="back-home-link">&larr; Back to Home</a>
+  <div class="login-container">
+    <div class="login-card">
+      <h2>Welcome</h2>
+      <form (submit)="onLogin()">
+        <div class="input-group">
+          <label>Email</label>
+          <input type="email" [(ngModel)]="email" name="email" required>
+        </div>
 
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" [(ngModel)]="password" name="password" required>
-      </div>
+        <div class="input-group">
+          <label>Password</label>
+          <input type="password" [(ngModel)]="password" name="password" required>
+        </div>
 
-      <button type="submit" class="btn-submit">Login</button>
-    </form>
-    <p class="link-text">Don't have an account? <a routerLink="/register">Register here</a></p>
+        <button type="submit" class="btn-submit">Login</button>
+      </form>
+      <p class="link-text">Don't have an account? <a routerLink="/register">Register here</a></p>
+    </div>
   </div>
 </div>

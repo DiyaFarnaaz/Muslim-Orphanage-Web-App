@@ -14,31 +14,33 @@
 }
 
 .back-btn {
-  background: #f8f9fa;
-  border: 1px solid #ced4da;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  color: #495057;
+  color: #334155;
   font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .back-btn:hover {
-  background: #e2e6ea;
-  border-color: #adb5bd;
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
 .header-actions h2 {
-  color: #333;
+  color: #0f172a;
   margin-bottom: 20px;
+  font-size: 1.75rem;
+  font-weight: 600;
 }
 
 .loader {
   text-align: center;
   padding: 40px;
   font-size: 1.2rem;
-  color: #666;
+  color: #64748b;
 }
 
 /* --- Table Styles --- */
@@ -46,8 +48,8 @@
   overflow-x: auto;
   background: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
 .directory-table {
@@ -58,7 +60,7 @@
 }
 
 .directory-table th {
-  background-color: #5c7c25;
+  background-color: #0ea5e9;
   color: #ffffff;
   padding: 14px 16px;
   font-weight: 600;
@@ -69,22 +71,22 @@
 
 .directory-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #eee;
-  color: #333;
+  border-bottom: 1px solid #e2e8f0;
+  color: #334155;
   vertical-align: middle;
 }
 
 .directory-table tbody tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: #f8fafc;
 }
 
 .directory-table tbody tr:hover {
-  background-color: #f1f3f5;
+  background-color: #f1f5f9;
 }
 
 .font-weight-bold {
   font-weight: 600;
-  color: #111;
+  color: #0f172a;
 }
 
 /* --- Action Cells & Small Buttons --- */
@@ -95,70 +97,84 @@
 }
 
 .edit-btn-sm {
-  background-color: #5c7c25;
+  background-color: #0ea5e9;
   color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .edit-btn-sm:hover {
-  background-color: #4b641e;
+  background-color: #0284c7;
 }
 
 .save-btn-sm {
-  background-color: #28a745;
+  background-color: #10b981;
   color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .save-btn-sm:hover {
-  background-color: #218838;
+  background-color: #059669;
 }
 
 .cancel-btn-sm {
-  background-color: #6c757d;
+  background-color: #64748b;
   color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .cancel-btn-sm:hover {
-  background-color: #5a6268;
+  background-color: #475569;
 }
 
 .delete-btn-sm {
-  background-color: #dc3545;
+  background-color: #ef4444;
   color: white;
   border: none;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .delete-btn-sm:hover {
-  background-color: #a71d2a;
+  background-color: #dc2626;
 }
 
 /* --- Form Inputs for Table Rows --- */
 .form-input-sm {
   width: 100%;
-  padding: 6px 8px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
   font-size: 13px;
+  color: #334155;
+  outline: none;
+  background-color: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input-sm:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
 }

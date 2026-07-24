@@ -9,7 +9,7 @@
   </mat-toolbar>
 
   <div class="dashboard-wrapper">
-    <!-- Sidebar using Material Nav List -->
+    <!-- Clean Sidebar: Dashboard, Volunteers, Logout only -->
     <nav class="sidebar">
       <mat-nav-list>
         <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -20,6 +20,10 @@
           <mat-icon matListItemIcon>group</mat-icon>
           <span matListItemTitle>Volunteers</span>
         </a>
+<a mat-list-item routerLink="/session-progress" routerLinkActive="active">
+  <mat-icon matListItemIcon>trending_up</mat-icon>
+  <span matListItemTitle>Session Progress</span>
+</a>
         <a mat-list-item class="logout-btn" (click)="onLogout()">
           <mat-icon matListItemIcon>logout</mat-icon>
           <span matListItemTitle>Logout</span>
@@ -31,31 +35,44 @@
     <main class="content">
       <div *ngIf="showCards">
         <h2>Dashboard Overview</h2>
+
+        <!-- Overview Cards: Weekly Tasks -> Meetings -> Events -> Fundraisers -->
         <div class="dashboard-cards">
           
-          <!-- Events Card -->
-          <mat-card class="dash-card" routerLink="/events">
-            <div class="card-icon-wrapper">
-              <mat-icon class="dash-icon">event</mat-icon>
+          <!-- 1. Weekly Tasks Card -->
+          <mat-card class="dash-card weekly-task-card" routerLink="/weekly-tasks">
+            <div class="card-icon-wrapper weekly-task-icon-wrap">
+              <mat-icon class="dash-icon weekly-task-icon">assignment</mat-icon>
             </div>
             <mat-card-content>
-              <h4>Sessions</h4>
-              <p>Manage and track orphanage Sessions.</p>
+              <h4>Weekly Tasks</h4>
+              <p>Plan session topics, grade responsibilities, activities, and props.</p>
             </mat-card-content>
           </mat-card>
 
-          <!-- Meetings Card -->
+          <!-- 2. Meetings Card -->
           <mat-card class="dash-card" routerLink="/meetings">
             <div class="card-icon-wrapper">
               <mat-icon class="dash-icon">groups</mat-icon>
             </div>
             <mat-card-content>
-              <h4>Meetings</h4>
-              <p>View scheduled Volunteer meetings.</p>
+              <h4>Session Plan</h4>
+              <p>View Session Plan for Volunteers.</p>
             </mat-card-content>
           </mat-card>
 
-          <!-- Fundraisers Card -->
+          <!-- 3. Sessions / Events Card -->
+          <mat-card class="dash-card" routerLink="/events">
+            <div class="card-icon-wrapper">
+              <mat-icon class="dash-icon">event</mat-icon>
+            </div>
+            <mat-card-content>
+              <h4>Session Reports</h4>
+              <p>Manage and track orphanage Sessions.</p>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- 4. Fundraisers Card -->
           <mat-card class="dash-card" routerLink="/fundraisers">
             <div class="card-icon-wrapper">
               <mat-icon class="dash-icon">volunteer_activism</mat-icon>

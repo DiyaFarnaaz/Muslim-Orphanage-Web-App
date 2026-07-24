@@ -1,67 +1,107 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { SupabaseService } from '../../services/supabase';
 
 @Component({
   selector: 'app-fundraisers',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './fundraisers.html',
   styleUrls: ['./fundraisers.css']
 })
 export class FundraisersComponent implements OnInit {
-  entries: any[] = [];
-  isAdmin: boolean = true; 
+  fundEntries: any[] = [];
+  loading = true;
+
+  totalCollected = 0;
+  totalUsed = 0;
+  currentBalance = 0;
+  isAdmin: boolean = false;
 
   constructor(
     private supabase: SupabaseService, 
-    private router: Router, 
-    private cdr: ChangeDetectorRef
-  ) {
-    this.router.events.subscribe((event) => {
-      if (event instanceof NavigationEnd && event.url === '/fundraisers') {
-        this.fetchEntries();
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) {}
+
+  async ngOnInit() {
+    const safetyTimer = setTimeout(() => {
+      if (this.loading) {
+        this.loading = false;
+        this.cdr.detectChanges();
       }
-    });
+    }, 4000);
+
+    try {
+      await this.checkAdminStatus();
+      await this.fetchFundEntries();
+    } catch (err) {
+      console.error('Initialization error:', err);
+    } finally {
+      clearTimeout(safetyTimer);
+      this.loading = false;
+      this.cdr.detectChanges();
+    }
   }
 
-  ngOnInit() {
-    this.fetchEntries();
+  async checkAdminStatus() {
+    try {
+      const { data: { user } } = await this.supabase.client.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await this.supabase.client
+        .from('profiles')
+        .select('is_admin, role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile && (profile.is_admin || profile.role === 'admin')) {
+        this.isAdmin = true;
+      }
+    } catch (err) {
+      console.error('Error verifying admin status:', err);
+    }
   }
 
-  // Explicitly route back to the dashboard to avoid browser history loops
   goBack() {
     this.router.navigate(['/dashboard']);
   }
 
-  async fetchEntries() {
-    const { data, error } = await this.supabase.client
-      .from('fund_entries')
-      .select('*')
-      .order('date', { ascending: false });
+  async fetchFundEntries() {
+    try {
+      const { data, error } = await this.supabase.client
+        .from('fund_entries')
+        .select('*')
+        .order('date', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching entries:', error);
-    } else {
-      this.entries = data || [];
-      this.cdr.detectChanges(); 
+      if (error) {
+        console.error('Supabase fetch error:', error.message);
+      } else {
+        this.fundEntries = data || [];
+        this.calculateMetrics();
+      }
+    } catch (err) {
+      console.error('Fetch exception:', err);
     }
   }
 
-  get totalCollected(): number {
-    return this.entries
-      .filter(e => e.type === 'income')
-      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  }
+  calculateMetrics() {
+    this.totalCollected = 0;
+    this.totalUsed = 0;
 
-  get totalUsed(): number {
-    return this.entries
-      .filter(e => e.type === 'expense')
-      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  }
+    this.fundEntries.forEach(entry => {
+      const amount = Number(entry.amount) || 0;
+      if (entry.type === 'income') {
+        this.totalCollected += amount;
+      } else if (entry.type === 'expense') {
+        this.totalUsed += amount;
+      }
+    });
 
-  get currentBalance(): number {
-    return this.totalCollected - this.totalUsed;
+    this.currentBalance = this.totalCollected - this.totalUsed;
   }
 }

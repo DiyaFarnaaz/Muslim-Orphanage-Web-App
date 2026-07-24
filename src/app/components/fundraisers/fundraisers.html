@@ -1,30 +1,74 @@
-<div class="page-container">
-  <!-- Back Button on Top -->
-  <div class="header-nav">
+<div class="fundraisers-container">
+  <!-- Back Button placed cleanly outside the main header box -->
+  <div style="margin-bottom: 16px;">
     <button type="button" (click)="goBack()" class="back-btn">← Back</button>
   </div>
 
-  <!-- Header with Title and Add Button on the Right -->
-  <header class="page-header">
-    <h2>Fundraiser Dashboard</h2>
-    <button *ngIf="isAdmin" class="primary-btn" routerLink="/fund-entry">
+  <!-- Top Bar: Title and Add Button -->
+  <div class="top-header-row">
+    <div class="title-group">
+      <h2>Fundraiser Dashboard</h2>
+    </div>
+    <!-- Protected by isAdmin so only admins can see the add button -->
+    <button *ngIf="isAdmin" mat-raised-button color="primary" routerLink="/fund-entry" class="add-entry-btn">
       + Add New Entry
     </button>
-  </header>
+  </div>
 
-  <!-- Stats Grid -->
-  <div class="stats-grid">
-    <div class="report-card">
-      <p>Total Collected</p>
-      <h3>{{ totalCollected | currency:'INR':'symbol':'1.2-2' }}</h3>
+  <!-- 3 Summary Cards Layout -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-title">Total Collected</div>
+      <div class="metric-amount text-income">₹{{ totalCollected | number:'1.2-2' }}</div>
     </div>
-    <div class="report-card">
-      <p>Total Used</p>
-      <h3>{{ totalUsed | currency:'INR':'symbol':'1.2-2' }}</h3>
+
+    <div class="metric-card">
+      <div class="metric-title">Total Used</div>
+      <div class="metric-amount text-expense">₹{{ totalUsed | number:'1.2-2' }}</div>
     </div>
-    <div class="report-card">
-      <p>Current Balance</p>
-      <h3>{{ currentBalance | currency:'INR':'symbol':'1.2-2' }}</h3>
+
+    <div class="metric-card">
+      <div class="metric-title">Current Balance</div>
+      <div class="metric-amount" [ngClass]="currentBalance >= 0 ? 'text-income' : 'text-expense'">
+        ₹{{ currentBalance | number:'1.2-2' }}
+      </div>
     </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading fund records...</p>
+  </div>
+
+  <div *ngIf="!loading && fundEntries.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">account_balance_wallet</mat-icon>
+    <p>No fund entries found yet.</p>
+  </div>
+
+  <!-- Table Section Below Cards -->
+  <div *ngIf="!loading && fundEntries.length > 0" class="table-responsive">
+    <table class="fund-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of fundEntries">
+          <td>{{ entry.date }}</td>
+          <td>
+            <span class="badge" [ngClass]="entry.type === 'income' ? 'badge-income' : 'badge-expense'">
+              {{ entry.type | titlecase }}
+            </span>
+          </td>
+          <td>{{ entry.description || '-' }}</td>
+          <td [ngClass]="entry.type === 'income' ? 'text-income' : 'text-expense'">
+            {{ entry.type === 'income' ? '+' : '-' }}₹{{ entry.amount | number:'1.2-2' }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

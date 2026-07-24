@@ -1,0 +1,46 @@
+<div class="page-container">
+  <!-- Navigation Header Wrapper -->
+  <div class="header-nav">
+    <button type="button" (click)="goBack()" class="back-btn">&larr; {{ selectedGroup ? 'Back to Classes' : 'Back' }}</button>
+  </div>
+
+  <!-- Dynamic Heading -->
+  <div class="header-actions">
+    <h2>{{ selectedGroup ? selectedGroup : 'Session Progress & Class Groups' }}</h2>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loader">Loading Session Data...</div>
+
+  <!-- View 1: Class Group Selection Cards (Shown when no group is selected) -->
+  <div *ngIf="!loading && !selectedGroup" class="groups-grid">
+    <div *ngIf="classGroups.length === 0" class="loader">No class groups found.</div>
+    
+    <div *ngFor="let group of classGroups" class="group-card" (click)="selectGroup(group)">
+      <h3>{{ group }}</h3>
+      <p>Click to view session history & topics</p>
+    </div>
+  </div>
+
+  <!-- View 2: Detailed Table for Selected Class Group -->
+  <div *ngIf="!loading && selectedGroup" class="table-container">
+    <div *ngIf="filteredSessions.length === 0" class="loader">No session records found for this class group.</div>
+
+    <table *ngIf="filteredSessions.length > 0" class="directory-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Topics Covered</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredSessions; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.session_date ? (item.session_date | date: 'mediumDate') : 'No date' }}</td>
+          <td>{{ item.topic || 'No topic specified' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

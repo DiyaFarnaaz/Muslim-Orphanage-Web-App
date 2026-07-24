@@ -5,18 +5,20 @@ import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 
 @Component({
-  selector: 'app-meetings',
+  selector: 'app-weekly-task-list',
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './meetings.html',
-  styleUrls: ['./meetings.css']
+  templateUrl: './weekly-task-list.html',
+  styleUrls: ['./weekly-task-list.css']
 })
-export class MeetingsComponent implements OnInit {
-  groupedMeetings: { [date: string]: any[] } = {};
-  selectedMeeting: any = null;
-  
-  // Expanded class groups matching the new format
-  classGroups = [
+export class WeeklyTaskListComponent implements OnInit {
+  groupedTasks: { [date: string]: any[] } = {};
+  selectedTask: any = null;
+  loading = true;
+  isAdmin = false;
+
+  // Grade groups matching your application schema
+  gradeGroups = [
     'Class 1-2', 
     'Class 3-4', 
     'Class 5-7 Girls', 
@@ -25,10 +27,8 @@ export class MeetingsComponent implements OnInit {
     'Class 8-10 Boys'
   ];
 
-  isAdmin: boolean = false;
-
   constructor(
-    private supabase: SupabaseService, 
+    private supabase: SupabaseService,
     private cdr: ChangeDetectorRef,
     private location: Location,
     private router: Router
@@ -36,7 +36,7 @@ export class MeetingsComponent implements OnInit {
 
   async ngOnInit() {
     await this.checkAdminStatus();
-    await this.loadMeetings();
+    await this.loadWeeklyTasks();
   }
 
   async checkAdminStatus() {
@@ -58,26 +58,32 @@ export class MeetingsComponent implements OnInit {
     }
   }
 
-  async loadMeetings() {
-    const { data, error } = await this.supabase.client
-      .from('meetings')
-      .select('*')
-      .order('meeting_date', { ascending: false });
+  async loadWeeklyTasks() {
+    this.loading = true;
+    try {
+      const { data, error } = await this.supabase.client
+        .from('weekly_tasks')
+        .select('*')
+        .order('week_date_range', { ascending: false });
 
-    if (error) {
-      console.error('Supabase Error:', error);
-    } else {
-      this.groupedMeetings = (data || []).reduce((acc: any, m: any) => {
-        const date = m.meeting_date || 'Upcoming';
-        if (!acc[date]) acc[date] = [];
-        acc[date].push(m);
-        return acc;
-      }, {});
+      if (error) {
+        console.error('Supabase Error:', error);
+      } else {
+        this.groupedTasks = (data || []).reduce((acc: any, t: any) => {
+          const date = t.week_date_range || 'Upcoming';
+          if (!acc[date]) acc[date] = [];
+          acc[date].push(t);
+          return acc;
+        }, {});
+      }
+    } catch (err) {
+      console.error('Failed to load weekly tasks', err);
+    } finally {
+      this.loading = false;
       this.cdr.detectChanges();
     }
   }
 
-  // Safely parse JSON text stored in columns back into objects for display
   parseJSON(value: any) {
     try {
       return typeof value === 'string' ? JSON.parse(value) : (value || {});
@@ -87,16 +93,16 @@ export class MeetingsComponent implements OnInit {
   }
 
   goBack() {
-    // Replace '/meetings' with whatever your exact dashboard route is (e.g., '/dashboard' or '/meeting-dashboard')
-    this.router.navigate(['/dashboard']); 
-  }
-  onSelectMeeting(meeting: any): void {
-    this.selectedMeeting = meeting;
+    this.router.navigate(['/dashboard']);
   }
 
-  editMeeting(meetingId: string, event: Event) {
-    event.stopPropagation(); // Prevent toggling the accordion/card selection
-    this.router.navigate(['/add-meeting', meetingId]);
+  onSelectTask(task: any): void {
+    this.selectedTask = task;
+  }
+
+  editTask(taskId: string, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/weekly-tasks/edit', taskId]);
   }
 
   getKeys(obj: any): string[] {

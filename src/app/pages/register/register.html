@@ -20,7 +20,7 @@
 
       <div class="input-group">
         <label>Role</label>
-        <select [(ngModel)]="role" name="role" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+        <select [(ngModel)]="role" name="role">
           <option value="volunteer">Volunteer</option>
           <option value="admin">Admin</option>
         </select>
@@ -39,6 +39,6 @@
       <button type="submit" class="btn-submit">Register</button>
     </form>
 
-    <p class="link-text">Already have an account? <a href="/login">Login Now</a></p>
+    <p class="link-text">Already have an account? <a routerLink="/login">Login Now</a></p>
   </div>
 </div>

@@ -4,9 +4,9 @@
   </div>
 
   <div class="header-actions">
-    <h2>Meeting Logs</h2>
-    <a routerLink="/add-meeting" class="submit-btn" style="text-decoration: none; padding: 10px 20px;">
-      + Add New Meeting
+    <h2>Session Plan Logs</h2>
+    <a *ngIf="isAdmin" routerLink="/add-meeting" class="submit-btn" style="text-decoration: none; padding: 10px 20px;">
+      + Add New Session Plan
     </a>
   </div>
 
@@ -16,26 +16,26 @@
     <div class="session-list">
       <div class="session-item" *ngFor="let m of groupedMeetings[date]">
         
-        <div (click)="onSelectMeeting(m)" style="cursor: pointer;">
-          <!-- Removed the duplicate date here -->
-          <h4>Meeting Plan</h4>
-          <p><strong>Click to view class-wise details & links</strong></p>
+        <div class="session-header-row" (click)="onSelectMeeting(m)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h4>Session Plan</h4>
+            <p><strong>Click to view class-wise details</strong></p>
+          </div>
+          
+          <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="editMeeting(m.id, $event)">
+            Edit
+          </button>
         </div>
 
         <div class="report-card" *ngIf="selectedMeeting === m">
           <h3>Details</h3>
 
-          <div class="link-banner">
-            <strong>Meeting Link:</strong> 
-            <a [href]="m.meeting_link" target="_blank" class="link-text">{{ m.meeting_link }}</a>
-          </div>
-
           <div class="tasks-grid">
             <div class="task-box" *ngFor="let group of classGroups">
-              <h4 class="group-title">Class {{ group }}</h4>
+              <h4 class="group-title">{{ group }}</h4>
               <div class="task-content">
                 <p><strong>Lead:</strong> {{ parseJSON(m.session_lead)[group] || '-' }}</p>
-                <p><strong>Prep:</strong> {{ parseJSON(m.session_prep)[group] || '-' }}</p>
+                <p><strong>Topic:</strong> {{ parseJSON(m.session_topic)[group] || '-' }}</p>
                 <p><strong>Activity:</strong> {{ parseJSON(m.activity)[group] || '-' }}</p>
                 <p><strong>Gifts & Props:</strong> {{ parseJSON(m.gifts_props)[group] || '-' }}</p>
               </div>

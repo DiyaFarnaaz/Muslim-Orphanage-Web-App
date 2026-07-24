@@ -12,9 +12,8 @@ import { SupabaseService } from '../../services/supabase';
   styleUrls: ['./fund-entry.css']
 })
 export class FundEntryComponent {
-  // Ensure 'amount' here matches your Supabase table column name exactly
   newEntry = { 
-    type: 'income', 
+    type: 'expense', 
     amount: 0, 
     description: '', 
     date: new Date().toISOString().split('T')[0] 
@@ -22,8 +21,11 @@ export class FundEntryComponent {
 
   constructor(private supabase: SupabaseService, private router: Router) {}
 
+  goBack() {
+    this.router.navigate(['/fundraisers']);
+  }
+
   async submitEntry() {
-    // Basic validation to ensure amount is a number
     this.newEntry.amount = Number(this.newEntry.amount);
 
     const { error } = await this.supabase.client
@@ -31,8 +33,13 @@ export class FundEntryComponent {
       .insert([this.newEntry]);
     
     if (error) {
-      alert('Error saving entry: ' + error.message);
+      if (error.code === '42501' || error.message.includes('policy')) {
+        alert('Access Denied: Only administrators can make fund entries.');
+      } else {
+        alert('Error saving entry: ' + error.message);
+      }
     } else {
+      alert('Fund entry added successfully!');
       this.router.navigate(['/fundraisers']);
     }
   }

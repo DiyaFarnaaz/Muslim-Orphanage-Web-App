@@ -6,34 +6,45 @@
 
   <div class="header-actions">
     <h2>Session Logs</h2>
-    <a routerLink="/session-report" class="submit-btn" style="text-decoration: none; display: inline-block; padding: 10px 20px;">
+    <a routerLink="/session-report" class="submit-btn" style="text-decoration: none; display: inline-block; padding: 10px 20px; background-color: #0ea5e9; color: white; border-radius: 8px; font-weight: 600;">
       + Add Session Report
     </a>
   </div>
 
   <!-- Grouped Display -->
-  <div class="date-card" *ngFor="let date of getKeys(groupedReports)">
-    <h3>{{ date | date: 'fullDate' }}</h3>
+  <div class="date-card" *ngFor="let date of getKeys(groupedReports)" style="background: #ffffff; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+    <h3 style="color: #0f172a; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">{{ date | date: 'fullDate' }}</h3>
     
     <div class="session-list">
-      <div *ngFor="let session of groupedReports[date]">
+      <div *ngFor="let session of groupedReports[date]" style="margin-bottom: 12px;">
         
-        <!-- The Clickable Card -->
-        <div class="session-item" (click)="onSelectEvent(session)" style="cursor: pointer;">
-          <h4>{{ session.session_lead_name }} — {{ session.class_group }}</h4>
-          <p><strong>Topic:</strong> {{ session.topic || 'N/A' }}</p>
-          <p><strong>Activity:</strong> {{ session.activity || 'N/A' }}</p>
+        <!-- The Clickable Card Container -->
+        <div class="session-item" style="position: relative; display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+          
+          <!-- Clickable main content area -->
+          <div (click)="onSelectEvent(session)" style="cursor: pointer; flex-grow: 1; padding-right: 15px;">
+            <h4 style="margin: 0 0 6px 0; color: #0f172a; font-size: 16px;">Details — <span style="color: #0284c7;">{{ session.class_group }}</span></h4>
+            <p style="margin: 2px 0; font-size: 13px; color: #475569;"><strong>Session Lead:</strong> {{ session.session_lead_name || 'N/A' }}</p>
+            <p style="margin: 2px 0; font-size: 13px; color: #475569;"><strong>Topic:</strong> {{ session.topic || 'N/A' }}</p>
+            <p style="margin: 2px 0; font-size: 13px; color: #475569;"><strong>Activity:</strong> {{ session.activity || 'N/A' }}</p>
+          </div>
+          
+          <!-- Explicitly positioned Edit button with higher z-index so it never disappears -->
+          <div style="z-index: 5; flex-shrink: 0;">
+            <button type="button" class="edit-action-btn" (click)="editEvent(session.id, $event)" style="background-color: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+              Edit
+            </button>
+          </div>
         </div>
 
         <!-- Nested Detail View -->
-        <div class="report-card" *ngIf="selectedEvent?.id === session.id" style="margin: 10px 0; border-left: 6px solid #5c7c25; padding: 20px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-          <h3>{{ session.session_lead_name }} Details</h3>
-          <p><strong>Class Group:</strong> {{ session.class_group }}</p>
+        <div class="report-card" *ngIf="selectedEvent?.id === session.id" style="margin: 10px 0; border-left: 6px solid #0ea5e9; padding: 20px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 0 8px 8px 0;">
+          <h3 style="color: #0f172a; margin-top: 0;">Details — <span style="color: #0284c7;">{{ session.class_group }}</span></h3>
+          <p><strong>Session Lead:</strong> {{ session.session_lead_name }}</p>
           <p><strong>Topic:</strong> {{ session.topic }}</p>
-          <p><strong>Time:</strong> {{ session.start_time }} - {{ session.end_time }}</p>
           <p><strong>Activity:</strong> {{ session.activity }}</p>
-          <p><strong>Winner:</strong> {{ session.winner }}</p>
-          <p><strong>Feedback:</strong> {{ session.feedback }}</p>
+          <p><strong>Winner:</strong> {{ session.winner || 'N/A' }}</p>
+          <p><strong>Feedback:</strong> {{ session.feedback || 'N/A' }}</p>
           
           <!-- Multiple Attachment Links -->
           <div style="margin-top: 15px;" *ngIf="(session.doc_urls && session.doc_urls.length > 0) || (session.media_urls && session.media_urls.length > 0)">
@@ -42,7 +53,7 @@
             <div *ngIf="session.doc_urls && session.doc_urls.length > 0" style="margin-bottom: 10px;">
               <strong>Documents:</strong>
               <div *ngFor="let doc of session.doc_urls; let i = index">
-                <a [href]="doc" target="_blank" class="attachment-link">
+                <a [href]="doc" target="_blank" rel="noopener noreferrer" class="attachment-link" style="color: #0284c7; text-decoration: none;">
                   📄 View Document {{ i + 1 }}
                 </a>
               </div>
@@ -52,7 +63,7 @@
             <div *ngIf="session.media_urls && session.media_urls.length > 0">
               <strong>Media Files:</strong>
               <div *ngFor="let media of session.media_urls; let i = index">
-                <a [href]="media" target="_blank" class="attachment-link">
+                <a [href]="media" target="_blank" rel="noopener noreferrer" class="attachment-link" style="color: #0284c7; text-decoration: none;">
                   🎬 View Media {{ i + 1 }}
                 </a>
               </div>
@@ -60,7 +71,7 @@
 
           </div>
           
-          <button (click)="selectedEvent = null" class="submit-btn" style="background-color: #34495e; margin-top: 15px;">
+          <button (click)="selectedEvent = null" class="submit-btn" style="background-color: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 15px;">
             Close
           </button>
         </div>

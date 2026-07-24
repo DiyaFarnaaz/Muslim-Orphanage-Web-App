@@ -1,45 +1,98 @@
-.login-container {
+.login-wrapper {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f7f6;
-  padding: 20px;
+  background-color: #f8fafc;
+}
+
+.back-home-link {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.back-home-link:hover {
+  text-decoration: underline;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .login-card {
   background: white;
   padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
 }
 
-h2 { text-align: center; color: #6b8e23; margin-bottom: 20px; }
+.login-card h2 {
+  margin-bottom: 24px;
+  font-size: 24px;
+  color: #1e293b;
+  text-align: center;
+}
 
-.input-group { margin-bottom: 20px; }
-label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
-input {
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.input-group input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
 }
 
 .btn-submit {
   width: 100%;
-  padding: 12px;
-  background-color: #6b8e23;
+  padding: 10px;
+  background-color: #2563eb;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 1rem;
+  margin-top: 8px;
 }
 
-.btn-submit:hover { background-color: #556b2f; }
+.btn-submit:hover {
+  background-color: #1d4ed8;
+}
 
-.link-text { text-align: center; margin-top: 15px; font-size: 0.9rem; }
-.link-text a { color: #6b8e23; text-decoration: none; font-weight: bold; }
+.link-text {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.link-text a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.link-text a:hover {
+  text-decoration: underline;
+}

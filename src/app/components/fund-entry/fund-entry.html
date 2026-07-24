@@ -1,29 +1,39 @@
-<div class="page-container">
-  <h2>Add New Transaction</h2>
-  <header class="page-header">
-    <!-- Navigate back to the Fundraiser dashboard -->
-    <button class="back-btn" routerLink="/fundraisers">← Back </button>
-    <h2>Add New Entry</h2>
-  </header>
-  <form (ngSubmit)="submitEntry()" #entryForm="ngForm" class="report-card">
+<div class="fund-entry-container">
+  <!-- Navigation Header with Back Button -->
+  <div class="header-nav" style="margin-bottom: 20px;">
+    <button type="button" (click)="goBack()" class="back-btn" style="padding: 8px 16px; cursor: pointer;">
+      ← Back
+    </button>
+  </div>
+
+  <h2>Add Fund Entry</h2>
+  
+  <form (ngSubmit)="submitEntry()" #fundForm="ngForm" class="entry-form">
+    
+    <!-- Date moved to the top -->
+    <div class="form-group">
+      <label>Date</label>
+      <input type="date" [(ngModel)]="newEntry.date" name="date" required class="form-control">
+    </div>
+
     <div class="form-group">
       <label>Type</label>
-      <select [(ngModel)]="newEntry.type" name="type" required>
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
+      <select [(ngModel)]="newEntry.type" name="type" required class="form-control">
+        <option value="income">Income (Donation/Fund)</option>
+        <option value="expense">Expense (Usage)</option>
       </select>
     </div>
 
     <div class="form-group">
       <label>Amount</label>
-      <input type="number" [(ngModel)]="newEntry.amount" name="amount" required>
+      <input type="number" [(ngModel)]="newEntry.amount" name="amount" required class="form-control" placeholder="Enter amount">
     </div>
 
     <div class="form-group">
-      <label>Description</label>
-      <input type="text" [(ngModel)]="newEntry.description" name="description" required>
+      <label>Description / Notes</label>
+      <textarea [(ngModel)]="newEntry.description" name="description" class="form-control" placeholder="Optional details"></textarea>
     </div>
 
-    <button type="submit" [disabled]="!entryForm.valid" class="save-btn">Save Entry</button>
+    <button type="submit" class="submit-btn" [disabled]="!fundForm.form.valid">Save Entry</button>
   </form>
 </div>
