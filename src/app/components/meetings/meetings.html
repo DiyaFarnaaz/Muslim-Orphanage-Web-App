@@ -1,11 +1,11 @@
-<div class="page-container">
+<div class="page-container mobile-animate">
   <div class="header-nav">
-    <button type="button" (click)="goBack()" class="back-btn">← Back</button>
+    <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
   </div>
 
   <div class="header-actions">
     <h2>Session Plan Logs</h2>
-    <a *ngIf="isAdmin" routerLink="/add-meeting" class="submit-btn" style="text-decoration: none; padding: 10px 20px;">
+    <a *ngIf="isAdmin" routerLink="/add-meeting" class="submit-btn" style="text-decoration: none;">
       + Add New Session Plan
     </a>
   </div>
@@ -16,7 +16,7 @@
     <div class="session-list">
       <div class="session-item" *ngFor="let m of groupedMeetings[date]">
         
-        <div class="session-header-row" (click)="onSelectMeeting(m)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <div class="session-header-row" (click)="onSelectMeeting(m)">
           <div>
             <h4>Session Plan</h4>
             <p><strong>Click to view class-wise details</strong></p>
@@ -42,7 +42,7 @@
             </div>
           </div>
 
-          <button (click)="selectedMeeting = null" class="submit-btn" style="background-color: #34495e;">
+          <button (click)="selectedMeeting = null" class="submit-btn close-btn">
             Close
           </button>
         </div>

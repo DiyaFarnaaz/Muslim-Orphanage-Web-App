@@ -1,4 +1,4 @@
-<div class="page-container">
+<div class="page-container mobile-animate">
   <!-- Navigation Header Wrapper -->
   <div class="header-nav">
     <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
@@ -15,63 +15,65 @@
   <div *ngIf="!loading" class="table-container">
     <div *ngIf="volunteers.length === 0" class="loader">No volunteers found.</div>
 
-    <table *ngIf="volunteers.length > 0" class="directory-table">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Gender</th>
-          <th>Age</th>
-          <th>Phone Number</th>
-          <th *ngIf="isAdmin">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <ng-container *ngFor="let volunteer of volunteers; let i = index">
-          
-          <!-- Normal View Row -->
-          <tr *ngIf="editingProfileId !== volunteer.id">
-            <td>{{ i + 1 }}</td>
-            <td class="font-weight-bold">{{ volunteer.full_name }}</td>
-            <td>{{ volunteer.email }}</td>
-            <td>{{ volunteer.gender }}</td>
-            <td>{{ volunteer.age }}</td>
-            <td>{{ volunteer.phone_number }}</td>
-            <td *ngIf="isAdmin" class="action-cell">
-              <button type="button" class="edit-btn-sm" (click)="startEdit(volunteer)">Edit</button>
-              <button type="button" class="delete-btn-sm" (click)="deleteProfile(volunteer.id)">Delete</button>
-            </td>
+    <div class="table-responsive-wrapper">
+      <table *ngIf="volunteers.length > 0" class="directory-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>Phone Number</th>
+            <th *ngIf="isAdmin">Actions</th>
           </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let volunteer of volunteers; let i = index">
+            
+            <!-- Normal View Row -->
+            <tr *ngIf="editingProfileId !== volunteer.id">
+              <td>{{ i + 1 }}</td>
+              <td class="font-weight-bold">{{ volunteer.full_name }}</td>
+              <td>{{ volunteer.email }}</td>
+              <td>{{ volunteer.gender }}</td>
+              <td>{{ volunteer.age }}</td>
+              <td>{{ volunteer.phone_number }}</td>
+              <td *ngIf="isAdmin" class="action-cell">
+                <button type="button" class="edit-btn-sm" (click)="startEdit(volunteer)">Edit</button>
+                <button type="button" class="delete-btn-sm" (click)="deleteProfile(volunteer.id)">Delete</button>
+              </td>
+            </tr>
 
-          <!-- Inline Edit Form Row (Admin Only) -->
-          <tr *ngIf="editingProfileId === volunteer.id && isAdmin" class="edit-row">
-            <td>{{ i + 1 }}</td>
-            <td>
-              <input type="text" [(ngModel)]="editForm.full_name" name="full_name_{{volunteer.id}}" required class="form-input-sm">
-            </td>
-            <td>{{ editForm.email }}</td>
-            <td>
-              <select [(ngModel)]="editForm.gender" name="gender_{{volunteer.id}}" class="form-input-sm">
-                <option value="female">Female</option>
-                <option value="male">Male</option>
-                <option value="other">Other</option>
-              </select>
-            </td>
-            <td>
-              <input type="number" [(ngModel)]="editForm.age" name="age_{{volunteer.id}}" class="form-input-sm">
-            </td>
-            <td>
-              <input type="text" [(ngModel)]="editForm.phone_number" name="phone_{{volunteer.id}}" class="form-input-sm">
-            </td>
-            <td class="action-cell">
-              <button type="button" class="save-btn-sm" (click)="updateProfile(volunteer.id)">Save</button>
-              <button type="button" class="cancel-btn-sm" (click)="cancelEdit()">Cancel</button>
-            </td>
-          </tr>
+            <!-- Inline Edit Form Row (Admin Only) -->
+            <tr *ngIf="editingProfileId === volunteer.id && isAdmin" class="edit-row">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <input type="text" [(ngModel)]="editForm.full_name" name="full_name_{{volunteer.id}}" required class="form-input-sm">
+              </td>
+              <td>{{ editForm.email }}</td>
+              <td>
+                <select [(ngModel)]="editForm.gender" name="gender_{{volunteer.id}}" class="form-input-sm">
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="other">Other</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" [(ngModel)]="editForm.age" name="age_{{volunteer.id}}" class="form-input-sm">
+              </td>
+              <td>
+                <input type="text" [(ngModel)]="editForm.phone_number" name="phone_{{volunteer.id}}" class="form-input-sm">
+              </td>
+              <td class="action-cell">
+                <button type="button" class="save-btn-sm" (click)="updateProfile(volunteer.id)">Save</button>
+                <button type="button" class="cancel-btn-sm" (click)="cancelEdit()">Cancel</button>
+              </td>
+            </tr>
 
-        </ng-container>
-      </tbody>
-    </table>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

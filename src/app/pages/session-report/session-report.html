@@ -1,75 +1,75 @@
-<div class="report-container" style="max-width: 800px; margin: 30px auto; padding: 25px; font-family: sans-serif; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-  <div class="header-nav" style="margin-bottom: 20px;">
-    <button type="button" (click)="goBack()" class="back-btn" style="background: none; border: none; color: #0284c7; font-weight: 600; cursor: pointer; font-size: 16px;">
-      ← Back
+<div class="report-container mobile-animate">
+  <div class="header-nav">
+    <button type="button" (click)="goBack()" class="back-btn">
+      &larr; Back
     </button>
   </div>
 
   <div *ngIf="!isLoading; else loadingTemplate">
-    <h2 style="color: #0f172a; font-size: 24px; margin-bottom: 25px;">{{ isEditMode ? 'Edit Session Report' : 'Session Report' }}</h2>
+    <h2>{{ isEditMode ? 'Edit Session Report' : 'Session Report' }}</h2>
     
     <form (ngSubmit)="submitReport()">
-      <div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+      <div class="form-grid">
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Session Lead Name</label>
-          <input type="text" [(ngModel)]="report.session_lead_name" name="session_lead_name" placeholder="Enter session lead name..." required style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+          <label>Session Lead Name</label>
+          <input type="text" [(ngModel)]="report.session_lead_name" name="session_lead_name" placeholder="Enter session lead name..." required>
         </div>
 
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Topic</label>
-          <input type="text" [(ngModel)]="report.topic" name="topic" placeholder="Enter topic..." style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+          <label>Topic</label>
+          <input type="text" [(ngModel)]="report.topic" name="topic" placeholder="Enter topic...">
         </div>
 
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Date</label>
-          <input type="date" [(ngModel)]="report.session_date" name="session_date" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="report.session_date" name="session_date">
         </div>
 
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Class Group</label>
-          <select [(ngModel)]="report.class_group" name="class_group" style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background: #fff;">
+          <label>Class Group</label>
+          <select [(ngModel)]="report.class_group" name="class_group">
             <option value="" disabled>Select Class Group</option>
             <option *ngFor="let group of classGroups" [value]="group">{{ group }}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Activity</label>
-          <input type="text" [(ngModel)]="report.activity" name="activity" placeholder="Activity details..." style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+          <label>Activity</label>
+          <input type="text" [(ngModel)]="report.activity" name="activity" placeholder="Activity details...">
         </div>
 
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Winner</label>
-          <input type="text" [(ngModel)]="report.winner" name="winner" placeholder="Winner details..." style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+          <label>Winner</label>
+          <input type="text" [(ngModel)]="report.winner" name="winner" placeholder="Winner details...">
         </div>
       </div>
 
-      <div class="form-group full-width" style="margin-bottom: 25px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Feedback</label>
-        <textarea [(ngModel)]="report.feedback" name="feedback" rows="4" placeholder="Enter session feedback..." style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+      <div class="form-group full-width">
+        <label>Feedback</label>
+        <textarea [(ngModel)]="report.feedback" name="feedback" rows="4" placeholder="Enter session feedback..."></textarea>
       </div>
 
-      <div class="file-uploads" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+      <div class="file-uploads">
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Upload Document(s) (PDF/DOC)</label>
-          <input type="file" multiple (change)="onFilesSelected($event, 'doc')" accept=".pdf,.doc,.docx" style="font-size: 13px;">
-          <small *ngIf="docCount > 0" class="file-count" style="display: block; margin-top: 5px; color: #0284c7; font-weight: 600;">{{ docCount }} file(s) selected</small>
+          <label>Upload Document(s) (PDF/DOC)</label>
+          <input type="file" multiple (change)="onFilesSelected($event, 'doc')" accept=".pdf,.doc,.docx">
+          <small *ngIf="docCount > 0" class="file-count">{{ docCount }} file(s) selected</small>
         </div>
         <div class="form-group">
-          <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #334155; font-size: 14px;">Upload Media (Images/Videos)</label>
-          <input type="file" multiple (change)="onFilesSelected($event, 'media')" accept="image/*,video/*" style="font-size: 13px;">
-          <small *ngIf="mediaCount > 0" class="file-count" style="display: block; margin-top: 5px; color: #0284c7; font-weight: 600;">{{ mediaCount }} file(s) selected</small>
+          <label>Upload Media (Images/Videos)</label>
+          <input type="file" multiple (change)="onFilesSelected($event, 'media')" accept="image/*,video/*">
+          <small *ngIf="mediaCount > 0" class="file-count">{{ mediaCount }} file(s) selected</small>
         </div>
       </div>
 
-      <button type="submit" [disabled]="isSubmitting" style="width: 100%; background-color: #0ea5e9; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background 0.2s;">
+      <button type="submit" [disabled]="isSubmitting">
         {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Report' : 'Submit Report') }}
       </button>
     </form>
   </div>
 
   <ng-template #loadingTemplate>
-    <div class="loading-state" style="text-align: center; padding: 60px; color: #64748b;">
+    <div class="loading-state">
       <p>Loading session report details...</p>
     </div>
   </ng-template>

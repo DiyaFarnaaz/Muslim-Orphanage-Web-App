@@ -1,65 +1,72 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../services/supabase';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, CommonModule],
   templateUrl: './register.html',
   styleUrls: ['./register.css']
 })
 export class RegisterComponent {
-  fullName = '';
   email = '';
   password = '';
+  fullName = '';
   role = 'volunteer';
-  gender = 'female';
-  phoneNumber: string = '';
+  gender = 'male';
   age: number | null = null;
+  phoneNumber = '';
+  isSubmitting = false;
 
-  constructor(private supabase: SupabaseService, private router: Router) {}
+  constructor(
+    private supabase: SupabaseService, 
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   async onRegister() {
+    if (!this.email || !this.password || !this.fullName || !this.age || !this.phoneNumber) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
+    this.cdr.detectChanges();
+
     try {
       const isAdmin = this.role === 'admin';
 
       const { data, error } = await this.supabase.client.auth.signUp({
-        email: this.email,
+        email: this.email.trim(),
         password: this.password,
         options: {
           data: {
             full_name: this.fullName,
             role: this.role,
             gender: this.gender,
+            age: Number(this.age),
             phone_number: this.phoneNumber,
-            age: (this.age !== null && this.age > 0) ? this.age : null,
             is_admin: isAdmin
           }
         }
       });
 
-      if (error) {
-        if (error.message.includes('already registered')) {
-          alert('This email is already registered. Please log in.');
-          this.router.navigate(['/login']);
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
-      if (data.user) {
-        // Sign out immediately so Supabase's auto-login doesn't push them to the dashboard
-        await this.supabase.client.auth.signOut();
-        
-        alert('Registration successful! Please log in.');
-        this.router.navigate(['/login']);
-      }
+      // Ensure the newly registered session doesn't keep the user automatically logged in
+      await this.supabase.client.auth.signOut();
+
+      alert('Registration successful! Please log in with your credentials.');
+      this.router.navigate(['/login']);
     } catch (err: any) {
-      console.error('Registration Error:', err);
-      alert('An unexpected error occurred: ' + (err.message || JSON.stringify(err)));
+      alert('Registration failed: ' + err.message);
+    } finally {
+      this.isSubmitting = false;
+      this.cdr.detectChanges();
     }
   }
 }

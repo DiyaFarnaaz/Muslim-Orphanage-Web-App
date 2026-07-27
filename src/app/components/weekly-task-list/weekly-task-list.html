@@ -1,24 +1,24 @@
-<div class="page-container">
+<div class="page-container mobile-animate">
   <div class="header-nav">
-    <button type="button" (click)="goBack()" class="back-btn">← Back</button>
+    <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
   </div>
 
   <div class="header-actions">
     <h2>Weekly Session Planning & Responsibilities</h2>
-    <a *ngIf="isAdmin" routerLink="/weekly-tasks/add" class="submit-btn" style="text-decoration: none; padding: 10px 20px;">
+    <a *ngIf="isAdmin" routerLink="/weekly-tasks/add" class="submit-btn add-plan-btn" style="text-decoration: none;">
       + Add Weekly Plan
     </a>
   </div>
 
   <!-- Loading State -->
-  <div *ngIf="loading" class="text-center py-12" style="text-align: center; color: #64748b; padding: 40px 0;">
+  <div *ngIf="loading" class="loader">
     Loading weekly tasks...
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!loading && getKeys(groupedTasks).length === 0" class="date-card" style="text-align: center; padding: 40px;">
-    <p style="color: #64748b; margin-bottom: 10px;">No weekly task plans found.</p>
-    <p *ngIf="isAdmin" style="font-size: 0.85rem; color: #94a3b8;">Click "+ Add Weekly Plan" above to create your first plan.</p>
+  <div *ngIf="!loading && getKeys(groupedTasks).length === 0" class="date-card text-center">
+    <p class="empty-text">No weekly task plans found.</p>
+    <p *ngIf="isAdmin" class="empty-subtext">Click "+ Add Weekly Plan" above to create your first plan.</p>
   </div>
 
   <!-- Grouped Date Cards -->
@@ -28,7 +28,7 @@
     <div class="session-list">
       <div class="session-item" *ngFor="let t of groupedTasks[date]">
         
-        <div class="session-header-row" (click)="onSelectTask(t)" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <div class="session-header-row" (click)="onSelectTask(t)">
           <div>
             <h4>Weekly Plan Details</h4>
             <p><strong>Click to view grade-wise breakdown</strong></p>
@@ -55,7 +55,7 @@
             </div>
           </div>
 
-          <button (click)="selectedTask = null" class="submit-btn" style="background-color: #34495e; margin-top: 15px;">
+          <button (click)="selectedTask = null" class="submit-btn close-btn">
             Close
           </button>
         </div>

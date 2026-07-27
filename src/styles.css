@@ -1,4 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
-* { box-sizing: border-box; }
-body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
-.page-container { max-width: 900px; margin: 0 auto; }
+/* Global Box-Sizing & Layout Defaults */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f8fafc;
+  color: #334155;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base Page Container Standards */
+.page-container {
+  max-width: 900px;
+  margin: 0 auto;
+}

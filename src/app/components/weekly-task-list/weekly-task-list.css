@@ -1,9 +1,26 @@
+/* Keyframe Animation for Smooth Load & Transitions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-animate {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
 /* Container & Layout */
 .page-container {
   max-width: 900px;
-  margin: 30px auto;
+  margin: 40px auto;
   padding: 0 20px;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
 }
 
 .header-nav {
@@ -20,7 +37,8 @@
   cursor: pointer;
   color: #334155;
   font-weight: 600;
-  transition: 0.2s;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
 .back-btn:hover {
@@ -34,13 +52,43 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  gap: 15px;
 }
 
 .header-actions h2 {
   margin: 0;
   color: #0f172a;
   font-size: 1.75rem;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+.add-plan-btn {
+  padding: 10px 20px;
+  flex-shrink: 0;
+}
+
+/* States */
+.loader {
+  text-align: center;
+  color: #64748b;
+  padding: 40px 0;
+  font-size: 1.1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.empty-text {
+  color: #64748b;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.empty-subtext {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
 }
 
 /* Date grouping */
@@ -76,12 +124,20 @@
   border: 1px solid #e2e8f0;
   border-left: 5px solid #0ea5e9;
   border-radius: 8px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .session-item:hover {
   background: #f1f5f9;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.session-header-row {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
 
 .session-header-row h4 {
@@ -108,6 +164,7 @@
   font-size: 0.85rem;
   cursor: pointer;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
 .edit-action-btn:hover {
@@ -139,7 +196,7 @@
   display: grid; 
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
   gap: 15px; 
-  margin-bottom: 15px; 
+  margin-bottom: 20px; 
 }
 
 .task-box { 
@@ -163,6 +220,7 @@
   margin: 6px 0; 
   font-size: 0.85rem; 
   color: #334155; 
+  word-break: break-word;
 }
 
 /* Universal Buttons */
@@ -173,11 +231,67 @@
   padding: 10px 20px; 
   border-radius: 6px; 
   font-weight: 600; 
+  font-size: 0.95rem;
   cursor: pointer; 
   transition: background 0.2s; 
   display: inline-block;
+  text-align: center;
 }
 
 .submit-btn:hover { 
   background-color: #0284c7; 
+}
+
+.close-btn {
+  background-color: #334155;
+  margin-top: 5px;
+}
+
+.close-btn:hover {
+  background-color: #1e293b;
+}
+
+/* ==========================================
+   Responsive Design Adjustments (Mobile View)
+   ========================================== */
+@media (max-width: 640px) {
+  .page-container {
+    padding: 0 12px;
+    margin: 20px auto;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .header-actions h2 {
+    font-size: 1.4rem;
+  }
+
+  .add-plan-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .date-card {
+    padding: 16px;
+  }
+
+  .session-item {
+    padding: 14px;
+  }
+
+  .report-card {
+    padding: 16px;
+  }
+
+  .tasks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
 }

@@ -1,6 +1,6 @@
-<div class="page-container">
+<div class="page-container mobile-animate">
   <div class="header-nav">
-    <button type="button" class="back-btn" (click)="goBack()">← Back</button>
+    <button type="button" class="back-btn" (click)="goBack()">&larr; Back</button>
   </div>
 
   <div class="form-container" *ngIf="!isLoading; else loadingTemplate">
@@ -90,7 +90,7 @@
   </div>
 
   <ng-template #loadingTemplate>
-    <div class="loading-state" style="text-align: center; padding: 60px;">
+    <div class="loading-state">
       <p>Loading session plan details...</p>
     </div>
   </ng-template>

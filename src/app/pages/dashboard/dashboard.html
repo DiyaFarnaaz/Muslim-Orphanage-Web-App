@@ -1,7 +1,9 @@
 <div class="dashboard-container">
   <!-- Top Header using Material Toolbar -->
   <mat-toolbar color="primary" class="top-bar">
-    <span class="brand-title">Orphanage Portal</span>
+    <div class="brand-group">
+      <span class="brand-title">Orphanage Portal</span>
+    </div>
     <span class="spacer"></span>
     <div class="user-profile">
       <span>Welcome, <strong>{{ userName || 'User' }}</strong></span>
@@ -9,8 +11,8 @@
   </mat-toolbar>
 
   <div class="dashboard-wrapper">
-    <!-- Clean Sidebar: Dashboard, Volunteers, Logout only -->
-    <nav class="sidebar">
+    <!-- Clean Sidebar: Dashboard, Volunteers, Session Progress, Logout -->
+    <nav class="sidebar mobile-animate">
       <mat-nav-list>
         <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
           <mat-icon matListItemIcon>dashboard</mat-icon>
@@ -20,10 +22,10 @@
           <mat-icon matListItemIcon>group</mat-icon>
           <span matListItemTitle>Volunteers</span>
         </a>
-<a mat-list-item routerLink="/session-progress" routerLinkActive="active">
-  <mat-icon matListItemIcon>trending_up</mat-icon>
-  <span matListItemTitle>Session Progress</span>
-</a>
+        <a mat-list-item routerLink="/session-progress" routerLinkActive="active">
+          <mat-icon matListItemIcon>trending_up</mat-icon>
+          <span matListItemTitle>Session Progress</span>
+        </a>
         <a mat-list-item class="logout-btn" (click)="onLogout()">
           <mat-icon matListItemIcon>logout</mat-icon>
           <span matListItemTitle>Logout</span>
@@ -32,7 +34,7 @@
     </nav>
 
     <!-- Main Content Area -->
-    <main class="content">
+    <main class="content mobile-animate">
       <div *ngIf="showCards">
         <h2>Dashboard Overview</h2>
 
@@ -90,5 +92,5 @@
     </main>
   </div>
 
-  <footer class="footer">© 2026 Muslim Orphanage Portal</footer>
+  <footer class="footer">&copy; 2026 Muslim Orphanage Portal</footer>
 </div>

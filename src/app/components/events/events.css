@@ -1,3 +1,28 @@
+/* Keyframe Animation for Smooth Load & Transitions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-animate {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* Page Layout Container */
+.page-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
 /* Navigation Button */
 .header-nav {
   display: flex;
@@ -6,107 +31,285 @@
 }
 
 .back-btn {
-  background: #f8f9fa;
-  border: 1px solid #ced4da;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  color: #495057;
+  color: #334155;
   font-weight: 600;
+  font-size: 14px;
   transition: all 0.2s ease;
 }
 
 .back-btn:hover {
-  background: #e2e6ea;
-  border-color: #adb5bd;
-  color: #212529;
+  background: #f1f5f9;
+  border-color: #94a3b8;
 }
 
-/* Page Layout */
-.page-container {
-  max-width: 900px;
-  margin: 30px auto;
-  padding: 0 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
+/* Header Actions */
 .header-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 30px;
+  gap: 15px;
 }
 
+.header-actions h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.add-report-btn {
+  padding: 10px 20px;
+  background-color: #0ea5e9;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  flex-shrink: 0;
+  display: inline-block;
+  transition: background 0.2s ease;
+}
+
+.add-report-btn:hover {
+  background-color: #0284c7;
+}
+
+/* Date Card & Grouping */
 .date-card {
-  border: 1px solid #e1e1e1;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 20px;
+  padding: 25px;
   margin-bottom: 25px;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .date-card h3 {
   margin-top: 0;
-  color: #2c3e50;
-  border-bottom: 2px solid #3498db;
-  padding-bottom: 10px;
-  font-size: 1.2rem;
+  color: #0f172a;
+  border-bottom: 2px solid #0ea5e9;
+  padding-bottom: 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
+/* Session List Items */
 .session-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-top: 15px;
 }
 
+.session-wrapper {
+  margin-bottom: 4px;
+}
+
 .session-item {
-  padding: 15px;
-  background: #f8f9fa;
-  border-left: 4px solid #28a745;
-  border-radius: 4px;
-  cursor: pointer;
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 5px solid #0ea5e9;
+  border-radius: 8px;
   transition: all 0.2s ease;
+  gap: 12px;
 }
 
 .session-item:hover {
-  background: #eef2f5;
-  transform: translateX(5px);
+  background: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
+.session-main-content {
+  cursor: pointer;
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+.session-main-content h4 {
+  margin: 0 0 6px 0;
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.session-main-content p {
+  margin: 2px 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.highlight-group {
+  color: #0284c7;
+}
+
+/* Edit Action Button */
+.session-action-wrapper {
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+.edit-action-btn {
+  background-color: #0ea5e9;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: background 0.2s ease;
+}
+
+.edit-action-btn:hover {
+  background-color: #0284c7;
+}
+
+/* Nested Detail Report Card */
 .report-card {
+  margin-top: 15px;
   padding: 25px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  border-left: 6px solid #5c7c25;
+  border: 1px solid #e2e8f0;
+  border-left: 6px solid #0ea5e9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.report-card h3 {
+  color: #0f172a;
+  font-size: 1.1rem;
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.report-card p {
+  margin: 6px 0;
+  font-size: 0.9rem;
+  color: #334155;
+  word-break: break-word;
+}
+
+/* Attachments */
+.attachments-container {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.attachment-group {
+  margin-bottom: 10px;
+}
+
+.attachment-group strong {
+  font-size: 0.9rem;
+  color: #0f172a;
 }
 
 .attachment-link {
-  color: #5c7c25;
-  font-weight: bold;
+  color: #0284c7;
+  font-weight: 600;
+  font-size: 0.9rem;
   display: inline-block;
   margin-top: 4px;
   margin-bottom: 4px;
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .attachment-link:hover {
   text-decoration: underline;
+  color: #0369a1;
 }
 
+/* Universal Submit & Close Buttons */
 .submit-btn {
-  background-color: #007bff;
+  background-color: #0ea5e9;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
-  padding: 10px 15px;
-  transition: background 0.3s;
+  padding: 10px 20px;
+  transition: background 0.2s ease;
+  display: inline-block;
+  text-align: center;
 }
 
 .submit-btn:hover {
-  background-color: #0056b3;
+  background-color: #0284c7;
+}
+
+.close-report-btn {
+  background-color: #64748b;
+  margin-top: 15px;
+}
+
+.close-report-btn:hover {
+  background-color: #475569;
+}
+
+/* ==========================================
+   Responsive Design Adjustments (Mobile View)
+   ========================================== */
+@media (max-width: 640px) {
+  .page-container {
+    padding: 0 12px;
+    margin: 20px auto;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .header-actions h2 {
+    font-size: 1.4rem;
+  }
+
+  .add-report-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .date-card {
+    padding: 16px;
+  }
+
+  .session-item {
+    padding: 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .session-main-content {
+    padding-right: 0;
+  }
+
+  .session-action-wrapper {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .report-card {
+    padding: 16px;
+  }
+
+  .submit-btn {
+    width: 100%;
+  }
 }
