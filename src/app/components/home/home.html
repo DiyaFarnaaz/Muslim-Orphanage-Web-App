@@ -3,7 +3,7 @@
   <header class="navbar">
     <div class="logo">
       <span class="logo-icon">✨</span>
-      <span class="logo-text">Muslim Orphanage Portal</span>
+      <span class="logo-text">Muslim Orphanage Volunteers Portal</span>
     </div>
     <nav class="nav-links">
       <button (click)="scrollToSection('features')" class="nav-btn">Features</button>
@@ -19,28 +19,41 @@
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content mobile-animate">
-      <div class="badge">❤️ Empowering Care & Support</div>
-      <h1>Muslim Orphanage Session & Progress Portal</h1>
+      <div class="badge">❤️ Empowering Our Volunteer Community</div>
+      <h1>Volunteer Session & Progress Portal</h1>
       <p>
-        A dedicated platform designed to manage class schedules, track student progress by class groups, 
-        and streamline institutional workflows securely.
+        Join our dedicated network of volunteers to manage class schedules, track student learning milestones, 
+        and coordinate weekly activities seamlessly.
       </p>
       <div class="hero-buttons">
-        <button (click)="navigateTo('register')" class="btn-primary-large">Register now</button>
+        <button (click)="navigateTo('register')" class="btn-primary-large">Join as Volunteer</button>
         <button (click)="scrollToSection('features')" class="btn-outline-large">Explore Features</button>
       </div>
     </div>
+    
+    <!-- Replaced Hero Card with a Volunteer-Specific Activity Hub Preview -->
     <div class="hero-visual mobile-animate">
-      <div class="card-preview">
-        <div class="preview-header">
-          <span class="dot red"></span>
-          <span class="dot yellow"></span>
-          <span class="dot green"></span>
+      <div class="volunteer-hub-card">
+        <div class="hub-header">
+          <span class="hub-tag">Active Portal Modules</span>
+          <span class="hub-status-dot"></span>
         </div>
-        <div class="preview-body">
-          <div class="skeleton-line title"></div>
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line short"></div>
+        <h3>Volunteer Workflow</h3>
+        <div class="hub-steps-list">
+          <div class="hub-step-item">
+            <span class="step-icon">📋</span>
+            <div>
+              <h4>Weekly Task Planning</h4>
+              <p>Organize topics, lesson props, and responsibilities.</p>
+            </div>
+          </div>
+          <div class="hub-step-item">
+            <span class="step-icon">📊</span>
+            <div>
+              <h4>Session Progress</h4>
+              <p>Monitor class development and group reports.</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -49,8 +62,8 @@
   <!-- Features Section -->
   <section id="features" class="features-section">
     <div class="section-title">
-      <h2>Everything You Need</h2>
-      <p>Built with robust features to keep organizational data organized and accessible.</p>
+      <h2>Everything Volunteers Need</h2>
+      <p>Built with robust features to keep classroom management organized and collaborative.</p>
     </div>
     <div class="features-grid">
       <div class="feature-card">

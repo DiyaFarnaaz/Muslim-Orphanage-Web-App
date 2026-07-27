@@ -152,60 +152,91 @@
   font-size: 1rem;
 }
 
-/* Hero Graphic Placeholder */
+/* Volunteer Hub Card Styles */
 .hero-visual {
   display: flex;
   justify-content: center;
 }
 
-.card-preview {
+.volunteer-hub-card {
   background: white;
   width: 100%;
   max-width: 420px;
-  border-radius: 0.75rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   border: 1px solid #e2e8f0;
-  overflow: hidden;
+  text-align: left;
 }
 
-.preview-header {
-  background: #f1f5f9;
-  padding: 0.75rem 1rem;
+.hub-header {
   display: flex;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.dot {
+.hub-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2563eb;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hub-status-dot {
   width: 10px;
   height: 10px;
+  background-color: #10b981;
   border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
 }
 
-.dot.red { background: #ef4444; }
-.dot.yellow { background: #f59e0b; }
-.dot.green { background: #10b981; }
+.volunteer-hub-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1.25rem;
+}
 
-.preview-body {
-  padding: 1.5rem;
+.hub-steps-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.skeleton-line {
-  height: 12px;
-  background: #e2e8f0;
-  border-radius: 4px;
+.hub-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
 }
 
-.skeleton-line.title {
-  height: 20px;
-  width: 60%;
-  background: #cbd5e1;
+.step-icon {
+  font-size: 1.5rem;
+  background: #eff6ff;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.skeleton-line.short {
-  width: 40%;
+.hub-step-item h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 0.25rem 0;
+}
+
+.hub-step-item p {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
 }
 
 /* Features, About & Contact Sections */
@@ -341,7 +372,7 @@
   }
 
   .nav-links {
-    display: none; /* Can be integrated into a mobile drawer if needed */
+    display: none;
   }
 
   .nav-actions {
@@ -375,6 +406,11 @@
 
   .section-title h2 {
     font-size: 1.75rem;
+  }
+
+  .about-content h2 {
+    font-size: 1.75rem;
+    line-height: 1.3;
   }
 
   .features-grid, .contact-details-grid {

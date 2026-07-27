@@ -194,7 +194,7 @@
   }
 
   .dashboard-wrapper {
-    flex-direction: column; /* Stack sidebar on top or wrap layout cleanly */
+    flex-direction: column;
   }
 
   .sidebar {
@@ -205,24 +205,37 @@
 
   .sidebar mat-nav-list {
     display: flex;
-    overflow-x: auto; /* Horizontal scrollable nav items for mobile screens */
-    padding: 6px 12px;
-    gap: 8px;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    padding: 8px;
+    gap: 6px;
+    justify-content: center;
   }
 
   .sidebar mat-nav-list a {
-    flex-shrink: 0;
+    flex: 1 1 calc(50% - 6px);
+    min-width: 130px;
+    box-sizing: border-box;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 10px 12px;
     height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .sidebar a mat-icon {
-    margin-right: 6px;
+    margin-right: 8px;
+  }
+
+  .logout-btn {
+    margin-top: 0;
+    flex: 1 1 100% !important;
   }
 
   .content {
     padding: 16px;
+    overflow-x: hidden;
   }
 
   .content h2 {
@@ -231,7 +244,7 @@
   }
 
   .dashboard-cards {
-    grid-template-columns: 1fr; /* Stack dashboard overview cards single-column on mobile */
+    grid-template-columns: 1fr;
     gap: 16px;
   }
 
