@@ -4,14 +4,64 @@
     <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
   </div>
 
-  <div class="header-actions">
-    <h2>Volunteers Directory</h2>
+  <!-- Admin-Only Header Title -->
+  <div *ngIf="isAdmin" class="header-actions">
+    <h2>Directory & Approvals</h2>
   </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="loader">Loading Profiles...</div>
 
-  <!-- Table View -->
+  <!-- ========================================== -->
+  <!-- PENDING APPROVALS SECTION (Admin Only)      -->
+  <!-- ========================================== -->
+  <div *ngIf="!loading && isAdmin && pendingUsers.length > 0" class="pending-section mb-5">
+    <h3 class="section-subtitle">Pending Registrations ({{ pendingUsers.length }})</h3>
+    <div class="table-container mb-4">
+      <div class="table-responsive-wrapper">
+        <table class="directory-table pending-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Requested Role</th>
+              <th>Assign Role & Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of pendingUsers; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td class="font-weight-bold">{{ user.full_name }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span class="badge" [ngClass]="user.role === 'admin' ? 'badge-admin' : 'badge-volunteer'">
+                  {{ user.role | uppercase }}
+                </span>
+              </td>
+              <td class="action-cell">
+                <!-- Role Assignment Dropdown -->
+                <select [(ngModel)]="selectedRoles[user.id]" class="form-input-sm role-select">
+                  <option value="volunteer">Volunteer</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <button type="button" class="approve-btn-sm" (click)="approveUser(user)">Approve</button>
+                <button type="button" class="delete-btn-sm" (click)="rejectUser(user.id)">Reject</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- VOLUNTEERS PROFILE DIRECTORY TABLE         -->
+  <!-- ========================================== -->
+  <div class="header-actions mt-4">
+    <h3 class="section-subtitle">Volunteers Profile</h3>
+  </div>
+
   <div *ngIf="!loading" class="table-container">
     <div *ngIf="volunteers.length === 0" class="loader">No volunteers found.</div>
 
@@ -25,6 +75,7 @@
             <th>Gender</th>
             <th>Age</th>
             <th>Phone Number</th>
+            <th *ngIf="isAdmin">Role</th>
             <th *ngIf="isAdmin">Actions</th>
           </tr>
         </thead>
@@ -39,6 +90,11 @@
               <td>{{ volunteer.gender }}</td>
               <td>{{ volunteer.age }}</td>
               <td>{{ volunteer.phone_number }}</td>
+              <td *ngIf="isAdmin">
+                <span class="badge" [ngClass]="volunteer.role === 'admin' ? 'badge-admin' : 'badge-volunteer'">
+                  {{ (volunteer.role || 'volunteer') | uppercase }}
+                </span>
+              </td>
               <td *ngIf="isAdmin" class="action-cell">
                 <button type="button" class="edit-btn-sm" (click)="startEdit(volunteer)">Edit</button>
                 <button type="button" class="delete-btn-sm" (click)="deleteProfile(volunteer.id)">Delete</button>
@@ -64,6 +120,13 @@
               </td>
               <td>
                 <input type="text" [(ngModel)]="editForm.phone_number" name="phone_{{volunteer.id}}" class="form-input-sm">
+              </td>
+              <td *ngIf="isAdmin">
+                <!-- Editable Role Dropdown -->
+                <select [(ngModel)]="editForm.role" name="role_{{volunteer.id}}" class="form-input-sm">
+                  <option value="volunteer">Volunteer</option>
+                  <option value="admin">Admin</option>
+                </select>
               </td>
               <td class="action-cell">
                 <button type="button" class="save-btn-sm" (click)="updateProfile(volunteer.id)">Save</button>

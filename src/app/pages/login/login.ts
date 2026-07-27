@@ -19,9 +19,6 @@ export class LoginComponent implements OnInit {
   async ngOnInit() {
     window.history.replaceState(null, '', window.location.href);
 
-    // When the user clicks the email confirmation link and gets redirected here,
-    // Supabase auto-logs them in. We sign them out immediately so they are forced 
-    // to manually type their credentials on this login page.
     try {
       const { data } = await this.supabase.client.auth.getSession();
       if (data.session) {
@@ -34,6 +31,7 @@ export class LoginComponent implements OnInit {
 
   async onLogin() {
     try {
+      // 1. Authenticate credentials
       const { data, error } = await this.supabase.client.auth.signInWithPassword({
         email: this.email,
         password: this.password,
@@ -42,6 +40,30 @@ export class LoginComponent implements OnInit {
       if (error) throw error;
       
       if (data.user) {
+        // 2. Fetch profile status and role for gatekeeper check
+        const { data: profile, error: profileError } = await this.supabase.client
+          .from('profiles')
+          .select('status, role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        // 3. Gatekeeper check for pending or rejected statuses
+        if (!profile || profile.status === 'pending') {
+          await this.supabase.client.auth.signOut();
+          alert('Your account is currently pending admin verification. Please wait for approval.');
+          return;
+        }
+
+        if (profile.status === 'rejected') {
+          await this.supabase.client.auth.signOut();
+          alert('Your account request has been rejected by the administrator.');
+          return;
+        }
+
+        // 4. Route based on role if approved
+       // 4. Route based on role if approved (Direct both roles to /dashboard or your actual dashboard route)
         const targetRoute = '/dashboard';
 
         this.router.navigate([targetRoute]).then(() => {

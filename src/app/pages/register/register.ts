@@ -50,17 +50,32 @@ export class RegisterComponent {
             gender: this.gender,
             age: Number(this.age),
             phone_number: this.phoneNumber,
-            is_admin: isAdmin
+            is_admin: isAdmin,
+            status: 'pending' // Force new registration to pending status
           }
         }
       });
 
       if (error) throw error;
 
+      // Also explicitly insert/upsert into the profiles table if your trigger doesn't pick up status automatically
+      if (data.user) {
+        await this.supabase.client.from('profiles').upsert({
+          id: data.user.id,
+          email: this.email.trim(),
+          full_name: this.fullName,
+          role: this.role,
+          gender: this.gender,
+          age: Number(this.age),
+          phone_number: this.phoneNumber,
+          status: 'pending'
+        });
+      }
+
       // Ensure the newly registered session doesn't keep the user automatically logged in
       await this.supabase.client.auth.signOut();
 
-      alert('Registration successful! Please log in with your credentials.');
+      alert('Registration successful! Your account is pending admin verification.');
       this.router.navigate(['/login']);
     } catch (err: any) {
       alert('Registration failed: ' + err.message);
