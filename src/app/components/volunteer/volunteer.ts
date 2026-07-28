@@ -19,7 +19,6 @@ export class VolunteerComponent implements OnInit {
   editingProfileId: string | null = null;
   editForm: any = {};
   
-  // Track selected target role for each pending user in the UI dropdown
   selectedRoles: { [key: string]: string } = {};
 
   constructor(
@@ -49,7 +48,6 @@ export class VolunteerComponent implements OnInit {
         return;
       }
       
-      // Check if current user is admin
       const { data: currentUserData } = await this.supabase.client
         .from('profiles')
         .select('is_admin, role, status')
@@ -58,7 +56,6 @@ export class VolunteerComponent implements OnInit {
 
       this.isAdmin = currentUserData?.is_admin || currentUserData?.role === 'admin' || false;
 
-      // Fetch all profiles from the database
       const { data, error } = await this.supabase.client
         .from('profiles')
         .select('id, full_name, email, gender, age, phone_number, is_admin, role, status');
@@ -69,11 +66,9 @@ export class VolunteerComponent implements OnInit {
 
       const allProfiles = data || [];
 
-      // Separate pending users from approved/active ones
       this.pendingUsers = allProfiles.filter(p => p.status === 'pending');
       this.volunteers = allProfiles.filter(p => p.status !== 'pending');
 
-      // Initialize default role selections for pending users based on what they requested
       this.pendingUsers.forEach(user => {
         this.selectedRoles[user.id] = user.role || 'volunteer';
       });
@@ -86,7 +81,7 @@ export class VolunteerComponent implements OnInit {
     }
   }
 
-  // --- Admin Approval Workflow Methods ---
+  // --- Admin Approval Workflow Methods with inviteUser ---
 
   async approveUser(user: any) {
     if (!this.isAdmin) {
@@ -98,7 +93,8 @@ export class VolunteerComponent implements OnInit {
     const makeAdmin = targetRole === 'admin';
 
     try {
-      const { error } = await this.supabase.client
+      // 1. Update the profile status to approved in the database
+      const { error: dbError } = await this.supabase.client
         .from('profiles')
         .update({
           status: 'approved',
@@ -107,12 +103,23 @@ export class VolunteerComponent implements OnInit {
         })
         .eq('id', user.id);
 
-      if (error) {
-        alert('Error approving user: ' + error.message);
+      if (dbError) {
+        alert('Error approving user profile: ' + dbError.message);
         return;
       }
 
-      alert(`User approved successfully as ${targetRole.toUpperCase()}!`);
+      // 2. Trigger Supabase custom invite email notification
+      const { error: inviteError } = await this.supabase.client.auth.admin.inviteUserByEmail(user.email, {
+        redirectTo: 'https://muslim-orphanage-web-app.vercel.app/login'
+      });
+
+      if (inviteError) {
+        console.error('Profile approved, but email trigger failed:', inviteError.message);
+        alert(`User approved as ${targetRole.toUpperCase()}, but failed to send notification email: ` + inviteError.message);
+      } else {
+        alert(`User approved successfully as ${targetRole.toUpperCase()}! An approval email has been sent.`);
+      }
+
       await this.checkAdminAndLoadProfiles();
     } catch (err: any) {
       console.error('Unexpected error during approval:', err);
