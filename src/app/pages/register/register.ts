@@ -27,9 +27,36 @@ export class RegisterComponent {
     private cdr: ChangeDetectorRef
   ) {}
 
+  // Helper validation methods to use in your HTML
+  isValidEmail(email: string): boolean {
+    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    return gmailRegex.test(email);
+  }
+
+  isValidPhone(phone: string): boolean {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(phone);
+  }
+
   async onRegister() {
     if (!this.email || !this.password || !this.fullName || !this.age || !this.phoneNumber) {
       alert('Please fill in all required fields.');
+      return;
+    }
+
+    // Custom Validations
+    if (!this.isValidEmail(this.email)) {
+      alert('Please enter a valid @gmail.com email address.');
+      return;
+    }
+
+    if (!this.isValidPhone(this.phoneNumber)) {
+      alert('Phone number must be exactly 10 digits.');
+      return;
+    }
+
+    if (this.password.length < 6) {
+      alert('Password must be at least 6 digits/characters long.');
       return;
     }
 

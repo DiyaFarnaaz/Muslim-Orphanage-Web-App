@@ -6,6 +6,10 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 })
 export class SupabaseService {
   private supabase: SupabaseClient;
+  
+  // Brevo Configuration Constants
+  private readonly BREVO_API_KEY = 'xkeysib-your-actual-brevo-api-key-here'; 
+  private readonly BREVO_TEMPLATE_ID = 1; // Replace with your template ID
 
   constructor() {
     this.supabase = createClient(
@@ -29,10 +33,32 @@ export class SupabaseService {
     return this.supabase;
   }
 
-  /**
-   * Fetches the is_admin status for the specified user ID
-   * from the profiles table using maybeSingle to prevent 406/single errors.
-   */
+  // --- Brevo Email Helper ---
+  async sendApprovalEmail(userEmail: string, userName: string): Promise<boolean> {
+    try {
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.BREVO_API_KEY
+        },
+        body: JSON.stringify({
+          to: [{ email: userEmail, name: userName || 'Volunteer' }],
+          templateId: this.BREVO_TEMPLATE_ID,
+          params: {
+            name: userName || 'Volunteer'
+          }
+        })
+      });
+
+      return response.ok;
+    } catch (err) {
+      console.error('Error triggering Brevo email API:', err);
+      return false;
+    }
+  }
+
   async checkIsAdmin(userId: string): Promise<boolean> {
     const { data, error } = await this.supabase
       .from('profiles')
@@ -48,16 +74,12 @@ export class SupabaseService {
     return data.is_admin === true;
   }
 
-  // --- Auth Helper ---
   async getCurrentUser() {
     const { data: { user }, error } = await this.supabase.auth.getUser();
     if (error) throw error;
     return user;
   }
 
-  // --- Weekly Tasks Operations ---
-
-  // Fetch all weekly tasks sorted by latest first
   async getWeeklyTasks() {
     const { data, error } = await this.supabase
       .from('weekly_tasks')
@@ -68,7 +90,6 @@ export class SupabaseService {
     return data || [];
   }
 
-  // Create a new weekly task plan
   async createWeeklyTask(task: any) {
     const { error } = await this.supabase
       .from('weekly_tasks')
@@ -77,7 +98,6 @@ export class SupabaseService {
     if (error) throw error;
   }
 
-  // Update an existing weekly task plan by ID
   async updateWeeklyTask(id: number, task: any) {
     const { error } = await this.supabase
       .from('weekly_tasks')

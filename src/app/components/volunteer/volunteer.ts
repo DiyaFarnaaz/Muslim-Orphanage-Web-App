@@ -3,6 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
+import emailjs from '@emailjs/browser';
 
 @Component({
   selector: 'app-volunteer',
@@ -81,7 +82,7 @@ export class VolunteerComponent implements OnInit {
     }
   }
 
-  // --- Admin Approval Workflow Methods with inviteUser ---
+  // --- Admin Approval Workflow Methods ---
 
   async approveUser(user: any) {
     if (!this.isAdmin) {
@@ -93,7 +94,7 @@ export class VolunteerComponent implements OnInit {
     const makeAdmin = targetRole === 'admin';
 
     try {
-      // 1. Update the profile status to approved in the database
+      // 1. Update the profile status in Supabase
       const { error: dbError } = await this.supabase.client
         .from('profiles')
         .update({
@@ -108,22 +109,25 @@ export class VolunteerComponent implements OnInit {
         return;
       }
 
-      // 2. Trigger Supabase custom invite email notification
-      const { error: inviteError } = await this.supabase.client.auth.admin.inviteUserByEmail(user.email, {
-        redirectTo: 'https://muslim-orphanage-web-app.vercel.app/login'
-      });
+      // 2. Trigger the email via EmailJS
+      const templateParams = {
+        to_name: user.full_name || 'Volunteer',
+        to_email: user.email
+      };
 
-      if (inviteError) {
-        console.error('Profile approved, but email trigger failed:', inviteError.message);
-        alert(`User approved as ${targetRole.toUpperCase()}, but failed to send notification email: ` + inviteError.message);
-      } else {
-        alert(`User approved successfully as ${targetRole.toUpperCase()}! An approval email has been sent.`);
-      }
+      await emailjs.send(
+        'service_pmh5lug',
+        'template_pg7z9f8',
+        templateParams,
+        '0TCMMazKjzB3jucf7'
+      );
 
+      alert(`User approved successfully as ${targetRole.toUpperCase()} and approval email sent!`);
       await this.checkAdminAndLoadProfiles();
+      
     } catch (err: any) {
       console.error('Unexpected error during approval:', err);
-      alert('Error: ' + err.message);
+      alert('User approved in database, but failed to send notification email: ' + (err.text || err.message));
     }
   }
 
