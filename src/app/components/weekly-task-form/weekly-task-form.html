@@ -67,27 +67,83 @@
             />
           </div>
 
-          <div class="field-group">
-            <label>Activity:</label>
-            <input 
-              type="text" 
-              [(ngModel)]="tasksData[group].activity" 
-              [name]="'activity_' + group" 
-              placeholder="Enter activity description" 
-              class="input-field"
-            />
+          <div class="field-row-double">
+            <div class="field-group">
+              <label>Activity Planner:</label>
+              <input 
+                type="text" 
+                [(ngModel)]="tasksData[group].activity_planner" 
+                [name]="'activity_planner_' + group" 
+                placeholder="Enter activity planner" 
+                class="input-field"
+              />
+            </div>
+
+            <div class="field-group">
+              <label>Activity:</label>
+              <input 
+                type="text" 
+                [(ngModel)]="tasksData[group].activity" 
+                [name]="'activity_' + group" 
+                placeholder="Enter activity description" 
+                class="input-field"
+              />
+            </div>
           </div>
 
+          <!-- Props removed from here -->
+
           <div class="field-group">
-            <label>Gifts & Props:</label>
+            <label>Remarks:</label>
             <input 
               type="text" 
-              [(ngModel)]="tasksData[group].gifts_props" 
-              [name]="'gifts_' + group" 
-              placeholder="Enter gifts or props needed" 
+              [(ngModel)]="tasksData[group].remarks" 
+              [name]="'remarks_' + group" 
+              placeholder="Enter remarks" 
               class="input-field"
             />
           </div>
+        </div>
+      </div>
+
+      <!-- Footer Shared Inputs: Gift Planner, Props, & Additional Task -->
+      <div class="report-card general-info">
+        <h3>Shared Plan Details</h3>
+        
+        <div class="field-group" style="margin-bottom: 16px;">
+          <label for="giftPlanner"><strong>Gift Planner</strong></label>
+          <textarea 
+            id="giftPlanner"
+            class="input-field"
+            [(ngModel)]="weeklyTask.giftPlanner"
+            name="giftPlanner"
+            rows="3"
+            placeholder="Enter gift planning details for the week..."
+          ></textarea>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 16px;">
+          <label for="sharedProps"><strong>Props</strong></label>
+          <textarea 
+            id="sharedProps"
+            class="input-field"
+            [(ngModel)]="weeklyTask.props"
+            name="sharedProps"
+            rows="3"
+            placeholder="Enter shared props needed for the week..."
+          ></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="additionalTask"><strong>Additional Task</strong></label>
+          <textarea 
+            id="additionalTask"
+            class="input-field"
+            [(ngModel)]="weeklyTask.additionalTask"
+            name="additionalTask"
+            rows="3"
+            placeholder="Enter any additional tasks..."
+          ></textarea>
         </div>
       </div>
 

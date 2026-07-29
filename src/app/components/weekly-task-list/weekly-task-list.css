@@ -67,6 +67,75 @@
   flex-shrink: 0;
 }
 
+/* Form Container */
+.form-container h2 {
+  color: #0f172a;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+/* Field Layouts & Inputs */
+.field-group {
+  margin-bottom: 15px;
+}
+
+.field-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+textarea.input-field {
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Double Row Layout for Activity Planner & Activity */
+.field-row-double {
+  display: flex;
+  gap: 15px;
+}
+
+.field-row-double .field-group {
+  flex: 1;
+}
+
+/* Date Row */
+.date-row {
+  display: flex;
+  gap: 15px;
+}
+
+.date-row .field-group {
+  flex: 1;
+}
+
+/* Grade Sections Grid */
+.grade-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 /* States */
 .loader {
   text-align: center;
@@ -194,7 +263,7 @@
 /* Grid of Task Boxes */
 .tasks-grid { 
   display: grid; 
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
   gap: 15px; 
   margin-bottom: 20px; 
 }
@@ -223,12 +292,19 @@
   word-break: break-word;
 }
 
+/* Action Buttons Row */
+.action-buttons-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
 /* Universal Buttons */
-.submit-btn { 
+.submit-btn, .save-btn { 
   background-color: #0ea5e9; 
   color: white; 
   border: none; 
-  padding: 10px 20px; 
+  padding: 12px 20px; 
   border-radius: 6px; 
   font-weight: 600; 
   font-size: 0.95rem;
@@ -236,15 +312,34 @@
   transition: background 0.2s; 
   display: inline-block;
   text-align: center;
+  flex: 1;
 }
 
-.submit-btn:hover { 
+.submit-btn:hover, .save-btn:hover { 
   background-color: #0284c7; 
+}
+
+.cancel-btn {
+  background-color: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.cancel-btn:hover {
+  background-color: #f1f5f9;
 }
 
 .close-btn {
   background-color: #334155;
-  margin-top: 5px;
+  flex: unset;
+  width: 100%;
 }
 
 .close-btn:hover {
@@ -252,7 +347,7 @@
 }
 
 /* ==========================================
-   Responsive Design Adjustments (Mobile View)
+    Responsive Design Adjustments (Mobile View)
    ========================================== */
 @media (max-width: 640px) {
   .page-container {
@@ -275,6 +370,12 @@
     text-align: center;
   }
 
+  .date-row, 
+  .field-row-double {
+    flex-direction: column;
+    gap: 0;
+  }
+
   .date-card {
     padding: 16px;
   }
@@ -291,7 +392,11 @@
     grid-template-columns: 1fr;
   }
 
-  .submit-btn {
+  .action-buttons-row {
+    flex-direction: column;
+  }
+
+  .submit-btn, .save-btn, .cancel-btn {
     width: 100%;
   }
 }

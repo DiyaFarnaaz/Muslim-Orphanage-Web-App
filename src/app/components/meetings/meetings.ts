@@ -15,7 +15,6 @@ export class MeetingsComponent implements OnInit {
   groupedMeetings: { [date: string]: any[] } = {};
   selectedMeeting: any = null;
   
-  // Expanded class groups matching the new format
   classGroups = [
     'Class 1-2', 
     'Class 3-4', 
@@ -77,7 +76,6 @@ export class MeetingsComponent implements OnInit {
     }
   }
 
-  // Safely parse JSON text stored in columns back into objects for display
   parseJSON(value: any) {
     try {
       return typeof value === 'string' ? JSON.parse(value) : (value || {});
@@ -87,15 +85,15 @@ export class MeetingsComponent implements OnInit {
   }
 
   goBack() {
-    // Replace '/meetings' with whatever your exact dashboard route is (e.g., '/dashboard' or '/meeting-dashboard')
     this.router.navigate(['/dashboard']); 
   }
+
   onSelectMeeting(meeting: any): void {
     this.selectedMeeting = meeting;
   }
 
   editMeeting(meetingId: string, event: Event) {
-    event.stopPropagation(); // Prevent toggling the accordion/card selection
+    event.stopPropagation();
     this.router.navigate(['/add-meeting', meetingId]);
   }
 

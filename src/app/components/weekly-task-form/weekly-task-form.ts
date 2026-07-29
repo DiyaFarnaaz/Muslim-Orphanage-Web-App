@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 
 @Component({
@@ -18,7 +18,10 @@ export class WeeklyTaskFormComponent implements OnInit {
 
   weeklyTask = {
     startDate: '',
-    endDate: ''
+    endDate: '',
+    giftPlanner: '',
+    props: '',          // Moved props down here
+    additionalTask: ''
   };
   
   classGroups = [
@@ -30,7 +33,8 @@ export class WeeklyTaskFormComponent implements OnInit {
     'Class 8-10 Boys'
   ];
 
-  tasksData: { [key: string]: { session_planner: string, session_topic: string, activity: string, gifts_props: string } } = {};
+  // Removed props from class group data map
+  tasksData: { [key: string]: { session_planner: string, session_topic: string, activity_planner: string, activity: string, remarks: string } } = {};
 
   constructor(
     private supabase: SupabaseService,
@@ -43,8 +47,9 @@ export class WeeklyTaskFormComponent implements OnInit {
       this.tasksData[group] = {
         session_planner: '',
         session_topic: '',
+        activity_planner: '',
         activity: '',
-        gifts_props: ''
+        remarks: ''
       };
     });
   }
@@ -74,6 +79,10 @@ export class WeeklyTaskFormComponent implements OnInit {
           this.weeklyTask.endDate = parts[1] || '';
         }
 
+        this.weeklyTask.giftPlanner = data.gift_planner || '';
+        this.weeklyTask.props = data.props || ''; // Load shared props
+        this.weeklyTask.additionalTask = data.additional_task || '';
+
         const parseField = (fieldData: any) => {
           if (!fieldData) return {};
           return typeof fieldData === 'string' ? JSON.parse(fieldData) : fieldData;
@@ -81,15 +90,17 @@ export class WeeklyTaskFormComponent implements OnInit {
 
         const planners = parseField(data.session_planner);
         const topics = parseField(data.session_topic);
+        const activityPlanners = parseField(data.activity_planner);
         const activities = parseField(data.activity);
-        const gifts = parseField(data.gifts_props);
+        const remarksData = parseField(data.remarks);
 
         this.classGroups.forEach(group => {
           this.tasksData[group] = {
             session_planner: planners[group] || '',
             session_topic: topics[group] || '',
+            activity_planner: activityPlanners[group] || '',
             activity: activities[group] || '',
-            gifts_props: gifts[group] || ''
+            remarks: remarksData[group] || ''
           };
         });
       }
@@ -107,22 +118,28 @@ export class WeeklyTaskFormComponent implements OnInit {
 
     const sessionPlannerObj: { [key: string]: string } = {};
     const sessionTopicObj: { [key: string]: string } = {};
+    const activityPlannerObj: { [key: string]: string } = {};
     const activityObj: { [key: string]: string } = {};
-    const giftsPropsObj: { [key: string]: string } = {};
+    const remarksObj: { [key: string]: string } = {};
 
     this.classGroups.forEach(group => {
       sessionPlannerObj[group] = this.tasksData[group].session_planner;
       sessionTopicObj[group] = this.tasksData[group].session_topic;
+      activityPlannerObj[group] = this.tasksData[group].activity_planner;
       activityObj[group] = this.tasksData[group].activity;
-      giftsPropsObj[group] = this.tasksData[group].gifts_props;
+      remarksObj[group] = this.tasksData[group].remarks;
     });
 
     const payload = {
       week_date_range: dateRangeStr,
       session_planner: sessionPlannerObj,
       session_topic: sessionTopicObj,
+      activity_planner: activityPlannerObj,
       activity: activityObj,
-      gifts_props: giftsPropsObj
+      props: this.weeklyTask.props, // Saved as a shared string field now
+      remarks: remarksObj,
+      gift_planner: this.weeklyTask.giftPlanner,
+      additional_task: this.weeklyTask.additionalTask
     };
 
     try {

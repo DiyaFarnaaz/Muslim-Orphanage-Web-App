@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, Location } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
@@ -17,7 +17,6 @@ export class WeeklyTaskListComponent implements OnInit {
   loading = true;
   isAdmin = false;
 
-  // Grade groups matching your application schema
   gradeGroups = [
     'Class 1-2', 
     'Class 3-4', 
@@ -30,7 +29,6 @@ export class WeeklyTaskListComponent implements OnInit {
   constructor(
     private supabase: SupabaseService,
     private cdr: ChangeDetectorRef,
-    private location: Location,
     private router: Router
   ) {}
 

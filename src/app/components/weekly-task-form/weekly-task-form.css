@@ -87,6 +87,14 @@
   gap: 16px;
 }
 
+/* Grade Sections Grid */
+.grade-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 .task-box {
   background: #ffffff;
   border: 1px solid #e2e8f0;
@@ -138,6 +146,21 @@
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
 }
 
+textarea.input-field {
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* Double-Column Layout for Activity Planner & Activity */
+.field-row-double {
+  display: flex;
+  gap: 16px;
+}
+
+.field-row-double .field-group {
+  flex: 1;
+}
+
 /* Action Buttons Row & Styles */
 .action-buttons-row {
   display: flex;
@@ -178,6 +201,8 @@
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  flex: 1;
+  text-align: center;
 }
 
 .cancel-btn:hover {
@@ -197,7 +222,8 @@
     font-size: 1.4rem;
   }
 
-  .date-row {
+  .date-row,
+  .field-row-double {
     flex-direction: column;
     gap: 16px;
   }
@@ -217,7 +243,7 @@
   }
 
   .input-field {
-    font-size: 16px; /* Prevents auto-zoom on mobile */
+    font-size: 16px; /* Prevents auto-zoom on mobile devices */
     padding: 10px;
   }
 }

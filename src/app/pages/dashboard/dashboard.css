@@ -34,6 +34,46 @@
   z-index: 100;
 }
 
+.brand-group-layout {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Top-Left Profile Circle Widget */
+.top-left-profile {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.top-left-profile:hover {
+  transform: scale(1.08);
+}
+
+.profile-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.profile-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .brand-title {
   font-size: 20px;
   font-weight: 600;
@@ -143,6 +183,10 @@
   background-color: #f0f9ff;
 }
 
+.video-icon-wrap {
+  background-color: #fdf2f8;
+}
+
 .dash-icon {
   color: #2563eb;
   font-size: 24px;
@@ -152,6 +196,10 @@
 
 .weekly-task-icon {
   color: #0ea5e9;
+}
+
+.video-icon {
+  color: #db2777;
 }
 
 .dash-card h4 {
@@ -168,6 +216,127 @@
   line-height: 1.5;
 }
 
+/* Modal Popup Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 460px;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #1e293b;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  color: #6b7280;
+  line-height: 1;
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.modal-tabs button {
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6b7280;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.modal-tabs button.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.field-group {
+  margin-bottom: 14px;
+}
+
+.field-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.input-field:focus {
+  border-color: #2563eb;
+}
+
+.disabled-field {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  color: #9ca3af;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 11px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+  background-color: #1d4ed8;
+}
+
 .footer {
   text-align: center;
   padding: 16px;
@@ -177,9 +346,7 @@
   color: #64748b;
 }
 
-/* ==========================================
-   Responsive Design Adjustments (Mobile View)
-   ========================================== */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .top-bar {
     padding: 0 16px;

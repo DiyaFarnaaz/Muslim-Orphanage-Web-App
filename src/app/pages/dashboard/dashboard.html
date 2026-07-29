@@ -1,9 +1,17 @@
 <div class="dashboard-container">
   <!-- Top Header using Material Toolbar -->
   <mat-toolbar color="primary" class="top-bar">
-    <div class="brand-group">
+    <div class="brand-group-layout">
+      <!-- Top Left Clickable Profile Circle Widget -->
+      <div class="top-left-profile" *ngIf="userProfile" (click)="toggleProfileModal()" title="View Profile & Settings">
+        <div class="profile-circle">
+          <span *ngIf="!userProfile.avatar_url">{{ getInitials(userProfile.full_name) }}</span>
+          <img *ngIf="userProfile.avatar_url" [src]="userProfile.avatar_url" alt="Avatar" />
+        </div>
+      </div>
       <span class="brand-title">Orphanage Portal</span>
     </div>
+
     <span class="spacer"></span>
     <div class="user-profile">
       <span>Welcome, <strong>{{ userName || 'User' }}</strong></span>
@@ -11,7 +19,7 @@
   </mat-toolbar>
 
   <div class="dashboard-wrapper">
-    <!-- Clean Sidebar: Dashboard, Volunteers, Session Progress, Logout -->
+    <!-- Clean Sidebar -->
     <nav class="sidebar mobile-animate">
       <mat-nav-list>
         <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -38,7 +46,7 @@
       <div *ngIf="showCards">
         <h2>Dashboard Overview</h2>
 
-        <!-- Overview Cards: Weekly Tasks -> Meetings -> Events -> Fundraisers -->
+        <!-- Overview Cards Grid -->
         <div class="dashboard-cards">
           
           <!-- 1. Weekly Tasks Card -->
@@ -85,11 +93,105 @@
             </mat-card-content>
           </mat-card>
 
+          <!-- 5. Video Meeting Card -->
+          <mat-card class="dash-card video-card" routerLink="/dashboard/video-call">
+            <div class="card-icon-wrapper video-icon-wrap">
+              <mat-icon class="dash-icon video-icon">videocam</mat-icon>
+            </div>
+            <mat-card-content>
+              <h4>Video Meeting</h4>
+              <p>Launch or join real-time conference rooms with screen share.</p>
+            </mat-card-content>
+          </mat-card>
+
         </div>
       </div>
 
+      <!-- Child routes like VideoCallComponent render here when clicked -->
       <router-outlet></router-outlet>
     </main>
+  </div>
+
+  <!-- User Profile & Settings Modal Window -->
+  <div class="modal-backdrop" *ngIf="showProfileModal" (click)="toggleProfileModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>User Profile & Settings</h3>
+        <button type="button" class="close-modal-btn" (click)="toggleProfileModal()">&times;</button>
+      </div>
+
+      <!-- Modal Tabs Switcher -->
+      <div class="modal-tabs">
+        <button type="button" [class.active]="activeTab === 'details'" (click)="activeTab = 'details'">View & Edit Details</button>
+        <button type="button" [class.active]="activeTab === 'password'" (click)="activeTab = 'password'">Change Password</button>
+      </div>
+
+      <!-- Tab 1: Profile Details Form (Email & Role disabled/non-editable) -->
+      <div class="modal-body" *ngIf="activeTab === 'details' && userProfile">
+        <form (ngSubmit)="updateProfileDetails()">
+          
+          <div class="field-group">
+            <label>Email (Cannot be changed)</label>
+            <input type="email" class="input-field disabled-field" [value]="userProfile.email" disabled />
+          </div>
+
+          <div class="field-group">
+            <label>Role (Cannot be changed)</label>
+            <input type="text" class="input-field disabled-field" [value]="userProfile.role || 'Member'" disabled />
+          </div>
+
+          <div class="field-group">
+            <label>Full Name</label>
+            <input type="text" class="input-field" [(ngModel)]="editProfileData.full_name" name="full_name" />
+          </div>
+
+          <div class="field-group">
+            <label>Age</label>
+            <input type="number" class="input-field" [(ngModel)]="editProfileData.age" name="age" />
+          </div>
+
+          <div class="field-group">
+            <label>Gender</label>
+            <input type="text" class="input-field" [(ngModel)]="editProfileData.gender" name="gender" placeholder="Enter gender" />
+          </div>
+
+          <div class="field-group">
+            <label>Phone Number</label>
+            <input type="text" class="input-field" [(ngModel)]="editProfileData.phone_number" name="phone_number" />
+          </div>
+
+          <button type="submit" class="save-btn" [disabled]="isUpdating">
+            {{ isUpdating ? 'Saving Changes...' : 'Save Profile Details' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Tab 2: Password Update (Verified using Previous Password) -->
+      <div class="modal-body" *ngIf="activeTab === 'password'">
+        <form (ngSubmit)="updatePassword()">
+          
+          <div class="field-group">
+            <label>Previous Password</label>
+            <input type="password" class="input-field" [(ngModel)]="passwordData.currentPassword" name="currentPassword" required placeholder="Enter current password" />
+          </div>
+
+          <div class="field-group">
+            <label>New Password</label>
+            <input type="password" class="input-field" [(ngModel)]="passwordData.newPassword" name="newPassword" required placeholder="Enter new password" />
+          </div>
+
+          <div class="field-group">
+            <label>Confirm New Password</label>
+            <input type="password" class="input-field" [(ngModel)]="passwordData.confirmPassword" name="confirmPassword" required placeholder="Confirm new password" />
+          </div>
+
+          <button type="submit" class="save-btn" [disabled]="isChangingPassword">
+            {{ isChangingPassword ? 'Updating Password...' : 'Update Password' }}
+          </button>
+        </form>
+      </div>
+
+    </div>
   </div>
 
   <footer class="footer">&copy; 2026 Muslim Orphanage Portal</footer>

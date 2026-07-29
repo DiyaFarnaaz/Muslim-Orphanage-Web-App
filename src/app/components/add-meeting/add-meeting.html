@@ -23,7 +23,7 @@
         </div>
       </div>
 
-      <!-- Class Group Cards (Loops through all 6 exact groups) -->
+      <!-- Class Group Cards -->
       <div *ngFor="let group of classGroups" class="report-card group-card">
         <h3 class="group-title">{{ group }}</h3>
 
@@ -57,14 +57,36 @@
             placeholder="Activities..."></textarea>
         </div>
 
+        <div class="field-row-double">
+          <div class="field-group">
+            <label>Gifts</label>
+            <input 
+              type="text" 
+              class="input-field" 
+              [(ngModel)]="tasksData[group].gifts" 
+              [name]="'gifts_' + group" 
+              placeholder="Gifts required...">
+          </div>
+
+          <div class="field-group">
+            <label>Props</label>
+            <input 
+              type="text" 
+              class="input-field" 
+              [(ngModel)]="tasksData[group].props" 
+              [name]="'props_' + group" 
+              placeholder="Props required...">
+          </div>
+        </div>
+
         <div class="field-group">
-          <label>Gifts & Props</label>
+          <label>Remarks</label>
           <input 
             type="text" 
             class="input-field" 
-            [(ngModel)]="tasksData[group].gifts_props" 
-            [name]="'gifts_' + group" 
-            placeholder="Required items...">
+            [(ngModel)]="tasksData[group].remarks" 
+            [name]="'remarks_' + group" 
+            placeholder="Add remarks...">
         </div>
 
         <div class="field-group">

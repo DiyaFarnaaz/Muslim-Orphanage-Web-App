@@ -19,7 +19,6 @@ export class AddMeetingComponent implements OnInit {
   isSubmitting: boolean = false;
   isLoading: boolean = true; 
 
-  // Updated with the actual class groups structure
   classGroups: string[] = [
     'Class 1-2', 
     'Class 3-4', 
@@ -52,7 +51,9 @@ export class AddMeetingComponent implements OnInit {
         session_lead: '',
         session_topic: '',
         activity: '',
-        gifts_props: '',
+        gifts: '',
+        props: '',
+        remarks: '',
         docCount: 0
       };
       this.selectedFiles[group] = [];
@@ -71,7 +72,6 @@ export class AddMeetingComponent implements OnInit {
   }
 
   async loadMeetingData(id: string) {
-    console.log('Loading meeting data for ID:', id);
     try {
       const { data, error } = await this.supabase
         .from('meetings')
@@ -79,12 +79,7 @@ export class AddMeetingComponent implements OnInit {
         .eq('id', id)
         .single();
 
-      if (error) {
-        console.error('Supabase query error:', error);
-        throw error;
-      }
-
-      console.log('Fetched meeting data successfully:', data);
+      if (error) throw error;
 
       if (data) {
         this.meeting.meeting_date = data.meeting_date;
@@ -92,7 +87,9 @@ export class AddMeetingComponent implements OnInit {
         const leads = data.session_lead || {};
         const topics = data.session_topic || {};
         const activities = data.activity || {};
-        const gifts = data.gifts_props || {};
+        const giftsMap = data.gifts || {};
+        const propsMap = data.props || {};
+        const remarksMap = data.remarks || {};
         const docs = data.doc_url || {};
 
         this.classGroups.forEach(group => {
@@ -100,7 +97,9 @@ export class AddMeetingComponent implements OnInit {
             session_lead: leads[group] || '',
             session_topic: topics[group] || '',
             activity: activities[group] || '',
-            gifts_props: gifts[group] || '',
+            gifts: giftsMap[group] || '',
+            props: propsMap[group] || '',
+            remarks: remarksMap[group] || '',
             docCount: 0
           };
           
@@ -137,13 +136,17 @@ export class AddMeetingComponent implements OnInit {
       const sessionTopics: any = {};
       const activitiesMap: any = {};
       const giftsMap: any = {};
+      const propsMap: any = {};
+      const remarksMap: any = {};
       const docUrlsMap: any = {};
 
       this.classGroups.forEach(group => {
         sessionLeads[group] = this.tasksData[group].session_lead;
         sessionTopics[group] = this.tasksData[group].session_topic;
         activitiesMap[group] = this.tasksData[group].activity;
-        giftsMap[group] = this.tasksData[group].gifts_props;
+        giftsMap[group] = this.tasksData[group].gifts;
+        propsMap[group] = this.tasksData[group].props;
+        remarksMap[group] = this.tasksData[group].remarks;
         docUrlsMap[group] = this.uploadedDocUrls[group].join(',');
       });
 
@@ -152,7 +155,9 @@ export class AddMeetingComponent implements OnInit {
         session_lead: sessionLeads,
         session_topic: sessionTopics,
         activity: activitiesMap,
-        gifts_props: giftsMap,
+        gifts: giftsMap,
+        props: propsMap,
+        remarks: remarksMap,
         doc_url: docUrlsMap
       };
 
@@ -182,8 +187,7 @@ export class AddMeetingComponent implements OnInit {
     }
   }
 
- goBack() {
-    // Replace '/meetings' with whatever your exact dashboard route is (e.g., '/dashboard' or '/meeting-dashboard')
+  goBack() {
     this.router.navigate(['/meetings']); 
   }
 }

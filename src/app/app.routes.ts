@@ -16,7 +16,7 @@ import { WeeklyTaskListComponent } from './components/weekly-task-list/weekly-ta
 import { WeeklyTaskFormComponent } from './components/weekly-task-form/weekly-task-form';
 import { SessionProgressComponent } from './pages/session-progress/session-progress';
 import { UpdatePasswordComponent } from './pages/update-password/update-password';
-
+import { VideoCallComponent } from './components/video-call/video-call';
 // Guards
 import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
@@ -32,8 +32,15 @@ export const routes: Routes = [
   { path: 'session-progress', component: SessionProgressComponent },
   { path: 'volunteer', component: VolunteerComponent },
   
-  // Protected Dashboard (Used by all users)
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  // Protected Dashboard with Child Routes
+  { 
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [authGuard],
+    children: [
+      { path: 'video-call', component: VideoCallComponent }
+    ]
+  },
   
   { path: 'events', component: EventsComponent, canActivate: [authGuard] },
   { path: 'session-report', component: SessionReportComponent, canActivate: [authGuard] },

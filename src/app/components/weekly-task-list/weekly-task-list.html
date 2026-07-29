@@ -49,13 +49,22 @@
               <div class="task-content">
                 <p><strong>Session Planner:</strong> {{ parseJSON(t.session_planner)[group] || '-' }}</p>
                 <p><strong>Topic:</strong> {{ parseJSON(t.session_topic)[group] || '-' }}</p>
+                <p><strong>Activity Planner:</strong> {{ parseJSON(t.activity_planner)[group] || '-' }}</p>
                 <p><strong>Activity:</strong> {{ parseJSON(t.activity)[group] || '-' }}</p>
-                <p><strong>Gifts & Props:</strong> {{ parseJSON(t.gifts_props)[group] || 'None' }}</p>
+                <!-- Props removed from loop here -->
+                <p><strong>Remarks:</strong> {{ parseJSON(t.remarks)[group] || '-' }}</p>
               </div>
             </div>
           </div>
 
-          <button (click)="selectedTask = null" class="submit-btn close-btn">
+          <!-- Shared Bottom Information (Gift Planner, Props, Additional Task) -->
+          <div class="shared-summary-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+            <p><strong>Gift Planner:</strong> {{ t.gift_planner || 'None' }}</p>
+            <p style="margin-top: 8px;"><strong>Props:</strong> {{ t.props || 'None' }}</p>
+            <p style="margin-top: 8px;"><strong>Additional Task:</strong> {{ t.additional_task || 'None' }}</p>
+          </div>
+
+          <button (click)="selectedTask = null" class="submit-btn close-btn" style="margin-top: 15px;">
             Close
           </button>
         </div>

@@ -1,0 +1,676 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(63, 81, 181, 0.4);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Mobile smooth sliding entry animation */
+@keyframes mobileSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobile-animate {
+  animation: mobileSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.video-container, .video-call-wrapper {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Header Nav & Back Button */
+.header-nav {
+  margin-bottom: 16px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #3f51b5;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+}
+
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header-row h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.top-action-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Empty State Card */
+.empty-state-card {
+  background: #ffffff;
+  border: 1px dashed #ced4da;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  color: #6c757d;
+  margin-top: 20px;
+}
+
+.empty-state-card p {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 12px 0 4px 0;
+  color: #495057;
+}
+
+.empty-state-card span {
+  font-size: 0.9rem;
+}
+
+/* Accordion Expandable Card Container (Matching Weekly Tasks Style) */
+.meetings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.session-plan-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.session-plan-card:hover {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.card-header-main {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: #fafafa;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.card-header-main:hover {
+  background: #f2f4f8;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.date-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+  display: block;
+}
+
+.subtitle-hint {
+  font-size: 13px;
+  color: #666;
+}
+
+.card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-action-btn {
+  font-size: 0.85rem;
+}
+
+.card-expanded-body {
+  padding: 24px;
+  border-top: 1px solid #eee;
+  background: #fdfdfe;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin-bottom: 16px;
+}
+
+.details-content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+}
+
+.schedule-badge {
+  background: #eef2ff;
+  color: #3f51b5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.email-badge {
+  background: #eef2f7;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+/* Historical Attendee History Section */
+.past-attendees-section {
+  margin-top: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #edf2f7;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  display: block;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.attendee-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: #e2e8f0;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.no-attendees-text {
+  font-size: 13px;
+  color: #718096;
+  font-style: italic;
+  margin: 4px 0;
+}
+
+.card-footer-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.status-banner {
+  margin-top: 12px;
+  padding: 12px;
+  text-align: center;
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.status-banner.admin-banner {
+  background-color: #ebf8ff;
+  color: #2b6cb0;
+  border: 1px solid #bee3f8;
+}
+
+.status-banner.user-banner {
+  background-color: #f0fff4;
+  color: #276749;
+  border: 1px solid #c6f6d5;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* Active Jitsi Call Layout Grid */
+.active-meeting-layout {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+  align-items: start;
+  animation: fadeIn 0.5s ease-out;
+  transition: grid-template-columns 0.25s ease;
+}
+
+.active-meeting-layout.chat-open {
+  grid-template-columns: 3fr 1fr 1.2fr;
+}
+
+.video-frame-wrapper {
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  animation: pulseGlow 4s infinite ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+
+#jitsi-iframe-container {
+  width: 100%;
+  min-height: 500px;
+  height: 650px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-frame-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12px;
+}
+
+.chat-toggle-btn {
+  position: relative;
+  background-color: white !important;
+}
+
+.chat-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #d93025;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  padding: 0 4px;
+}
+
+.leave-btn {
+  margin: 0;
+  background-color: white !important;
+}
+
+.attendees-card {
+  height: 100%;
+  max-height: 650px;
+  overflow-y: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+  border-radius: 8px !important;
+}
+
+.attendee-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+
+.attendee-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #2d3748;
+}
+
+.no-attendees {
+  color: #a0aec0;
+  font-style: italic;
+  text-align: center;
+  padding: 16px 0;
+}
+
+/* Meet-style in-call chat panel */
+.chat-panel {
+  height: 100%;
+  max-height: 650px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+  border-radius: 8px !important;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.chat-panel mat-card-header {
+  position: relative;
+}
+
+.chat-close-btn {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px !important;
+}
+
+.chat-empty {
+  color: #a0aec0;
+  font-style: italic;
+  text-align: center;
+  padding: 16px 0;
+  font-size: 13px;
+}
+
+.chat-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #f1f3f4;
+  border-radius: 10px;
+  padding: 8px 12px;
+  max-width: 90%;
+  align-self: flex-start;
+}
+
+.chat-bubble-local {
+  background: #e8f0fe;
+  align-self: flex-end;
+}
+
+.chat-sender {
+  font-size: 11px;
+  font-weight: 600;
+  color: #5f6368;
+}
+
+.chat-text {
+  font-size: 14px;
+  color: #202124;
+  word-break: break-word;
+}
+
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  border-top: 1px solid #eee;
+}
+
+.chat-input {
+  flex: 1;
+  border: 1px solid #dadce0;
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 14px;
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: #3f51b5;
+}
+
+/* Date Highlight Box utility */
+.date-highlight-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 4px solid #3f51b5;
+  margin-bottom: 8px;
+}
+
+.date-label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.date-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Modal Overlay Styles */
+.schedule-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.schedule-modal-card {
+  background: #ffffff;
+  width: 420px;
+  max-width: 92%;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 16px 20px;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-body .form-group {
+  margin-bottom: 16px;
+}
+
+.modal-body .form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.modal-body .form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.modal-body .form-control:focus {
+  border-color: #3f51b5;
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+
+/* ==========================================
+   MOBILE & TABLET RESPONSIVE QUERIES
+   ========================================== */
+
+@media screen and (max-width: 1100px) {
+  .active-meeting-layout.chat-open {
+    grid-template-columns: 3fr 1fr;
+  }
+  .chat-panel {
+    grid-column: 1 / -1;
+    max-height: 320px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .active-meeting-layout,
+  .active-meeting-layout.chat-open {
+    grid-template-columns: 1fr;
+  }
+  .chat-panel {
+    grid-column: auto;
+    max-height: 400px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .video-container, .video-call-wrapper {
+    padding: 12px;
+  }
+
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page-header-row h2 {
+    font-size: 20px;
+  }
+
+  .top-action-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .top-action-controls button {
+    width: 100%;
+  }
+
+  /* Card Header stacking on smaller screens */
+  .card-header-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .card-header-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .card-header-actions button {
+    flex: 1;
+    min-width: 110px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  #jitsi-iframe-container {
+    height: 380px !important;
+    min-height: 350px !important;
+  }
+
+  .attendees-card {
+    max-height: 300px;
+  }
+
+  .schedule-modal-card {
+    width: 95%;
+    margin: 0 auto;
+  }
+}
