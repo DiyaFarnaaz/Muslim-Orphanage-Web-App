@@ -1,5 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { SupabaseService } from './supabase';
+import { KJUR } from 'jsrsasign';
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -27,21 +28,6 @@ export interface Participant {
 
 export type OverlayMode = 'hidden' | 'full' | 'floating' | 'external';
 
-/**
- * Single source of truth for the active call.
- *
- * Design goal: this service does NOT build any UI. It only holds state
- * (Angular Signals) and drives the Jitsi API. The one DOM element it does
- * touch is the raw <div> that Jitsi itself needs as a mount target
- * (`jitsiContainer`), and only for two reasons:
- *   1) telling Jitsi where to render its iframe on join()
- *   2) optionally reparenting that single div into a real browser
- *      Picture-in-Picture window, which is unavoidable - Jitsi's iframe
- *      can't "teleport" any other way.
- *
- * Everything else - toolbar, chat, participants list, floating widget
- * chrome - is plain Angular template driven by these signals.
- */
 @Injectable({ providedIn: 'root' })
 export class MeetingService {
   private api: any = null;
@@ -53,6 +39,38 @@ export class MeetingService {
   private pendingJoin: {
     roomName: string; email: string; name: string; meetingId: string; isAdmin: boolean;
   } | null = null;
+
+  // ---- JaaS Configuration Constants ----
+  private readonly JAAS_APP_ID = 'vpaas-magic-cookie-1cf2385cabf845f9b562248f29151bb9';
+  private readonly JAAS_KID = 'vpaas-magic-cookie-1cf2385cabf845f9b562248f29151bb9/8ff6d4'; 
+  private readonly RSA_PRIVATE_KEY = `-----BEGIN PRIVATE KEY-----
+MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDUz2AYM0dt8Nju
+bVjElW5lbxFfCb3L8Jv79Sq6E+wXIpAzcA4Yzq+Zu3MKM49nWShUGLoVFDodM6BV
+YPuibPzFuMoO+D0PlV9NZn1PB67c5iH1KuaRPpUukQuzIKOSldApSgbwDsVD0cl5
+KXGyhzKa00lBrG3ZRTnbs77nmCG0M55HY0UilfazXo0sKoetMGcIDQIUxgB9KJti
+5Ia6ANKJGoaHNoV6WMH6uQFc+GowTQoFGtOymgXB7zYtFAHLlHCeW4QC0v9tsx1I
+QIPEYmvzjVGsW2SQ+floGSIM7jJrvIef+9a2j/1bXL5nG4ICCNwJcuq9D7s2dV7M
+SXWp9UUfAgMBAAECggEBAKN9HWn6GyoPGdkyEDwWQNWUWlgU98axdmQ+mTCTFZFA
+cF/T+kB8qNMF+v8fVVAkYqMYy/xdqbe9bbOp6ieCaz7LFBAkDWTncGvaDPKmCGSU
+OApNhwyWc61uqPpYXNHEXkMaJ/JMpqfPh2SZvktVKj9fiqv1d/6u/CAZGtR5P4tb
+pWd9NuVNMeWhdT/wLJifzaqXWlLijp4lTvW7aFO17RTZCV9P3EVWvEHYdp163yvA
+8K1/1Q4ZoHYI8eRRO/ZOv3+e3P7pJKta3toWFCCsqvUdXGKAQ/DmgUu3C8FvoECu
+Krs0ESq5Jl5N/mGOmDx7CunBWfggROSw6ZwSfVOiJ2ECgYEA9amPE7mXOqg6U/Q3
+zENQ2ZpvAjKVlBJki1meQCE19GFdgjcCdix34jFvdwqNf8OpycF0miGkbS/iibHu
+uoO5N89nk05Bj/DMI/D5kY9pLA+t9rm7P46xt73tERnb4mp08qKk0XQyznXuInmH
+ZEdwLL++1OZCiUOTW+eZKxdmt2UCgYEA3cPo0wwb4jRUgz5OjrSipcLZtWSN2cX2
+vYxiaeirn7jxrqAq+Hp3IGDTSk6WIbDfY74QVn9+znLiRLpsR02oyzFG+p8ZpOoa
+CFiIi/OaEUkiz20+JDrpkeN78B7soxs4G4BI8cf5zdLXRGn7365WBLSPb9REqG+H
+KwlRUvDuDDMCgYB39EiR6CCpGrYIgoqwafpTlu43k32oZObFiIgWZmETKGvhhnzk
+OUh8oYj9BqEbTu5cPuNx05WXXzdt5v1cA6/wSY0Yx7CJ2ZnEvwkOA4nmYu2eOQju
+uv2aa9oTbJ4Ky9K5G6QBRoz8dWdHXDI5TAzBPQuwp5K7tcyBpvAKs42LZQKBgCyT
+NVg+hdhI9nfO7VFn4414BfSc+po8XWUqM5ngJ6caMJIOJbT+QLWkYLP96dVpzO0q
+hfQs+lsa4no4Eo2egYAeLosvsaLhX0wwJ3oiA+TXk4SoC6aSpOIrHH1eaeg7D2MP
+vRnEPWTurVBWEUebrjSR6obq3sYQbNXssIkAXojbAoGBAIRgOdizpPNI8ZTHgb2j
+RnD6q1DfdjyGNfx2V04L9nss1dQNMKsreeUZlXQu5/35LsVMtsyQq5p09TvKFPc5
+cIz0ccW001MbmzaMRF0bb808gQBsV1s3voKwvgm4NMjgy4X+hopijEd5bN16i1sG
++r/HF70K2rZ3Z+f6gy5ORXoZ
+-----END PRIVATE KEY-----`;
 
   // ---- state ----------------------------------------------------------
   readonly activeMeetingId = signal<string | null>(null);
@@ -82,13 +100,6 @@ export class MeetingService {
 
   // ---- host registration ----------------------------------------------
 
-  /**
-   * Called once by MeetingOverlayComponent, which is mounted at the app
-   * root (a sibling of <router-outlet>, never destroyed). This gives the
-   * service a permanent place to render Jitsi into, so unlike the old
-   * implementation, "full screen" vs "floating" is now just CSS on a node
-   * that already exists - no reparenting across documents required.
-   */
   registerHost(jitsiContainer: HTMLElement, hostElement: HTMLElement): void {
     this.jitsiContainer = jitsiContainer;
     this.hostElement = hostElement;
@@ -99,11 +110,54 @@ export class MeetingService {
     }
   }
 
+  // ---- JWT Generator Helper -------------------------------------------
+
+  private generateJaaSJwt(userEmail: string, userName: string, roomName: string, isAdmin: boolean): string {
+    const header = {
+      alg: 'RS256',
+      typ: 'JWT',
+      kid: this.JAAS_KID
+    };
+
+    const now = Math.floor(Date.now() / 1000);
+    const exp = now + 7200; // 2 hours expiration
+
+    const payload = {
+      aud: 'jitsi',
+      iss: 'chat',
+      sub: this.JAAS_APP_ID,
+      room: roomName,
+      nbf: now - 10,
+      exp: exp,
+      context: {
+        user: {
+          id: userEmail,
+          name: userName,
+          email: userEmail,
+          moderator: isAdmin ? 'true' : 'false'
+        },
+        features: {
+          livestreaming: false,
+          recording: false,
+          transcription: false
+        }
+      }
+    };
+
+    try {
+      const sHeader = JSON.stringify(header);
+      const sPayload = JSON.stringify(payload);
+      return KJUR.jws.JWS.sign('RS256', sHeader, sPayload, this.RSA_PRIVATE_KEY);
+    } catch (err) {
+      console.error('[MeetingService] Failed to sign JaaS JWT:', err);
+      return '';
+    }
+  }
+
   // ---- lifecycle --------------------------------------------------------
 
   join(roomName: string, userEmail: string, userName: string, meetingId: string, isAdmin: boolean): void {
     if (!this.jitsiContainer) {
-      // MeetingOverlay hasn't run ngAfterViewInit yet - queue it.
       this.pendingJoin = { roomName, email: userEmail, name: userName, meetingId, isAdmin };
       return;
     }
@@ -128,14 +182,19 @@ export class MeetingService {
     this.unreadCount.set(0);
     this.latestReaction.set(null);
 
-    const domain = 'meet.jit.si';
+    // Prefix room with your JaaS App ID
+    const fullRoomName = `${this.JAAS_APP_ID}/${roomName}`;
+    const jwtToken = this.generateJaaSJwt(userEmail, this.localDisplayName, roomName, isAdmin);
+
+    const domain = '8x8.vc';
     const options = {
-      roomName,
+      roomName: fullRoomName,
+      jwt: jwtToken,
       width: '100%',
       height: '100%',
       parentNode: this.jitsiContainer,
       userInfo: { email: userEmail, displayName: this.localDisplayName },
-     configOverwrite: {
+      configOverwrite: {
         startWithAudioMuted: true,
         startWithVideoMuted: true,
         prejoinPageEnabled: false,
@@ -157,8 +216,6 @@ export class MeetingService {
     this.bindApiEvents();
     this.expand();
 
-    // Only needed to survive a hard page reload - normal in-app navigation
-    // never destroys this service, so nothing reads this during a session.
     sessionStorage.setItem('active_meeting_id', meetingId);
   }
 
@@ -222,13 +279,10 @@ export class MeetingService {
     if (this.isChatOpen()) this.unreadCount.set(0);
   }
 
-  // ---- view modes ---------------------------------------------------
-
   expand(): void {
     this.closeExternalPip();
     this.reattachToHost();
     this.mode.set('full');
-    // Force Jitsi to redraw/fit the full screen container
     setTimeout(() => {
       this.api?.executeCommand?.('resize');
     }, 50);
@@ -237,15 +291,11 @@ export class MeetingService {
   minimize(): void {
     if (!this.api) return;
     this.mode.set('floating');
-    // Force Jitsi to scale down cleanly into the floating container
     setTimeout(() => {
       this.api?.executeCommand?.('resize');
     }, 50);
   }
 
-  /** Tries the real OS-level Picture-in-Picture window; falls back to the
-   *  in-page floating widget if unsupported or the user gesture requirement
-   *  fails (e.g. Safari/Firefox, or if it's called outside a direct click). */
   async requestExternalPiP(): Promise<void> {
     if (!this.jitsiContainer || !window.documentPictureInPicture) {
       this.minimize();
@@ -284,17 +334,12 @@ export class MeetingService {
     }
   }
 
-  // ---- ending the call --------------------------------------------------
-
-  /** Ordinary participant leaving - records attendance, does NOT flip the
-   *  meeting inactive (other people may still be on the call). */
   async leaveCall(): Promise<void> {
     this.api?.executeCommand?.('hangup');
     await this.recordAttendance();
     this.teardown();
   }
 
-  /** Admin ending the meeting for everyone. */
   async endForAll(): Promise<void> {
     this.api?.executeCommand?.('endConference');
     await this.recordAttendance();
@@ -356,15 +401,6 @@ export class MeetingService {
     sessionStorage.removeItem('active_meeting_id');
   }
 
-  // ---- reload restore ---------------------------------------------------
-
-  /**
-   * Call once from AppComponent.ngOnInit(). Handles the one case
-   * navigation alone can't: a hard page reload/deep link while a call was
-   * live. Everything else (switching pages within the app) already keeps
-   * the call alive automatically because this service - and MeetingOverlay,
-   * which mounts it - live at the app root and are never destroyed.
-   */
   async restoreIfAny(): Promise<void> {
     const savedId = sessionStorage.getItem('active_meeting_id');
     if (!savedId) return;
