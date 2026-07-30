@@ -1,0 +1,14 @@
+<div class="meeting-participants" (click)="$event.stopPropagation()">
+  <div class="panel-header">
+    <span>Participants ({{ meeting.participants().length }})</span>
+    <button type="button" class="close-btn" (click)="closePanel.emit()">✕</button>
+  </div>
+
+  <ul class="participant-list">
+    <li *ngIf="meeting.participants().length === 0" class="empty">Waiting for others to join…</li>
+    <li *ngFor="let p of meeting.participants()">
+      <span class="avatar">👤</span>
+      <span>{{ p.displayName }}</span>
+    </li>
+  </ul>
+</div>

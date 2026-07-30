@@ -1,0 +1,35 @@
+<div
+  class="meeting-overlay"
+  [class.hidden]="!meeting.isActive()"
+  [class.full]="meeting.mode() === 'full'"
+  [class.floating]="meeting.mode() === 'floating'"
+  [class.external]="meeting.mode() === 'external'"
+  cdkDrag
+  [cdkDragDisabled]="meeting.mode() !== 'floating'"
+  (cdkDragEnded)="onDragEnded($event)"
+  (click)="onWidgetClick()">
+
+  <!-- Jitsi mounts its iframe into #jitsiContainer once, on service init,
+       and it is never removed from the DOM for full/floating modes - only
+       CSS on #jitsiHost changes. It's only reparented (into a real OS PiP
+       window) when the user explicitly requests external Picture-in-Picture. -->
+  <div #jitsiHost class="jitsi-host">
+    <div #jitsiContainer class="jitsi-container"></div>
+  </div>
+
+  <ng-container *ngIf="meeting.mode() === 'full'">
+    <app-meeting-toolbar (toggleParticipantsClick)="toggleParticipants()"></app-meeting-toolbar>
+
+    <app-meeting-participants
+      *ngIf="showParticipants"
+      (closePanel)="toggleParticipants()"></app-meeting-participants>
+
+    <app-meeting-chat *ngIf="meeting.isChatOpen()"></app-meeting-chat>
+  </ng-container>
+
+  <app-floating-player *ngIf="meeting.mode() === 'floating'"></app-floating-player>
+
+  <div class="external-pip-placeholder" *ngIf="meeting.mode() === 'external'">
+    <span>Playing in Picture-in-Picture</span>
+  </div>
+</div>

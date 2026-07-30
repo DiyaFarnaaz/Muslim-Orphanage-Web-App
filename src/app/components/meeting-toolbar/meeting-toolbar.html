@@ -1,0 +1,31 @@
+<div class="meeting-toolbar" (click)="$event.stopPropagation()">
+  <button type="button" class="ctrl-btn" (click)="meeting.toggleAudio()"
+          [title]="meeting.isAudioMuted() ? 'Unmute' : 'Mute'">
+    {{ meeting.isAudioMuted() ? '🔇' : '🎤' }}
+  </button>
+
+  <button type="button" class="ctrl-btn" (click)="meeting.toggleVideo()"
+          [title]="meeting.isVideoMuted() ? 'Start video' : 'Stop video'">
+    {{ meeting.isVideoMuted() ? '📷' : '📹' }}
+  </button>
+
+  <button type="button" class="ctrl-btn" (click)="toggleParticipantsClick.emit()" title="Participants">
+    👥
+    <span class="badge" *ngIf="meeting.participants().length > 0">{{ meeting.participants().length }}</span>
+  </button>
+
+  <button type="button" class="ctrl-btn" (click)="meeting.toggleChat()" title="Chat">
+    💬
+    <span class="badge" *ngIf="meeting.unreadCount() > 0">{{ meeting.unreadCount() }}</span>
+  </button>
+
+  <button type="button" class="ctrl-btn" (click)="popOut()" title="Pop out / Picture-in-Picture">🗔</button>
+
+  <button type="button" class="ctrl-btn" (click)="meeting.minimize()" title="Minimize">▁</button>
+
+  <button type="button" class="ctrl-btn danger" (click)="leave()" title="Leave call">📞</button>
+
+  <button type="button" class="ctrl-btn danger" *ngIf="meeting.isAdmin()" (click)="endForAll()" title="End for all">
+    ⛔
+  </button>
+</div>

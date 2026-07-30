@@ -7,17 +7,8 @@
   <!-- Top Header Row -->
   <div class="page-header-row">
     <h2>Organization Video Conference Portal</h2>
-    
-    <div class="top-action-controls">
-      <!-- Pop-out PiP button (visible only when an active call exists) -->
-      <button 
-        mat-stroked-button 
-        type="button" 
-        *ngIf="activeMeetingId" 
-        (click)="popOutToPiP()">
-        <mat-icon>picture_in_picture_alt</mat-icon> Pop out
-      </button>
 
+    <div class="top-action-controls">
       <!-- Admin-Only Schedule Meeting Action Button -->
       <div *ngIf="isAdmin" style="display:inline-block;">
         <button mat-raised-button color="primary" type="button" (click)="openScheduleModal()">
@@ -63,57 +54,60 @@
 
   <!-- LIST OF SCHEDULED MEETING CARDS -->
   <div class="meetings-list" *ngIf="meetings.length > 0">
-    <div class="session-plan-card" *ngFor="let meeting of meetings">
-      
+    <div class="session-plan-card" *ngFor="let m of meetings">
+
       <!-- Card Header -->
-      <div class="card-header-main" (click)="toggleCardExpansion(meeting)">
+      <div class="card-header-main" (click)="toggleCardExpansion(m)">
         <div class="header-left">
           <mat-icon color="primary">event_note</mat-icon>
           <div>
-            <span class="date-title">{{ meeting.meeting_title }}</span>
+            <span class="date-title">{{ m.meeting_title }}</span>
             <span class="subtitle-hint">
-              📅 Scheduled For: <strong>{{ meeting.scheduled_time }}</strong> | {{ meeting.is_active ? '🔴 Live Now' : 'Offline / Completed' }}
+              📅 Scheduled For: <strong>{{ m.scheduled_time }}</strong> | {{ m.is_active ? '🔴 Live Now' : 'Offline / Completed' }}
             </span>
           </div>
         </div>
-        
+
         <!-- Card Action Controls -->
         <div class="card-header-actions" (click)="$event.stopPropagation()">
           <ng-container *ngIf="isAdmin">
-            <button *ngIf="!meeting.is_active" mat-raised-button color="primary" class="card-action-btn" type="button" (click)="startMeeting(meeting)">
+            <button *ngIf="!m.is_active && !meetingHasEnded(m)" mat-raised-button color="primary" class="card-action-btn" type="button" (click)="startMeeting(m)">
               <mat-icon>play_arrow</mat-icon> Start Meeting
             </button>
-            <button *ngIf="meeting.is_active" mat-raised-button color="accent" class="card-action-btn" type="button" (click)="joinMeeting(meeting)">
-              <mat-icon>login</mat-icon> {{ activeMeetingId === meeting.id ? 'Return to Call' : 'Join Active' }}
+            <button *ngIf="m.is_active" mat-raised-button color="accent" class="card-action-btn" type="button" (click)="joinMeeting(m)">
+              <mat-icon>login</mat-icon> {{ meeting.activeMeetingId() === m.id ? 'Return to Call' : 'Join Active' }}
             </button>
-            <button mat-stroked-button color="accent" class="card-action-btn" type="button" (click)="openEditModal(meeting)">
+            <button *ngIf="!m.is_active && meetingHasEnded(m)" mat-stroked-button disabled class="card-action-btn ended-btn" type="button">
+              <mat-icon>event_busy</mat-icon> Meeting Ended
+            </button>
+            <button mat-stroked-button color="accent" class="card-action-btn" type="button" (click)="openEditModal(m)">
               <mat-icon>edit</mat-icon> Edit
             </button>
-            <button mat-stroked-button color="warn" class="card-action-btn" type="button" (click)="deleteMeeting(meeting)">
+            <button mat-stroked-button color="warn" class="card-action-btn" type="button" (click)="deleteMeeting(m)">
               <mat-icon>delete</mat-icon> Delete
             </button>
           </ng-container>
 
-          <button *ngIf="!isAdmin" mat-raised-button color="accent" type="button" [disabled]="!meeting.is_active" (click)="joinMeeting(meeting)">
-            <mat-icon>login</mat-icon> {{ activeMeetingId === meeting.id ? 'Return to Call' : (meeting.is_active ? 'Join Meeting' : 'Waiting for Admin...') }}
+          <button *ngIf="!isAdmin" mat-raised-button color="accent" type="button" [disabled]="!m.is_active" (click)="joinMeeting(m)">
+            <mat-icon>login</mat-icon>
+            {{ meeting.activeMeetingId() === m.id ? 'Return to Call' : (m.is_active ? 'Join Meeting' : (meetingHasEnded(m) ? 'Meeting Ended' : 'Waiting for Admin...')) }}
           </button>
         </div>
       </div>
 
-      <!-- Collapsed / Expanded Content Body -->
-      <div class="card-expanded-body" *ngIf="meeting.isExpanded" (click)="$event.stopPropagation()">
+      <!-- Collapsed / Expanded Details -->
+      <div class="card-expanded-body" *ngIf="m.isExpanded" (click)="$event.stopPropagation()">
         <div class="divider"></div>
 
-        <!-- View A: Details & Attendee Summary -->
-        <div class="details-content-section" *ngIf="activeMeetingId !== meeting.id">
+        <div class="details-content-section">
           <div class="info-row">
-            <strong>Meeting Title:</strong> <span>{{ meeting.meeting_title }}</span>
+            <strong>Meeting Title:</strong> <span>{{ m.meeting_title }}</span>
           </div>
           <div class="info-row">
-            <strong>Scheduled Time:</strong> <span class="schedule-badge">{{ meeting.scheduled_time }}</span>
+            <strong>Scheduled Time:</strong> <span class="schedule-badge">{{ m.scheduled_time }}</span>
           </div>
           <div class="info-row">
-            <strong>Room Name:</strong> <span>{{ meeting.room_name }}</span>
+            <strong>Room Name:</strong> <span>{{ m.room_name }}</span>
           </div>
           <div class="info-row">
             <strong>Signed in as:</strong> <span class="email-badge">{{ userEmail }}</span>
@@ -121,8 +115,8 @@
 
           <div class="past-attendees-section">
             <span class="section-title">Meeting Attendees History & Summary</span>
-            <div class="attendee-chips" *ngIf="meeting.past_attendees && meeting.past_attendees.length > 0; else noPastAttendees">
-              <span class="chip" *ngFor="let attendee of meeting.past_attendees">
+            <div class="attendee-chips" *ngIf="m.past_attendees && m.past_attendees.length > 0; else noPastAttendees">
+              <span class="chip" *ngFor="let attendee of m.past_attendees">
                 <mat-icon inline="true">person</mat-icon> {{ attendee }}
               </span>
             </div>
@@ -132,78 +126,11 @@
           </div>
 
           <div class="card-footer-actions">
-            <button mat-stroked-button color="primary" type="button" (click)="toggleCardExpansion(meeting)">
+            <button mat-stroked-button color="primary" type="button" (click)="toggleCardExpansion(m)">
               <mat-icon>expand_less</mat-icon> Hide Details
             </button>
           </div>
         </div>
-
-        <!-- View B: Active Jitsi Call Layout -->
-        <div class="active-meeting-layout" [class.chat-open]="callState.isChatPanelOpen" *ngIf="activeMeetingId === meeting.id">
-          <div class="video-frame-wrapper">
-            <div id="jitsi-iframe-container"></div>
-            <div class="video-frame-actions">
-              <button mat-stroked-button color="primary" class="chat-toggle-btn" type="button" (click)="callState.toggleChatPanel()">
-                <mat-icon>chat</mat-icon> Chat
-                <span class="chat-badge" *ngIf="!callState.isChatPanelOpen && callState.chatMessages.length > 0">{{ callState.chatMessages.length }}</span>
-              </button>
-              <button mat-stroked-button color="warn" class="leave-btn" type="button" (click)="handleMeetingClose(meeting)">
-                <mat-icon>exit_to_app</mat-icon> Leave / End Meeting
-              </button>
-            </div>
-          </div>
-
-          <mat-card class="attendees-card">
-            <mat-card-header>
-              <mat-icon mat-card-avatar>group</mat-icon>
-              <mat-card-title>Live Attendees</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <ul class="attendee-list">
-                <li *ngIf="currentLiveAttendees.length === 0" class="no-attendees">Waiting for participants...</li>
-                <li *ngFor="let attendee of currentLiveAttendees">
-                  <mat-icon inline="true" color="primary">person</mat-icon> {{ attendee }}
-                </li>
-              </ul>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Meet-style chat panel. Message history lives in the service, so it
-               survives navigating away and coming back. -->
-          <mat-card class="chat-panel" *ngIf="callState.isChatPanelOpen">
-            <mat-card-header>
-              <mat-icon mat-card-avatar>chat</mat-icon>
-              <mat-card-title>In-call messages</mat-card-title>
-              <button mat-icon-button type="button" class="chat-close-btn" (click)="callState.toggleChatPanel()">
-                <mat-icon>close</mat-icon>
-              </button>
-            </mat-card-header>
-            <mat-card-content class="chat-messages">
-              <p class="chat-empty" *ngIf="callState.chatMessages.length === 0">
-                No messages yet. Say hello!
-              </p>
-              <div
-                class="chat-bubble"
-                [class.chat-bubble-local]="msg.isLocal"
-                *ngFor="let msg of callState.chatMessages">
-                <span class="chat-sender">{{ msg.isLocal ? 'You' : msg.from }}</span>
-                <span class="chat-text">{{ msg.text }}</span>
-              </div>
-            </mat-card-content>
-            <div class="chat-input-row">
-              <input
-                type="text"
-                class="chat-input"
-                placeholder="Send a message to everyone"
-                [(ngModel)]="chatInput"
-                (keydown.enter)="sendChat()" />
-              <button mat-icon-button type="button" color="primary" (click)="sendChat()">
-                <mat-icon>send</mat-icon>
-              </button>
-            </div>
-          </mat-card>
-        </div>
-
       </div>
 
     </div>

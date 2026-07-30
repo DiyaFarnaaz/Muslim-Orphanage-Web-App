@@ -1,0 +1,10 @@
+<div class="floating-player" (click)="$event.stopPropagation()">
+  <button type="button" (click)="meeting.toggleAudio()" [title]="meeting.isAudioMuted() ? 'Unmute' : 'Mute'">
+    {{ meeting.isAudioMuted() ? '🔇' : '🎤' }}
+  </button>
+  <button type="button" (click)="meeting.toggleVideo()" [title]="meeting.isVideoMuted() ? 'Start video' : 'Stop video'">
+    {{ meeting.isVideoMuted() ? '📷' : '📹' }}
+  </button>
+  <button type="button" (click)="meeting.expand()" title="Expand back to full screen">⤢</button>
+  <button type="button" class="danger" (click)="meeting.leaveCall()" title="Leave call">✕</button>
+</div>

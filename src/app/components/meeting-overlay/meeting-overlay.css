@@ -1,0 +1,69 @@
+.meeting-overlay {
+  position: fixed;
+  z-index: 999999;
+  background: #202124;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  transition: border-radius 0.2s ease;
+}
+
+.meeting-overlay.hidden {
+  display: none;
+}
+
+/* Full screen call */
+.meeting-overlay.full {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  cursor: default;
+}
+
+/* Floating draggable widget */
+.meeting-overlay.floating {
+  bottom: 24px;
+  right: 24px;
+  width: 320px;
+  height: 200px;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+/* Content is mounted in a real OS PiP window; keep a tiny placeholder here
+   so the DOM node (and Angular state) stays consistent, but don't take up
+   visual space. */
+.meeting-overlay.external {
+  width: 0;
+  height: 0;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.external-pip-placeholder {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(32, 33, 36, 0.9);
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.jitsi-host {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.jitsi-container {
+  width: 100%;
+  height: 100%;
+}

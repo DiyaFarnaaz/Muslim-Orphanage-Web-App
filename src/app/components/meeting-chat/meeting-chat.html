@@ -1,0 +1,24 @@
+<div class="meeting-chat" (click)="$event.stopPropagation()">
+  <div class="chat-header">
+    <span>In-call messages</span>
+    <button type="button" class="close-btn" (click)="meeting.toggleChat()">✕</button>
+  </div>
+
+  <div class="chat-messages">
+    <p class="chat-empty" *ngIf="meeting.chatMessages().length === 0">No messages yet. Say hello!</p>
+    <div class="chat-bubble" [class.local]="msg.isLocal" *ngFor="let msg of meeting.chatMessages()">
+      <span class="chat-sender">{{ msg.isLocal ? 'You' : msg.from }}</span>
+      <span class="chat-text">{{ msg.text }}</span>
+    </div>
+  </div>
+
+  <div class="chat-input-row">
+    <input
+      type="text"
+      class="chat-input"
+      placeholder="Send a message to everyone"
+      [(ngModel)]="input"
+      (keydown.enter)="send()" />
+    <button type="button" class="send-btn" (click)="send()">➤</button>
+  </div>
+</div>

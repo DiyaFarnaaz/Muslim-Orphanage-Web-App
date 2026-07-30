@@ -1,0 +1,61 @@
+.meeting-participants {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  bottom: 100px;
+  width: 260px;
+  background: rgba(32, 33, 36, 0.96);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.close-btn {
+  border: none;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.participant-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 10px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.participant-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  color: #fff;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.participant-list .empty {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  border-bottom: none;
+}
+
+.avatar {
+  font-size: 15px;
+}
