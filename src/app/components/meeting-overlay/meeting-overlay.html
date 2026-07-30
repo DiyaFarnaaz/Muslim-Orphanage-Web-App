@@ -6,13 +6,14 @@
   [class.external]="meeting.mode() === 'external'"
   cdkDrag
   [cdkDragDisabled]="meeting.mode() !== 'floating'"
-  (cdkDragEnded)="onDragEnded($event)"
-  (click)="onWidgetClick()">
+  (cdkDragEnded)="onDragEnded($event)">
 
-  <!-- Jitsi mounts its iframe into #jitsiContainer once, on service init,
-       and it is never removed from the DOM for full/floating modes - only
-       CSS on #jitsiHost changes. It's only reparented (into a real OS PiP
-       window) when the user explicitly requests external Picture-in-Picture. -->
+  <!-- Dedicated drag handle bar at the top of the floating card -->
+  <div class="drag-handle" cdkDragHandle *ngIf="meeting.mode() === 'floating'">
+    <span class="drag-dots">••• Drag to move •••</span>
+    <button class="expand-btn" (click)="meeting.expand()" title="Expand to full screen">⛶</button>
+  </div>
+
   <div #jitsiHost class="jitsi-host">
     <div #jitsiContainer class="jitsi-container"></div>
   </div>

@@ -66,6 +66,7 @@ export class MeetingService {
   readonly chatMessages = signal<ChatMessage[]>([]);
   readonly participants = signal<Participant[]>([]);
   readonly unreadCount = signal(0);
+  readonly latestReaction = signal<{ user: string; emoji: string } | null>(null);
 
   readonly isActive = computed(() => this.mode() !== 'hidden');
   readonly isMinimized = computed(() => this.mode() === 'floating' || this.mode() === 'external');
@@ -125,6 +126,7 @@ export class MeetingService {
     this.chatMessages.set([]);
     this.participants.set([]);
     this.unreadCount.set(0);
+    this.latestReaction.set(null);
 
     const domain = 'meet.jit.si';
     const options = {
@@ -133,18 +135,20 @@ export class MeetingService {
       height: '100%',
       parentNode: this.jitsiContainer,
       userInfo: { email: userEmail, displayName: this.localDisplayName },
-      configOverwrite: {
-        startWithAudioMuted: false,
-        startWithVideoMuted: false,
+     configOverwrite: {
+        startWithAudioMuted: true,
+        startWithVideoMuted: true,
         prejoinPageEnabled: false,
         disableModeratorIndicator: true,
+        enableLobby: false,
+        requireDisplayName: false,
       },
       interfaceConfigOverwrite: {
         SHOW_JITSI_WATERMARK: false,
         SHOW_WATERMARK_FOR_GUESTS: false,
         TOOLBAR_BUTTONS: [
           'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
-          'favourite', 'raisehand', 'videoquality', 'tileview', 'settings', 'stats', 'hangup'
+          'favourite', 'raisehand', 'videoquality', 'tileview', 'settings', 'stats', 'hangup', 'reactions'
         ]
       }
     };
@@ -188,6 +192,13 @@ export class MeetingService {
       this.chatMessages.update(list => [...list, msg]);
       if (!this.isChatOpen()) this.unreadCount.update(n => n + 1);
     });
+
+    this.api.addEventListener('reactionReceived', (d: any) => {
+      if (d?.reaction) {
+        this.latestReaction.set({ user: d.participantId || 'Participant', emoji: d.reaction });
+        setTimeout(() => this.latestReaction.set(null), 3000);
+      }
+    });
   }
 
   sendChatMessage(text: string): void {
@@ -217,11 +228,19 @@ export class MeetingService {
     this.closeExternalPip();
     this.reattachToHost();
     this.mode.set('full');
+    // Force Jitsi to redraw/fit the full screen container
+    setTimeout(() => {
+      this.api?.executeCommand?.('resize');
+    }, 50);
   }
 
   minimize(): void {
     if (!this.api) return;
     this.mode.set('floating');
+    // Force Jitsi to scale down cleanly into the floating container
+    setTimeout(() => {
+      this.api?.executeCommand?.('resize');
+    }, 50);
   }
 
   /** Tries the real OS-level Picture-in-Picture window; falls back to the
@@ -333,6 +352,7 @@ export class MeetingService {
     this.chatMessages.set([]);
     this.participants.set([]);
     this.unreadCount.set(0);
+    this.latestReaction.set(null);
     sessionStorage.removeItem('active_meeting_id');
   }
 

@@ -1,4 +1,14 @@
 <div class="floating-player" (click)="$event.stopPropagation()">
+  <!-- Live Chat Badge Notification Overlay -->
+  <div class="floating-badge-overlay" *ngIf="meeting.unreadCount() > 0" (click)="meeting.toggleChat()">
+    💬 {{ meeting.unreadCount() }} new message(s)
+  </div>
+
+  <!-- Live Emoji Reaction Pop-up -->
+  <div class="floating-reaction-toast" *ngIf="meeting.latestReaction() as reaction">
+    <span class="emoji">{{ reaction.emoji }}</span>
+  </div>
+
   <button type="button" (click)="meeting.toggleAudio()" [title]="meeting.isAudioMuted() ? 'Unmute' : 'Mute'">
     {{ meeting.isAudioMuted() ? '🔇' : '🎤' }}
   </button>

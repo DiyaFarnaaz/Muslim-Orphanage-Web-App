@@ -14,14 +14,6 @@ export class MeetingToolbarComponent {
 
   constructor(public meeting: MeetingService) {}
 
-  async popOut(): Promise<void> {
-    await this.meeting.requestExternalPiP();
-  }
-
-  leave(): void {
-    this.meeting.leaveCall();
-  }
-
   endForAll(): void {
     if (confirm('End this meeting for all participants?')) {
       this.meeting.endForAll();
