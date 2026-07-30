@@ -18,13 +18,6 @@ interface MeetingModel {
   isExpanded?: boolean;
 }
 
-/**
- * This component is now ONLY responsible for the meeting list and its
- * admin CRUD actions. Everything about the live call (Jitsi, chat,
- * participants, floating/PiP) lives in MeetingOverlayComponent + the
- * MeetingService, mounted at the app root, so it survives this component
- * being destroyed by route navigation.
- */
 @Component({
   selector: 'app-video-call',
   standalone: true,
@@ -58,6 +51,16 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     await this.loadUserProfileAsync();
     await this.fetchMeetings();
 
+    // Check if URL has a room query param to auto-join if active
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetRoom = urlParams.get('room');
+    if (targetRoom) {
+      const found = this.meetings.find(m => m.room_name === targetRoom);
+      if (found && found.is_active) {
+        this.joinMeeting(found);
+      }
+    }
+
     this.statusCheckInterval = setInterval(async () => {
       if (!this.meeting.activeMeetingId()) {
         await this.fetchMeetings();
@@ -69,12 +72,24 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     if (this.statusCheckInterval) {
       clearInterval(this.statusCheckInterval);
     }
-    // Nothing else to tear down here - the call (if any) keeps running in
-    // MeetingOverlayComponent at the app root.
   }
 
   public goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  public getShareableLink(roomName: string): string {
+    const origin = window.location.origin;
+    return `${origin}/dashboard/video-call?room=${roomName}`;
+  }
+
+  public copyMeetingLink(roomName: string): void {
+    const link = this.getShareableLink(roomName);
+    navigator.clipboard.writeText(link).then(() => {
+      alert('Meeting link copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy link: ', err);
+    });
   }
 
   private async loadUserProfileAsync(): Promise<void> {
@@ -142,9 +157,6 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     meeting.isExpanded = !meeting.isExpanded;
   }
 
-  /** True once a meeting has been started and ended at least once (it has
-   *  recorded attendees) but isn't currently live - as opposed to a
-   *  scheduled meeting that simply hasn't started yet. */
   public meetingHasEnded(meeting: MeetingModel): boolean {
     return !meeting.is_active && (meeting.past_attendees?.length ?? 0) > 0;
   }

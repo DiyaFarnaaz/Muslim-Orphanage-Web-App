@@ -109,6 +109,18 @@
           <div class="info-row">
             <strong>Room Name:</strong> <span>{{ m.room_name }}</span>
           </div>
+
+          <!-- Shareable Application Link Row -->
+          <div class="info-row" style="flex-direction: column; align-items: flex-start; gap: 6px;">
+            <strong>App Meeting Link:</strong>
+            <div style="display: flex; width: 100%; gap: 8px;">
+              <input type="text" readonly [value]="getShareableLink(m.room_name)" class="form-control" style="font-size: 12px; background: #f8f9fa;" #linkInput />
+              <button mat-raised-button color="primary" type="button" (click)="copyMeetingLink(m.room_name)">
+                <mat-icon>content_copy</mat-icon> Copy
+              </button>
+            </div>
+          </div>
+
           <div class="info-row">
             <strong>Signed in as:</strong> <span class="email-badge">{{ userEmail }}</span>
           </div>
