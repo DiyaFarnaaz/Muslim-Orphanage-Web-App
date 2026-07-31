@@ -1,21 +1,44 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 
 @Component({
   selector: 'app-session-progress',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './session-progress.html',
   styleUrls: ['./session-progress.css']
 })
 export class SessionProgressComponent implements OnInit {
   allSessions: any[] = [];
-  classGroups: string[] = [];
+  
+  // Strictly locked to your 6 exact group cards
+  classGroups: string[] = [
+    '1-2',
+    '3-4',
+    '5-7 girls',
+    '5-7 boys',
+    '8-10 girls',
+    '8-10 boys'
+  ];
+
   selectedGroup: string | null = null;
   filteredSessions: any[] = [];
   loading: boolean = true;
+
+  // Modal State for Add / Edit
+  showAddModal: boolean = false;
+  isEditMode: boolean = false;
+  editingSessionId: string | null = null;
+
+  newSession = {
+    class_group: '1-2',
+    session_date: new Date().toISOString().split('T')[0],
+    topic: ''
+  };
+  submitting: boolean = false;
 
   constructor(
     private supabase: SupabaseService,
@@ -24,7 +47,6 @@ export class SessionProgressComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
-    console.log('SessionProgressComponent initialized. Fetching sessions...');
     await this.loadAllSessions();
   }
 
@@ -39,24 +61,32 @@ export class SessionProgressComponent implements OnInit {
   async loadAllSessions() {
     this.loading = true;
     try {
-      const { data, error } = await this.supabase.client
+      // 1. Fetch from automated session reports table
+      const { data: reportSessions, error: err1 } = await this.supabase.client
         .from('sessions')
-        .select('session_date, topic, class_group')
-        .order('session_date', { ascending: false });
+        .select('*');
 
-      if (error) {
-        console.error('Supabase Error fetching sessions:', error.message);
-      } else {
-        console.log('Raw data received from Supabase:', data);
-        this.allSessions = data || [];
-        
-        // Extract and map group names
-        const groups = this.allSessions.map(item => {
-          return item.class_group ? item.class_group.trim() : 'General';
-        });
+      // 2. Fetch from manual entry session progress table
+      const { data: manualSessions, error: err2 } = await this.supabase.client
+        .from('session_progress')
+        .select('*');
 
-        this.classGroups = Array.from(new Set(groups)).sort();
-        console.log('Processed Unique Class Groups:', this.classGroups);
+      if (err1) console.error('Error fetching reports:', err1.message);
+      if (err2) console.error('Error fetching manual sessions:', err2.message);
+
+      // Combine both sources into a single array
+      const combined = [
+        ...(reportSessions || []),
+        ...(manualSessions || [])
+      ];
+
+      // Sort by date descending
+      this.allSessions = combined.sort((a, b) => 
+        new Date(b.session_date).getTime() - new Date(a.session_date).getTime()
+      );
+
+      if (this.selectedGroup) {
+        this.selectGroup(this.selectedGroup);
       }
     } catch (err) {
       console.error('Unexpected exception during fetch:', err);
@@ -67,11 +97,87 @@ export class SessionProgressComponent implements OnInit {
   }
 
   selectGroup(group: string) {
-    console.log('Selected Group:', group);
     this.selectedGroup = group;
-    this.filteredSessions = this.allSessions.filter(
-      item => (item.class_group ? item.class_group.trim() : 'General') === group
-    );
-    console.log('Filtered sessions for this group:', this.filteredSessions);
+    // Map records cleanly to the selected card group
+    this.filteredSessions = this.allSessions.filter(item => {
+      const dbGroup = item.class_group ? item.class_group.trim().toLowerCase() : '';
+      return dbGroup.includes(group.toLowerCase());
+    });
+  }
+
+  openAddModal() {
+    this.isEditMode = false;
+    this.editingSessionId = null;
+    this.newSession = {
+      class_group: this.selectedGroup || this.classGroups[0],
+      session_date: new Date().toISOString().split('T')[0],
+      topic: ''
+    };
+    this.showAddModal = true;
+  }
+
+  openEditModal(session: any, event: Event) {
+    event.stopPropagation();
+    this.isEditMode = true;
+    this.editingSessionId = session.id;
+    this.newSession = {
+      class_group: session.class_group || this.classGroups[0],
+      session_date: session.session_date,
+      topic: session.topic || ''
+    };
+    this.showAddModal = true;
+  }
+
+  closeAddModal() {
+    this.showAddModal = false;
+    this.editingSessionId = null;
+  }
+
+  async saveManualSession() {
+    if (!this.newSession.class_group || !this.newSession.topic || !this.newSession.session_date) {
+      alert('Please fill in all fields.');
+      return;
+    }
+
+    this.submitting = true;
+    try {
+      let error;
+      const payload = {
+        class_group: this.newSession.class_group.trim(),
+        session_date: this.newSession.session_date,
+        topic: this.newSession.topic.trim()
+      };
+
+      if (this.isEditMode && this.editingSessionId) {
+        // Updates target the manual session_progress table
+        const res = await this.supabase.client
+          .from('session_progress')
+          .update(payload)
+          .eq('id', this.editingSessionId);
+        error = res.error;
+      } else {
+        // New manual entries save cleanly to session_progress table
+        const res = await this.supabase.client
+          .from('session_progress')
+          .insert([payload]);
+        error = res.error;
+      }
+
+      if (error) {
+        console.error('Error saving session:', error.message);
+        alert('Failed to save session: ' + error.message);
+      } else {
+        this.closeAddModal();
+        await this.loadAllSessions();
+        if (this.selectedGroup) {
+          this.selectGroup(this.selectedGroup);
+        }
+      }
+    } catch (err) {
+      console.error('Unexpected error saving session:', err);
+    } finally {
+      this.submitting = false;
+      this.cdr.detectChanges();
+    }
   }
 }

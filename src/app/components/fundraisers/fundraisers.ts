@@ -104,4 +104,30 @@ export class FundraisersComponent implements OnInit {
 
     this.currentBalance = this.totalCollected - this.totalUsed;
   }
+
+  editEntry(entry: any) {
+    this.router.navigate(['/fund-entry', entry.id]);
+  }
+
+  async deleteEntry(id: string) {
+    if (!confirm('Are you sure you want to delete this fund entry?')) return;
+
+    try {
+      const { error } = await this.supabase.client
+        .from('fund_entries')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting entry:', error.message);
+        alert('Failed to delete entry.');
+      } else {
+        this.fundEntries = this.fundEntries.filter(entry => entry.id !== id);
+        this.calculateMetrics();
+        this.cdr.detectChanges();
+      }
+    } catch (err) {
+      console.error('Delete exception:', err);
+    }
+  }
 }

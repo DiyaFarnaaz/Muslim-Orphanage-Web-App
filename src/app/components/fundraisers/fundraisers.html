@@ -53,6 +53,7 @@
           <th>Type</th>
           <th>Description</th>
           <th>Amount</th>
+          <th *ngIf="isAdmin">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -66,6 +67,15 @@
           <td>{{ entry.description || '-' }}</td>
           <td [ngClass]="entry.type === 'income' ? 'text-income' : 'text-expense'">
             {{ entry.type === 'income' ? '+' : '-' }}₹{{ entry.amount | number:'1.2-2' }}
+          </td>
+          <!-- Action Buttons cell restricted to admins -->
+          <td *ngIf="isAdmin" class="action-cell">
+            <button mat-icon-button color="primary" (click)="editEntry(entry)" title="Edit">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteEntry(entry.id)" title="Delete">
+              <mat-icon>delete</mat-icon>
+            </button>
           </td>
         </tr>
       </tbody>

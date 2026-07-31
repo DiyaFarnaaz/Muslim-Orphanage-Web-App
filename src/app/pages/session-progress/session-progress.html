@@ -1,7 +1,8 @@
 <div class="page-container mobile-animate">
-  <!-- Navigation Header Wrapper matching Volunteers Directory style -->
+  <!-- Navigation Header Wrapper -->
   <div class="header-nav">
     <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
+    <button type="button" (click)="openAddModal()" class="action-btn">+ Add Session</button>
   </div>
 
   <!-- Dynamic Heading -->
@@ -12,10 +13,8 @@
   <!-- Loading State -->
   <div *ngIf="loading" class="loader">Loading Session Data...</div>
 
-  <!-- View 1: Class Group Selection Cards (Shown when no group is selected) -->
+  <!-- View 1: Class Group Selection Cards (Strictly 6 Cards) -->
   <div *ngIf="!loading && !selectedGroup" class="groups-grid">
-    <div *ngIf="classGroups.length === 0" class="loader">No class groups found.</div>
-    
     <div *ngFor="let group of classGroups" class="group-card" (click)="selectGroup(group)">
       <h3>{{ group }}</h3>
       <p>Click to view session history & topics</p>
@@ -33,6 +32,7 @@
             <th>#</th>
             <th>Date</th>
             <th>Topics Covered</th>
+            <th class="text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -40,9 +40,43 @@
             <td>{{ i + 1 }}</td>
             <td>{{ item.session_date ? (item.session_date | date: 'mediumDate') : 'No date' }}</td>
             <td>{{ item.topic || 'No topic specified' }}</td>
+            <td class="text-right">
+              <button type="button" (click)="openEditModal(item, $event)" class="edit-btn">Edit</button>
+            </td>
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Modal Popup for Session Entry / Editing -->
+  <div *ngIf="showAddModal" class="modal-backdrop">
+    <div class="modal-content">
+      <h3>{{ isEditMode ? 'Edit Session' : 'Add New Session' }}</h3>
+      
+      <div class="form-group">
+        <label>Class Group</label>
+        <select [(ngModel)]="newSession.class_group" class="form-input">
+          <option *ngFor="let group of classGroups" [value]="group">{{ group }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Session Date</label>
+        <input type="date" [(ngModel)]="newSession.session_date" class="form-input" />
+      </div>
+
+      <div class="form-group">
+        <label>Topics Covered</label>
+        <textarea [(ngModel)]="newSession.topic" placeholder="Describe the topics covered..." class="form-input" rows="3"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" (click)="closeAddModal()" class="btn-cancel" [disabled]="submitting">Cancel</button>
+        <button type="button" (click)="saveManualSession()" class="btn-submit" [disabled]="submitting">
+          {{ submitting ? 'Saving...' : (isEditMode ? 'Update Session' : 'Save Session') }}
+        </button>
+      </div>
     </div>
   </div>
 </div>

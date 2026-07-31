@@ -6,11 +6,15 @@
     </button>
   </div>
 
-  <h2>Add Fund Entry</h2>
+  <h2>{{ isEditMode ? 'Edit Fund Entry' : 'Add Fund Entry' }}</h2>
   
-  <form (ngSubmit)="submitEntry()" #fundForm="ngForm" class="entry-form">
+  <div *ngIf="loading" class="loading-state">
+    <p>Loading entry details...</p>
+  </div>
+
+  <form *ngIf="!loading" (ngSubmit)="submitEntry()" #fundForm="ngForm" class="entry-form">
     
-    <!-- Date moved to the top -->
+    <!-- Date field -->
     <div class="form-group">
       <label>Date</label>
       <input type="date" [(ngModel)]="newEntry.date" name="date" required class="form-control">
@@ -34,6 +38,8 @@
       <textarea [(ngModel)]="newEntry.description" name="description" class="form-control" placeholder="Optional details"></textarea>
     </div>
 
-    <button type="submit" class="submit-btn" [disabled]="!fundForm.form.valid">Save Entry</button>
+    <button type="submit" class="submit-btn" [disabled]="!fundForm.form.valid">
+      {{ isEditMode ? 'Update Entry' : 'Save Entry' }}
+    </button>
   </form>
 </div>

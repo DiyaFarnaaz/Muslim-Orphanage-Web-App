@@ -179,8 +179,18 @@
   font-weight: 600;
 }
 
+/* Action Cell Styles for Admin Controls */
+.action-cell {
+  white-space: nowrap;
+}
+
+.action-cell button {
+  transform: scale(0.85);
+  margin-right: 4px;
+}
+
 /* ==========================================
-   Responsive Design Adjustments (Mobile View)
+    Responsive Design Adjustments (Mobile View)
    ========================================== */
 @media (max-width: 640px) {
   .fundraisers-container {

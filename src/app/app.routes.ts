@@ -57,6 +57,7 @@ export const routes: Routes = [
   { path: 'add-meeting', component: AddMeetingComponent, canActivate: [adminGuard] },
   { path: 'add-meeting/:id', component: AddMeetingComponent, canActivate: [adminGuard] },
   { path: 'fund-entry', component: FundEntryComponent, canActivate: [adminGuard] },
+  { path: 'fund-entry/:id', component: FundEntryComponent, canActivate: [adminGuard] },
   
   { path: '**', redirectTo: '' }
 ];
