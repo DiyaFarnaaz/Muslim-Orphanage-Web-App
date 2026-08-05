@@ -1,111 +1,119 @@
-<div class="fundraisers-container mobile-animate">
-  <!-- Back Button -->
-  <div class="header-nav">
-    <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
-  </div>
-
-  <!-- Top Bar: Title and Add Button -->
-  <div class="top-header-row">
-    <div class="title-group">
-      <h2>Fundraiser Dashboard</h2>
+<ng-container *ngIf="!checkingRole; else loadingTemplate">
+  <div class="fundraisers-container mobile-animate">
+    <!-- Back Button -->
+    <div class="header-nav">
+      <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
     </div>
-    <button *ngIf="isAdmin" mat-raised-button color="primary" routerLink="/fund-entry" class="add-entry-btn">
-      + Add New Entry
-    </button>
-  </div>
 
-  <!-- Dedicated Account Balances Widget (My Account & Hub Account) -->
-  <div class="accounts-section" style="margin-bottom: 24px;">
-    <h3 style="font-size: 1.1rem; color: #0ea5e9; margin-bottom: 12px; font-weight: 600;">🏦 Account Balances Overview</h3>
-    <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-      <div *ngFor="let acc of accounts" class="metric-card" style="position: relative; border-left: 4px solid #0ea5e9;">
-        <div class="metric-title">{{ acc.account_name }}</div>
-        <div class="metric-amount" style="color: #0f172a;">₹{{ acc.balance | number:'1.2-2' }}</div>
-        <button *ngIf="isAdmin" type="button" (click)="openEditAccountModal(acc)" style="position: absolute; top: 12px; right: 12px; background: #f0f9ff; border: 1px solid #bae6fd; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">Edit</button>
+    <!-- Top Bar: Title and Add Button -->
+    <div class="top-header-row">
+      <div class="title-group">
+        <h2>Fundraiser Dashboard</h2>
+      </div>
+      <button *ngIf="isAdmin" mat-raised-button color="primary" routerLink="/fund-entry" class="add-entry-btn">
+        + Add New Entry
+      </button>
+    </div>
+
+    <!-- Dedicated Account Balances Widget (Admin Only: My Account & Hub Account) -->
+    <div class="accounts-section" style="margin-bottom: 24px;" *ngIf="isAdmin">
+      <h3 style="font-size: 1.1rem; color: #0ea5e9; margin-bottom: 12px; font-weight: 600;">🏦 Account Balances Overview</h3>
+      <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div *ngFor="let acc of accounts" class="metric-card" style="position: relative; border-left: 4px solid #0ea5e9;">
+          <div class="metric-title">{{ acc.account_name }}</div>
+          <div class="metric-amount" style="color: #0f172a;">₹{{ acc.balance | number:'1.2-2' }}</div>
+          <button type="button" (click)="openEditAccountModal(acc)" style="position: absolute; top: 12px; right: 12px; background: #f0f9ff; border: 1px solid #bae6fd; color: #0284c7; padding: 2px 8px; border-radius: 4px; font-size: 12px; cursor: pointer;">Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 Summary Cards Layout -->
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-title">Total Collected</div>
+        <div class="metric-amount text-income">₹{{ totalCollected | number:'1.2-2' }}</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Total Used</div>
+        <div class="metric-amount text-expense">₹{{ totalUsed | number:'1.2-2' }}</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Current Balance</div>
+        <div class="metric-amount" [ngClass]="currentBalance >= 0 ? 'text-income' : 'text-expense'">
+          ₹{{ currentBalance | number:'1.2-2' }}
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+      <p>Loading fund records...</p>
+    </div>
+
+    <div *ngIf="!loading && fundEntries.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">account_balance_wallet</mat-icon>
+      <p>No fund entries found yet.</p>
+    </div>
+
+    <!-- Table Section Below Cards -->
+    <div *ngIf="!loading && fundEntries.length > 0" class="table-responsive">
+      <table class="fund-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th *ngIf="isAdmin">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of fundEntries">
+            <td>{{ entry.date }}</td>
+            <td>
+              <span class="badge" [ngClass]="entry.type === 'income' ? 'badge-income' : 'badge-expense'">
+                {{ entry.type | titlecase }}
+              </span>
+            </td>
+            <td>{{ entry.description || '-' }}</td>
+            <td [ngClass]="entry.type === 'income' ? 'text-income' : 'text-expense'">
+              {{ entry.type === 'income' ? '+' : '-' }}₹{{ entry.amount | number:'1.2-2' }}
+            </td>
+            <td *ngIf="isAdmin" class="action-cell">
+              <button mat-icon-button color="primary" (click)="editEntry(entry)" title="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteEntry(entry.id)" title="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal Popup for Editing Account Balances (Admin Only) -->
+    <div *ngIf="showAccountModal && isAdmin" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 9999;">
+      <div class="modal-content" style="background: #ffffff; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <h3>Edit {{ selectedAccount?.account_name }} Balance</h3>
+        
+        <div class="form-group" style="margin: 16px 0;">
+          <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">New Balance Amount (₹)</label>
+          <input type="number" [(ngModel)]="newAccountBalance" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" />
+        </div>
+
+        <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" (click)="closeAccountModal()" style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
+          <button type="button" (click)="updateAccountBalance()" style="background: #0ea5e9; border: none; color: #ffffff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Balance</button>
+        </div>
       </div>
     </div>
   </div>
+</ng-container>
 
-  <!-- 3 Summary Cards Layout -->
-  <div class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-title">Total Collected</div>
-      <div class="metric-amount text-income">₹{{ totalCollected | number:'1.2-2' }}</div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-title">Total Used</div>
-      <div class="metric-amount text-expense">₹{{ totalUsed | number:'1.2-2' }}</div>
-    </div>
-
-    <div class="metric-card">
-      <div class="metric-title">Current Balance</div>
-      <div class="metric-amount" [ngClass]="currentBalance >= 0 ? 'text-income' : 'text-expense'">
-        ₹{{ currentBalance | number:'1.2-2' }}
-      </div>
-    </div>
+<ng-template #loadingTemplate>
+  <div style="display: flex; justify-content: center; align-items: center; height: 60vh;">
+    <p style="color: #64748b; font-weight: 500;">Verifying access...</p>
   </div>
-
-  <div *ngIf="loading" class="loading-state">
-    <p>Loading fund records...</p>
-  </div>
-
-  <div *ngIf="!loading && fundEntries.length === 0" class="empty-state">
-    <mat-icon class="empty-icon">account_balance_wallet</mat-icon>
-    <p>No fund entries found yet.</p>
-  </div>
-
-  <!-- Table Section Below Cards -->
-  <div *ngIf="!loading && fundEntries.length > 0" class="table-responsive">
-    <table class="fund-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Amount</th>
-          <th *ngIf="isAdmin">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let entry of fundEntries">
-          <td>{{ entry.date }}</td>
-          <td>
-            <span class="badge" [ngClass]="entry.type === 'income' ? 'badge-income' : 'badge-expense'">
-              {{ entry.type | titlecase }}
-            </span>
-          </td>
-          <td>{{ entry.description || '-' }}</td>
-          <td [ngClass]="entry.type === 'income' ? 'text-income' : 'text-expense'">
-            {{ entry.type === 'income' ? '+' : '-' }}₹{{ entry.amount | number:'1.2-2' }}
-          </td>
-          <td *ngIf="isAdmin" class="action-cell">
-            <button mat-icon-button color="primary" (click)="editEntry(entry)" title="Edit">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="deleteEntry(entry.id)" title="Delete">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- Modal Popup for Editing Account Balances (Admin Only) -->
-  <div *ngIf="showAccountModal && isAdmin" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.6); display: flex; justify-content: center; align-items: center; z-index: 9999;">
-    <div class="modal-content" style="background: #ffffff; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
-      <h3>Edit {{ selectedAccount?.account_name }} Balance</h3>
-      
-      <div class="form-group" style="margin: 16px 0;">
-        <label style="display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px;">New Balance Amount (₹)</label>
-        <input type="number" [(ngModel)]="newAccountBalance" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;" />
-      </div>
-
-      <div class="modal-actions" style="display: flex; justify-content: flex-end; gap: 12px;">
-        <button type="button" (click)="closeAccountModal()" style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Cancel</button>
-        <button type="button" (click)="updateAccountBalance()" style="background: #0ea5e9; border: none; color: #ffffff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Balance</button>
-      </div>
-    </div>
-  </div>
-</div>
+</ng-template>

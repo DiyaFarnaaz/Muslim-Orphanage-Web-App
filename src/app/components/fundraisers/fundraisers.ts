@@ -18,6 +18,7 @@ export class FundraisersComponent implements OnInit {
   fundEntries: any[] = [];
   accounts: any[] = [];
   loading = true;
+  checkingRole = true; // Added to block rendering until role check completes
 
   totalCollected = 0;
   totalUsed = 0;
@@ -37,8 +38,9 @@ export class FundraisersComponent implements OnInit {
 
   async ngOnInit() {
     const safetyTimer = setTimeout(() => {
-      if (this.loading) {
+      if (this.loading || this.checkingRole) {
         this.loading = false;
+        this.checkingRole = false;
         this.cdr.detectChanges();
       }
     }, 4000);
@@ -51,26 +53,39 @@ export class FundraisersComponent implements OnInit {
     } finally {
       clearTimeout(safetyTimer);
       this.loading = false;
+      this.checkingRole = false;
       this.cdr.detectChanges();
     }
   }
 
   async checkAdminStatus() {
-    try {
-      const { data: { user } } = await this.supabase.client.auth.getUser();
-      if (!user) return;
+    this.checkingRole = true;
+    this.isAdmin = false;
 
-      const { data: profile } = await this.supabase.client
+    try {
+      const { data: { user }, error: authError } = await this.supabase.client.auth.getUser();
+      if (authError || !user) {
+        this.isAdmin = false;
+        return;
+      }
+
+      // Rely strictly on the profiles database table to avoid legacy metadata overrides
+      const { data: profile, error: profileError } = await this.supabase.client
         .from('profiles')
         .select('is_admin, role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (profile && (profile.is_admin || profile.role === 'admin')) {
+      if (profile && (profile.is_admin === true || profile.role === 'admin')) {
         this.isAdmin = true;
+      } else {
+        this.isAdmin = false;
       }
     } catch (err) {
       console.error('Error verifying admin status:', err);
+      this.isAdmin = false;
+    } finally {
+      this.checkingRole = false;
     }
   }
 
@@ -129,6 +144,7 @@ export class FundraisersComponent implements OnInit {
   }
 
   openEditAccountModal(account: any) {
+    if (!this.isAdmin) return; // Extra layer of security
     this.selectedAccount = account;
     this.newAccountBalance = account.balance;
     this.showAccountModal = true;
@@ -140,6 +156,10 @@ export class FundraisersComponent implements OnInit {
   }
 
   async updateAccountBalance() {
+    if (!this.isAdmin) {
+      alert('Unauthorized action.');
+      return;
+    }
     if (!this.selectedAccount) return;
 
     try {
@@ -161,10 +181,15 @@ export class FundraisersComponent implements OnInit {
   }
 
   editEntry(entry: any) {
+    if (!this.isAdmin) return;
     this.router.navigate(['/fund-entry', entry.id]);
   }
 
   async deleteEntry(id: string) {
+    if (!this.isAdmin) {
+      alert('Unauthorized action.');
+      return;
+    }
     if (!confirm('Are you sure you want to delete this fund entry?')) return;
 
     try {
