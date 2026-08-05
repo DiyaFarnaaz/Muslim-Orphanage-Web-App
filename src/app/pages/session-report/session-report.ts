@@ -25,16 +25,8 @@ export class SessionReportComponent implements OnInit {
     class_group: '',
     activity: '',
     winner: '',
-    feedback: '',
-    doc_url: '',
-    media_url: ''
+    feedback: ''
   };
-
-  docCount: number = 0;
-  mediaCount: number = 0;
-
-  private uploadedDocUrls: string[] = [];
-  private uploadedMediaUrls: string[] = [];
 
   classGroups: string[] = [
     'Class 1-2', 
@@ -79,7 +71,6 @@ export class SessionReportComponent implements OnInit {
       console.log('Fetched session data successfully:', data);
 
       if (data) {
-        // Safely parse and format date to YYYY-MM-DD for native date input compatibility
         let formattedDate = new Date().toISOString().split('T')[0];
         if (data.session_date) {
           const parsedDate = new Date(data.session_date);
@@ -95,19 +86,8 @@ export class SessionReportComponent implements OnInit {
           class_group: data.class_group || '',
           activity: data.activity || '',
           winner: data.winner || '',
-          feedback: data.feedback || '',
-          doc_url: data.doc_url || '',
-          media_url: data.media_url || ''
+          feedback: data.feedback || ''
         };
-
-        if (data.doc_url) {
-          this.uploadedDocUrls = data.doc_url.split(',').filter((u: string) => u.trim() !== '');
-          this.docCount = this.uploadedDocUrls.length;
-        }
-        if (data.media_url) {
-          this.uploadedMediaUrls = data.media_url.split(',').filter((u: string) => u.trim() !== '');
-          this.mediaCount = this.uploadedMediaUrls.length;
-        }
       }
     } catch (err: any) {
       console.error('Error loading session report for edit:', err);
@@ -120,45 +100,6 @@ export class SessionReportComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['/events']);
-  }
-
-  async onFilesSelected(event: any, type: 'doc' | 'media') {
-    const files: FileList = event.target.files;
-    if (!files || files.length === 0) return;
-
-    const uploadedUrls: string[] = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const fileName = `${Date.now()}_${file.name}`;
-      
-      const { data, error } = await this.supabase.client.storage
-        .from('session-files')
-        .upload(fileName, file);
-
-      if (error) {
-        console.error('Upload failed for file:', file.name, error.message);
-      } else if (data) {
-        const { data: urlData } = this.supabase.client.storage
-          .from('session-files')
-          .getPublicUrl(data.path, { download: false });
-        
-        if (urlData?.publicUrl) {
-          uploadedUrls.push(urlData.publicUrl);
-        }
-      }
-    }
-
-    if (type === 'doc') {
-      this.uploadedDocUrls = [...this.uploadedDocUrls, ...uploadedUrls];
-      this.docCount = this.uploadedDocUrls.length;
-      this.report.doc_url = this.uploadedDocUrls.join(',');
-    } else {
-      this.uploadedMediaUrls = [...this.uploadedMediaUrls, ...uploadedUrls];
-      this.mediaCount = this.uploadedMediaUrls.length;
-      this.report.media_url = this.uploadedMediaUrls.join(',');
-    }
-    this.cdr.detectChanges();
   }
 
   async submitReport() {

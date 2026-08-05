@@ -24,9 +24,12 @@
           <!-- Clickable main content area -->
           <div class="session-main-content" (click)="onSelectEvent(session)">
             <h4>Details &mdash; <span class="highlight-group">{{ session.class_group }}</span></h4>
-            <p><strong>Session Lead:</strong> {{ session.session_lead_name || 'N/A' }}</p>
-            <p><strong>Topic:</strong> {{ session.topic || 'N/A' }}</p>
-            <p><strong>Activity:</strong> {{ session.activity || 'N/A' }}</p>
+            <div class="info-grid">
+              <p><strong>Session Lead:</strong> {{ session.session_lead_name || 'N/A' }}</p>
+              <p><strong>Topic:</strong> {{ session.topic || 'N/A' }}</p>
+              <p><strong>Activity:</strong> {{ session.activity || 'N/A' }}</p>
+              <p><strong>Winner:</strong> {{ session.winner || 'N/A' }}</p>
+            </div>
           </div>
           
           <!-- Edit button with higher z-index -->
@@ -40,36 +43,14 @@
         <!-- Nested Detail View -->
         <div class="report-card" *ngIf="selectedEvent?.id === session.id">
           <h3>Details &mdash; <span class="highlight-group">{{ session.class_group }}</span></h3>
-          <p><strong>Session Lead:</strong> {{ session.session_lead_name }}</p>
-          <p><strong>Topic:</strong> {{ session.topic }}</p>
-          <p><strong>Activity:</strong> {{ session.activity }}</p>
-          <p><strong>Winner:</strong> {{ session.winner || 'N/A' }}</p>
-          <p><strong>Feedback:</strong> {{ session.feedback || 'N/A' }}</p>
           
-          <!-- Multiple Attachment Links -->
-          <div class="attachments-container" *ngIf="(session.doc_urls && session.doc_urls.length > 0) || (session.media_urls && session.media_urls.length > 0)">
-            
-            <!-- Documents -->
-            <div class="attachment-group" *ngIf="session.doc_urls && session.doc_urls.length > 0">
-              <strong>Documents:</strong>
-              <div *ngFor="let doc of session.doc_urls; let i = index">
-                <a [href]="doc" target="_blank" rel="noopener noreferrer" class="attachment-link">
-                  &#128196; View Document {{ i + 1 }}
-                </a>
-              </div>
-            </div>
-
-            <!-- Media -->
-            <div class="attachment-group" *ngIf="session.media_urls && session.media_urls.length > 0">
-              <strong>Media Files:</strong>
-              <div *ngFor="let media of session.media_urls; let i = index">
-                <a [href]="media" target="_blank" rel="noopener noreferrer" class="attachment-link">
-                  &#127916; View Media {{ i + 1 }}
-                </a>
-              </div>
-            </div>
-
+          <div class="info-grid">
+            <p><strong>Session Lead:</strong> {{ session.session_lead_name }}</p>
+            <p><strong>Topic:</strong> {{ session.topic }}</p>
+            <p><strong>Activity:</strong> {{ session.activity }}</p>
+            <p><strong>Winner:</strong> {{ session.winner || 'N/A' }}</p>
           </div>
+          <p><strong>Feedback:</strong> {{ session.feedback || 'N/A' }}</p>
           
           <button (click)="selectedEvent = null" class="submit-btn close-report-btn">
             Close

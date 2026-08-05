@@ -14,7 +14,6 @@ import { SupabaseService } from '../../services/supabase';
 export class SessionProgressComponent implements OnInit {
   allSessions: any[] = [];
   
-  // Strictly locked to your 6 exact group cards
   classGroups: string[] = [
     '1-2',
     '3-4',
@@ -26,9 +25,11 @@ export class SessionProgressComponent implements OnInit {
 
   selectedGroup: string | null = null;
   filteredSessions: any[] = [];
+  filteredFuturePlans: any[] = [];
   loading: boolean = true;
+  isAdmin: boolean = false;
 
-  // Modal State for Add / Edit
+  // Session Modal State
   showAddModal: boolean = false;
   isEditMode: boolean = false;
   editingSessionId: string | null = null;
@@ -38,7 +39,19 @@ export class SessionProgressComponent implements OnInit {
     session_date: new Date().toISOString().split('T')[0],
     topic: ''
   };
+
+  // Dedicated Future Session Plans Modal State
+  showFuturePlansModal: boolean = false;
+  isFuturePlanEditMode: boolean = false;
+  editingFuturePlanId: string | null = null;
+
+  newFuturePlan = {
+    class_group: '1-2',
+    plan_text: ''
+  };
+
   submitting: boolean = false;
+  savingFuturePlan: boolean = false;
 
   constructor(
     private supabase: SupabaseService,
@@ -47,7 +60,19 @@ export class SessionProgressComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    await this.checkUserRole();
     await this.loadAllSessions();
+  }
+
+  async checkUserRole() {
+    try {
+      const { data: { user } } = await this.supabase.client.auth.getUser();
+      if (user && user.user_metadata && user.user_metadata['is_admin']) {
+        this.isAdmin = true;
+      }
+    } catch (err) {
+      console.error('Error checking admin role:', err);
+    }
   }
 
   goBack() {
@@ -61,26 +86,11 @@ export class SessionProgressComponent implements OnInit {
   async loadAllSessions() {
     this.loading = true;
     try {
-      // 1. Fetch from automated session reports table
-      const { data: reportSessions, error: err1 } = await this.supabase.client
-        .from('sessions')
-        .select('*');
+      const { data: reportSessions } = await this.supabase.client.from('sessions').select('*');
+      const { data: manualSessions } = await this.supabase.client.from('session_progress').select('*');
 
-      // 2. Fetch from manual entry session progress table
-      const { data: manualSessions, error: err2 } = await this.supabase.client
-        .from('session_progress')
-        .select('*');
+      const combined = [...(reportSessions || []), ...(manualSessions || [])];
 
-      if (err1) console.error('Error fetching reports:', err1.message);
-      if (err2) console.error('Error fetching manual sessions:', err2.message);
-
-      // Combine both sources into a single array
-      const combined = [
-        ...(reportSessions || []),
-        ...(manualSessions || [])
-      ];
-
-      // Sort by date descending
       this.allSessions = combined.sort((a, b) => 
         new Date(b.session_date).getTime() - new Date(a.session_date).getTime()
       );
@@ -98,10 +108,15 @@ export class SessionProgressComponent implements OnInit {
 
   selectGroup(group: string) {
     this.selectedGroup = group;
-    // Map records cleanly to the selected card group
+    
     this.filteredSessions = this.allSessions.filter(item => {
       const dbGroup = item.class_group ? item.class_group.trim().toLowerCase() : '';
-      return dbGroup.includes(group.toLowerCase());
+      return dbGroup.includes(group.toLowerCase()) && item.topic && item.topic !== 'Future Plan Entry';
+    });
+
+    this.filteredFuturePlans = this.allSessions.filter(item => {
+      const dbGroup = item.class_group ? item.class_group.trim().toLowerCase() : '';
+      return dbGroup.includes(group.toLowerCase()) && item.future_plans && item.future_plans.trim() !== '';
     });
   }
 
@@ -149,14 +164,75 @@ export class SessionProgressComponent implements OnInit {
       };
 
       if (this.isEditMode && this.editingSessionId) {
-        // Updates target the manual session_progress table
-        const res = await this.supabase.client
-          .from('session_progress')
-          .update(payload)
-          .eq('id', this.editingSessionId);
+        const res = await this.supabase.client.from('session_progress').update(payload).eq('id', this.editingSessionId);
         error = res.error;
       } else {
-        // New manual entries save cleanly to session_progress table
+        const res = await this.supabase.client.from('session_progress').insert([payload]);
+        error = res.error;
+      }
+
+      if (error) {
+        alert('Failed to save session: ' + error.message);
+      } else {
+        this.closeAddModal();
+        await this.loadAllSessions();
+        if (this.selectedGroup) this.selectGroup(this.selectedGroup);
+      }
+    } finally {
+      this.submitting = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  openFuturePlansModal() {
+    this.isFuturePlanEditMode = false;
+    this.editingFuturePlanId = null;
+    this.newFuturePlan = {
+      class_group: this.selectedGroup || this.classGroups[0],
+      plan_text: ''
+    };
+    this.showFuturePlansModal = true;
+  }
+
+  openEditFuturePlanModal(planItem: any, event: Event) {
+    event.stopPropagation();
+    this.isFuturePlanEditMode = true;
+    this.editingFuturePlanId = planItem.id;
+    this.newFuturePlan = {
+      class_group: planItem.class_group || this.classGroups[0],
+      plan_text: planItem.future_plans || ''
+    };
+    this.showFuturePlansModal = true;
+  }
+
+  closeFuturePlansModal() {
+    this.showFuturePlansModal = false;
+    this.editingFuturePlanId = null;
+  }
+
+  async saveFuturePlan() {
+    if (!this.newFuturePlan.class_group || !this.newFuturePlan.plan_text) {
+      alert('Please select a class group and write a future session plan.');
+      return;
+    }
+
+    this.savingFuturePlan = true;
+    try {
+      let error;
+      const payload = {
+        class_group: this.newFuturePlan.class_group.trim(),
+        session_date: new Date().toISOString().split('T')[0],
+        topic: 'Future Plan Entry',
+        future_plans: this.newFuturePlan.plan_text.trim()
+      };
+
+      if (this.isFuturePlanEditMode && this.editingFuturePlanId) {
+        const res = await this.supabase.client
+          .from('session_progress')
+          .update({ future_plans: this.newFuturePlan.plan_text.trim(), class_group: this.newFuturePlan.class_group.trim() })
+          .eq('id', this.editingFuturePlanId);
+        error = res.error;
+      } else {
         const res = await this.supabase.client
           .from('session_progress')
           .insert([payload]);
@@ -164,20 +240,36 @@ export class SessionProgressComponent implements OnInit {
       }
 
       if (error) {
-        console.error('Error saving session:', error.message);
-        alert('Failed to save session: ' + error.message);
+        alert('Failed to save future session plan: ' + error.message);
       } else {
-        this.closeAddModal();
+        this.closeFuturePlansModal();
         await this.loadAllSessions();
-        if (this.selectedGroup) {
-          this.selectGroup(this.selectedGroup);
-        }
+        if (this.selectedGroup) this.selectGroup(this.selectedGroup);
+      }
+    } finally {
+      this.savingFuturePlan = false;
+      this.cdr.detectChanges();
+    }
+  }
+
+  async deleteFuturePlan(planId: string, event: Event) {
+    event.stopPropagation();
+    if (!confirm('Are you sure you want to delete this future session plan?')) return;
+
+    try {
+      const { error } = await this.supabase.client
+        .from('session_progress')
+        .delete()
+        .eq('id', planId);
+
+      if (error) {
+        alert('Failed to delete from database: ' + error.message);
+      } else {
+        await this.loadAllSessions();
+        if (this.selectedGroup) this.selectGroup(this.selectedGroup);
       }
     } catch (err) {
-      console.error('Unexpected error saving session:', err);
-    } finally {
-      this.submitting = false;
-      this.cdr.detectChanges();
+      console.error('Error deleting future session plan:', err);
     }
   }
 }

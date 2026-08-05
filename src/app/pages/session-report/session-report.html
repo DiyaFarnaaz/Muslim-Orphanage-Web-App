@@ -49,19 +49,6 @@
         <textarea [(ngModel)]="report.feedback" name="feedback" rows="4" placeholder="Enter session feedback..."></textarea>
       </div>
 
-      <div class="file-uploads">
-        <div class="form-group">
-          <label>Upload Document(s) (PDF/DOC)</label>
-          <input type="file" multiple (change)="onFilesSelected($event, 'doc')" accept=".pdf,.doc,.docx">
-          <small *ngIf="docCount > 0" class="file-count">{{ docCount }} file(s) selected</small>
-        </div>
-        <div class="form-group">
-          <label>Upload Media (Images/Videos)</label>
-          <input type="file" multiple (change)="onFilesSelected($event, 'media')" accept="image/*,video/*">
-          <small *ngIf="mediaCount > 0" class="file-count">{{ mediaCount }} file(s) selected</small>
-        </div>
-      </div>
-
       <button type="submit" [disabled]="isSubmitting">
         {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Report' : 'Submit Report') }}
       </button>

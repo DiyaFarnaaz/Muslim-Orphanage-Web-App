@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,18 +10,24 @@ import { SupabaseService } from '../../services/supabase';
 @Component({
   selector: 'app-fundraisers',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, RouterModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule],
   templateUrl: './fundraisers.html',
   styleUrls: ['./fundraisers.css']
 })
 export class FundraisersComponent implements OnInit {
   fundEntries: any[] = [];
+  accounts: any[] = [];
   loading = true;
 
   totalCollected = 0;
   totalUsed = 0;
   currentBalance = 0;
   isAdmin: boolean = false;
+
+  // Edit Accounts Modal State
+  showAccountModal = false;
+  selectedAccount: any = null;
+  newAccountBalance = 0;
 
   constructor(
     private supabase: SupabaseService, 
@@ -38,7 +45,7 @@ export class FundraisersComponent implements OnInit {
 
     try {
       await this.checkAdminStatus();
-      await this.fetchFundEntries();
+      await Promise.all([this.fetchFundEntries(), this.fetchAccounts()]);
     } catch (err) {
       console.error('Initialization error:', err);
     } finally {
@@ -89,6 +96,22 @@ export class FundraisersComponent implements OnInit {
     }
   }
 
+  async fetchAccounts() {
+    try {
+      const { data, error } = await this.supabase.client
+        .from('fund_accounts')
+        .select('*');
+
+      if (error) {
+        console.error('Error fetching accounts:', error.message);
+      } else {
+        this.accounts = data || [];
+      }
+    } catch (err) {
+      console.error('Fetch accounts exception:', err);
+    }
+  }
+
   calculateMetrics() {
     this.totalCollected = 0;
     this.totalUsed = 0;
@@ -103,6 +126,38 @@ export class FundraisersComponent implements OnInit {
     });
 
     this.currentBalance = this.totalCollected - this.totalUsed;
+  }
+
+  openEditAccountModal(account: any) {
+    this.selectedAccount = account;
+    this.newAccountBalance = account.balance;
+    this.showAccountModal = true;
+  }
+
+  closeAccountModal() {
+    this.showAccountModal = false;
+    this.selectedAccount = null;
+  }
+
+  async updateAccountBalance() {
+    if (!this.selectedAccount) return;
+
+    try {
+      const { error } = await this.supabase.client
+        .from('fund_accounts')
+        .update({ balance: Number(this.newAccountBalance), updated_at: new Date() })
+        .eq('id', this.selectedAccount.id);
+
+      if (error) {
+        alert('Failed to update balance: ' + error.message);
+      } else {
+        this.closeAccountModal();
+        await this.fetchAccounts();
+        this.cdr.detectChanges();
+      }
+    } catch (err) {
+      console.error('Update account exception:', err);
+    }
   }
 
   editEntry(entry: any) {

@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, DatePipe, Location } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
 
@@ -17,7 +17,6 @@ export class EventsComponent implements OnInit {
   constructor(
     private supabase: SupabaseService,
     private cdr: ChangeDetectorRef,
-    private location: Location,
     private router: Router
   ) {}
 
@@ -29,7 +28,7 @@ export class EventsComponent implements OnInit {
     try {
       const { data, error } = await this.supabase.client
         .from('sessions')
-        .select('id, session_lead_name, class_group, activity, topic, winner, feedback, doc_url, media_url, session_date')
+        .select('id, session_lead_name, class_group, activity, topic, winner, feedback, session_date')
         .order('session_date', { ascending: false });
 
       if (error) {
@@ -37,14 +36,10 @@ export class EventsComponent implements OnInit {
         return;
       }
 
-      const formattedData = (data || []).map((report: any) => ({
-        ...report,
-        doc_urls: report.doc_url ? report.doc_url.split(',').filter((url: string) => url.trim() !== '') : [],
-        media_urls: report.media_url ? report.media_url.split(',').filter((url: string) => url.trim() !== '') : []
-      }));
+      console.log('Fetched sessions data:', data);
 
-      this.groupedReports = formattedData.reduce((acc: any, report: any) => {
-        const date = report.session_date;
+      this.groupedReports = (data || []).reduce((acc: any, report: any) => {
+        const date = report.session_date ? report.session_date.split('T')[0] : 'Unscheduled';
         if (!acc[date]) acc[date] = [];
         acc[date].push(report);
         return acc;
@@ -64,7 +59,7 @@ export class EventsComponent implements OnInit {
     this.selectedEvent = event;
   }
 
-  editEvent(eventId: string, event: Event) {
+  editEvent(eventId: string, event: MouseEvent) {
     event.stopPropagation(); // Prevents expanding/collapsing the accordion card
     this.router.navigate(['/session-report'], { queryParams: { id: eventId } });
   }
