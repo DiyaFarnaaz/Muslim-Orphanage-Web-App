@@ -329,10 +329,21 @@
   gap: 10px;
 }
 
+/* Google Meet style Full-Screen Mobile & Auto-Hiding Controls overlay */
 @media screen and (max-width: 768px) {
-  .video-container { padding: 12px; }
-  .page-header-row { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .page-header-row h2 { font-size: 20px; }
+  .video-container { 
+    padding: 0 !important; 
+    max-width: 100% !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 9999;
+    background: #202124;
+  }
+  .page-header-row { flex-direction: column; align-items: flex-start; gap: 12px; padding: 12px; }
+  .page-header-row h2 { font-size: 20px; color: #fff; }
   .top-action-controls { width: 100%; flex-direction: column; align-items: stretch; }
   .top-action-controls button { width: 100%; }
   .card-header-main { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
@@ -340,4 +351,16 @@
   .card-header-actions button { flex: 1; min-width: 110px; }
   .info-row { flex-direction: column; align-items: flex-start; gap: 4px; }
   .schedule-modal-card { width: 95%; margin: 0 auto; }
+}
+
+/* Jitsi iframe container full viewport styling for Google Meet immersion */
+.jitsi-container-fullscreen {
+  width: 100vw !important;
+  height: 100vh !important;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  background-color: #202124;
 }

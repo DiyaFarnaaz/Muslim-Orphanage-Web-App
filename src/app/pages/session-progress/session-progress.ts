@@ -28,7 +28,7 @@ export class SessionProgressComponent implements OnInit {
   filteredFuturePlans: any[] = [];
   loading: boolean = true;
   
-  // Strict admin role verification flags
+  // Role tracking flags (kept if needed elsewhere, but no longer block actions)
   checkingRole: boolean = true;
   isAdmin: boolean = false;
 
@@ -67,37 +67,35 @@ export class SessionProgressComponent implements OnInit {
     await this.loadAllSessions();
   }
 
-async checkUserRole() {
-  this.checkingRole = true;
-  this.isAdmin = false; 
+  async checkUserRole() {
+    this.checkingRole = true;
+    try {
+      const { data: { user }, error: authError } = await this.supabase.client.auth.getUser();
+      if (authError || !user) {
+        this.isAdmin = false;
+        return;
+      }
 
-  try {
-    const { data: { user }, error: authError } = await this.supabase.client.auth.getUser();
-    if (authError || !user) {
+      const { data: profile } = await this.supabase.client
+        .from('profiles')
+        .select('is_admin, role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profile && (profile.is_admin === true || profile.role === 'admin')) {
+        this.isAdmin = true;
+      } else {
+        this.isAdmin = false;
+      }
+    } catch (err) {
+      console.error('Error checking role:', err);
       this.isAdmin = false;
-      return;
+    } finally {
+      this.checkingRole = false;
+      this.cdr.detectChanges();
     }
-
-    // Rely ONLY on the profiles database table
-    const { data: profile, error: profileError } = await this.supabase.client
-      .from('profiles')
-      .select('is_admin, role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (profile && (profile.is_admin === true || profile.role === 'admin')) {
-      this.isAdmin = true;
-    } else {
-      this.isAdmin = false;
-    }
-  } catch (err) {
-    console.error('Error checking role:', err);
-    this.isAdmin = false;
-  } finally {
-    this.checkingRole = false;
-    this.cdr.detectChanges();
   }
-}
+
   goBack() {
     if (this.selectedGroup) {
       this.selectedGroup = null;
@@ -144,7 +142,6 @@ async checkUserRole() {
   }
 
   openAddModal() {
-    if (!this.isAdmin) return;
     this.isEditMode = false;
     this.editingSessionId = null;
     this.newSession = {
@@ -157,7 +154,6 @@ async checkUserRole() {
 
   openEditModal(session: any, event: Event) {
     event.stopPropagation();
-    if (!this.isAdmin) return;
     this.isEditMode = true;
     this.editingSessionId = session.id;
     this.newSession = {
@@ -174,7 +170,6 @@ async checkUserRole() {
   }
 
   async saveManualSession() {
-    if (!this.isAdmin) return;
     if (!this.newSession.class_group || !this.newSession.topic || !this.newSession.session_date) {
       alert('Please fill in all fields.');
       return;
@@ -211,7 +206,6 @@ async checkUserRole() {
   }
 
   openFuturePlansModal() {
-    if (!this.isAdmin) return;
     this.isFuturePlanEditMode = false;
     this.editingFuturePlanId = null;
     this.newFuturePlan = {
@@ -223,7 +217,6 @@ async checkUserRole() {
 
   openEditFuturePlanModal(planItem: any, event: Event) {
     event.stopPropagation();
-    if (!this.isAdmin) return;
     this.isFuturePlanEditMode = true;
     this.editingFuturePlanId = planItem.id;
     this.newFuturePlan = {
@@ -239,7 +232,6 @@ async checkUserRole() {
   }
 
   async saveFuturePlan() {
-    if (!this.isAdmin) return;
     if (!this.newFuturePlan.class_group || !this.newFuturePlan.plan_text) {
       alert('Please select a class group and write a future session plan.');
       return;
@@ -283,7 +275,6 @@ async checkUserRole() {
 
   async deleteFuturePlan(planId: string, event: Event) {
     event.stopPropagation();
-    if (!this.isAdmin) return;
     if (!confirm('Are you sure you want to delete this future session plan?')) return;
 
     try {

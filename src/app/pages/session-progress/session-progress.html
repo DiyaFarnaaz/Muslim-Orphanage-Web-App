@@ -1,19 +1,19 @@
 <div class="page-container mobile-animate">
   
-  <!-- Global Security Gate: Show nothing or a clean loader while role is validating -->
-  <div *ngIf="checkingRole" class="loader">Verifying permissions...</div>
+  <!-- Global Loader -->
+  <div *ngIf="checkingRole" class="loader">Loading Session Progress...</div>
 
-  <!-- Main Content (Renders ONLY after role check finishes) -->
+  <!-- Main Content -->
   <ng-container *ngIf="!checkingRole">
 
     <!-- Navigation Header Wrapper -->
     <div class="header-nav">
       <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
       
-      <!-- Action Buttons restricted strictly to Verified Admins -->
+      <!-- Action Buttons -->
       <div class="header-action-buttons" style="display: flex; gap: 8px;">
-        <button *ngIf="isAdmin" type="button" (click)="openFuturePlansModal()" class="action-btn">+ Future Session Plan</button>
-        <button *ngIf="isAdmin" type="button" (click)="openAddModal()" class="action-btn">+ Add Session</button>
+        <button type="button" (click)="openFuturePlansModal()" class="action-btn">+ Future Session Plan</button>
+        <button type="button" (click)="openAddModal()" class="action-btn">+ Add Session</button>
       </div>
     </div>
 
@@ -44,7 +44,7 @@
         <div style="display: flex; flex-direction: column; gap: 10px;">
           <div *ngFor="let plan of filteredFuturePlans" style="background: #ffffff; border-left: 4px solid #0ea5e9; padding: 12px 16px; border-radius: 6px; display: flex; justify-content: space-between; align-items: flex-start; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
             <p style="margin: 0; color: #334155; white-space: pre-line; flex-grow: 1; font-size: 0.95rem;">{{ plan.future_plans }}</p>
-            <div *ngIf="isAdmin" style="display: flex; gap: 6px; margin-left: 12px;">
+            <div style="display: flex; gap: 6px; margin-left: 12px;">
               <button type="button" (click)="openEditFuturePlanModal(plan, $event)" class="action-btn" style="padding: 4px 10px; font-size: 12px;">Edit</button>
               <button type="button" (click)="deleteFuturePlan(plan.id, $event)" class="btn-cancel" style="padding: 4px 10px; font-size: 12px; background: #fee2e2; color: #991b1b; border-color: #fca5a5;">Delete</button>
             </div>
@@ -66,7 +66,7 @@
               <th>#</th>
               <th>Date</th>
               <th>Topics Covered</th>
-              <th class="text-right" *ngIf="isAdmin">Actions</th>
+              <th class="text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +74,7 @@
               <td>{{ i + 1 }}</td>
               <td>{{ item.session_date ? (item.session_date | date: 'mediumDate') : 'No date' }}</td>
               <td>{{ item.topic || 'No topic specified' }}</td>
-              <td class="text-right" *ngIf="isAdmin">
+              <td class="text-right">
                 <button type="button" (click)="openEditModal(item, $event)" class="action-btn" style="padding: 4px 10px; font-size: 12px;">Edit</button>
               </td>
             </tr>
@@ -84,7 +84,7 @@
     </div>
 
     <!-- Modal Popup for Session Entry / Editing -->
-    <div *ngIf="showAddModal && isAdmin" class="modal-backdrop">
+    <div *ngIf="showAddModal" class="modal-backdrop">
       <div class="modal-content">
         <h3>{{ isEditMode ? 'Edit Session' : 'Add New Session' }}</h3>
         
@@ -115,7 +115,7 @@
     </div>
 
     <!-- Modal Popup for Dedicated Future Session Plans -->
-    <div *ngIf="showFuturePlansModal && isAdmin" class="modal-backdrop">
+    <div *ngIf="showFuturePlansModal" class="modal-backdrop">
       <div class="modal-content">
         <h3>{{ isFuturePlanEditMode ? 'Edit Future Session Plan' : 'Add Future Session Plan' }}</h3>
         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">Define upcoming roadmap objectives for a class group.</p>

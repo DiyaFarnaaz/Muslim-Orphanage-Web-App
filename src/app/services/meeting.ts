@@ -182,6 +182,9 @@ cIz0ccW001MbmzaMRF0bb808gQBsV1s3voKwvgm4NMjgy4X+hopijEd5bN16i1sG
     this.unreadCount.set(0);
     this.latestReaction.set(null);
 
+    // Record attendance immediately upon joining so volunteers show up instantly
+    this.recordAttendanceForUser(meetingId, this.localDisplayName);
+
     // Prefix room with your JaaS App ID
     const fullRoomName = `${this.JAAS_APP_ID}/${roomName}`;
     const jwtToken = this.generateJaaSJwt(userEmail, this.localDisplayName, roomName, isAdmin);
@@ -195,7 +198,7 @@ cIz0ccW001MbmzaMRF0bb808gQBsV1s3voKwvgm4NMjgy4X+hopijEd5bN16i1sG
       parentNode: this.jitsiContainer,
       userInfo: { email: userEmail, displayName: this.localDisplayName },
       configOverwrite: {
-        startWithAudioMuted: true,
+        startWithAudioMuted: true, // Everyone starts muted as requested
         startWithVideoMuted: true,
         prejoinPageEnabled: false,
         disableModeratorIndicator: true,
@@ -205,6 +208,11 @@ cIz0ccW001MbmzaMRF0bb808gQBsV1s3voKwvgm4NMjgy4X+hopijEd5bN16i1sG
       interfaceConfigOverwrite: {
         SHOW_JITSI_WATERMARK: false,
         SHOW_WATERMARK_FOR_GUESTS: false,
+        VERTICAL_FILMSTRIP: true,
+        DISABLE_DOMINANT_SPEAKER_HIGHLIGHT: false,
+        // Automatically hide toolbar after inactivity to mimic Google Meet
+        HIDE_INVITE_MORE_HEADER: true,
+        TOOLBAR_TIMEOUT: 4000, // Hide controls after 4 seconds of inactivity
         TOOLBAR_BUTTONS: [
           'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
           'favourite', 'raisehand', 'videoquality', 'tileview', 'settings', 'stats', 'hangup', 'reactions'
@@ -250,11 +258,32 @@ cIz0ccW001MbmzaMRF0bb808gQBsV1s3voKwvgm4NMjgy4X+hopijEd5bN16i1sG
       if (!this.isChatOpen()) this.unreadCount.update(n => n + 1);
     });
 
+    // Fix reactions to display User Name + Emoji in UI badge and chat log history
     this.api.addEventListener('reactionReceived', (d: any) => {
       if (d?.reaction) {
-        this.latestReaction.set({ user: d.participantId || 'Participant', emoji: d.reaction });
+        const participantObj = this.participants().find(p => p.id === d.participantId);
+        const senderName = participantObj ? participantObj.displayName : 'Participant';
+
+        this.latestReaction.set({ user: senderName, emoji: d.reaction });
+
+        const reactionMsg: ChatMessage = {
+          id: Math.random().toString(36).slice(2),
+          from: senderName,
+          text: `reacted with ${d.reaction}`,
+          timestamp: Date.now(),
+          isLocal: false
+        };
+        this.chatMessages.update(list => [...list, reactionMsg]);
+
         setTimeout(() => this.latestReaction.set(null), 3000);
       }
+    });
+
+    // Force resize / re-layout optimization when screen sharing starts or changes view
+    this.api.addEventListener('largeVideoChanged', () => {
+      setTimeout(() => {
+        this.api?.executeCommand?.('resize');
+      }, 100);
     });
   }
 
@@ -360,6 +389,20 @@ cIz0ccW001MbmzaMRF0bb808gQBsV1s3voKwvgm4NMjgy4X+hopijEd5bN16i1sG
       await client.from('video_meetings').update({ past_attendees: updated, updated_at: new Date() }).eq('id', meetingId);
     } catch (err) {
       console.warn('[MeetingService] attendance record failed', err);
+    }
+  }
+
+  private async recordAttendanceForUser(meetingId: string, nameToRecord: string): Promise<void> {
+    if (!meetingId || !nameToRecord) return;
+    try {
+      const client = this.supabaseService.client;
+      if (!client) return;
+      const { data } = await client.from('video_meetings').select('past_attendees').eq('id', meetingId).single();
+      const existing: string[] = (data?.past_attendees || []) as string[];
+      const updated = Array.from(new Set([...existing, nameToRecord]));
+      await client.from('video_meetings').update({ past_attendees: updated, updated_at: new Date() }).eq('id', meetingId);
+    } catch (err) {
+      console.warn('[MeetingService] instant attendance record failed', err);
     }
   }
 
