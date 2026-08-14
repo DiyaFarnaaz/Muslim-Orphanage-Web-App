@@ -21,7 +21,8 @@ export class AddMeetingComponent implements OnInit {
 
   classGroups: string[] = [
     'Class 1-2', 
-    'Class 3-4', 
+    'Class 3', 
+    'Class 4', 
     'Class 5-7 Girls', 
     'Class 5-7 Boys', 
     'Class 8-10 Girls', 
@@ -84,27 +85,38 @@ export class AddMeetingComponent implements OnInit {
       if (data) {
         this.meeting.meeting_date = data.meeting_date;
 
-        const leads = data.session_lead || {};
-        const topics = data.session_topic || {};
-        const activities = data.activity || {};
-        const giftsMap = data.gifts || {};
-        const propsMap = data.props || {};
-        const remarksMap = data.remarks || {};
-        const docs = data.doc_url || {};
+        const parseField = (fieldData: any) => {
+          if (!fieldData) return {};
+          return typeof fieldData === 'string' ? JSON.parse(fieldData) : fieldData;
+        };
+
+        const leads = parseField(data.session_lead);
+        const topics = parseField(data.session_topic);
+        const activities = parseField(data.activity);
+        const giftsMap = parseField(data.gifts);
+        const propsMap = parseField(data.props);
+        const remarksMap = parseField(data.remarks);
+        const docs = parseField(data.doc_url);
 
         this.classGroups.forEach(group => {
+          // Fallback to legacy 'Class 3-4' if specific Class 3 or Class 4 data is missing
+          const lookupKey = (group === 'Class 3' || group === 'Class 4') && !leads[group] && leads['Class 3-4'] 
+            ? 'Class 3-4' 
+            : group;
+
           this.tasksData[group] = {
-            session_lead: leads[group] || '',
-            session_topic: topics[group] || '',
-            activity: activities[group] || '',
-            gifts: giftsMap[group] || '',
-            props: propsMap[group] || '',
-            remarks: remarksMap[group] || '',
+            session_lead: leads[lookupKey] || '',
+            session_topic: topics[lookupKey] || '',
+            activity: activities[lookupKey] || '',
+            gifts: giftsMap[lookupKey] || '',
+            props: propsMap[lookupKey] || '',
+            remarks: remarksMap[lookupKey] || '',
             docCount: 0
           };
           
-          if (docs[group]) {
-            const urlArray = typeof docs[group] === 'string' ? docs[group].split(',').filter((u: string) => u.trim() !== '') : [];
+          const docTarget = docs[lookupKey] || docs[group];
+          if (docTarget) {
+            const urlArray = typeof docTarget === 'string' ? docTarget.split(',').filter((u: string) => u.trim() !== '') : [];
             this.uploadedDocUrls[group] = urlArray;
             this.tasksData[group].docCount = urlArray.length;
           } else {

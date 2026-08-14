@@ -16,7 +16,8 @@ export class SessionProgressComponent implements OnInit {
   
   classGroups: string[] = [
     '1-2',
-    '3-4',
+    '3',
+    '4',
     '5-7 girls',
     '5-7 boys',
     '8-10 girls',
@@ -28,7 +29,7 @@ export class SessionProgressComponent implements OnInit {
   filteredFuturePlans: any[] = [];
   loading: boolean = true;
   
-  // Role tracking flags (kept if needed elsewhere, but no longer block actions)
+  // Role tracking flags
   checkingRole: boolean = true;
   isAdmin: boolean = false;
 
@@ -132,11 +133,25 @@ export class SessionProgressComponent implements OnInit {
     
     this.filteredSessions = this.allSessions.filter(item => {
       const dbGroup = item.class_group ? item.class_group.trim().toLowerCase() : '';
+      
+      if (group === '3' || group === '4') {
+        const matchesCurrent = dbGroup === group.toLowerCase();
+        const matchesCombined = dbGroup === '3-4' || dbGroup === '3 & 4';
+        return (matchesCurrent || matchesCombined) && item.topic && item.topic !== 'Future Plan Entry';
+      }
+
       return dbGroup.includes(group.toLowerCase()) && item.topic && item.topic !== 'Future Plan Entry';
     });
 
     this.filteredFuturePlans = this.allSessions.filter(item => {
       const dbGroup = item.class_group ? item.class_group.trim().toLowerCase() : '';
+      
+      if (group === '3' || group === '4') {
+        const matchesCurrent = dbGroup === group.toLowerCase();
+        const matchesCombined = dbGroup === '3-4' || dbGroup === '3 & 4';
+        return (matchesCurrent || matchesCombined) && item.future_plans && item.future_plans.trim() !== '';
+      }
+
       return dbGroup.includes(group.toLowerCase()) && item.future_plans && item.future_plans.trim() !== '';
     });
   }
@@ -250,7 +265,7 @@ export class SessionProgressComponent implements OnInit {
       if (this.isFuturePlanEditMode && this.editingFuturePlanId) {
         const res = await this.supabase.client
           .from('session_progress')
-          .update({ future_plans: this.newFuturePlan.plan_text.trim(), class_group: this.newFuturePlan.class_group.trim() })
+          .update(payload)
           .eq('id', this.editingFuturePlanId);
         error = res.error;
       } else {

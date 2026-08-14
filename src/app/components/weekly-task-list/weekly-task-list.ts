@@ -19,7 +19,8 @@ export class WeeklyTaskListComponent implements OnInit {
 
   gradeGroups = [
     'Class 1-2', 
-    'Class 3-4', 
+    'Class 3', 
+    'Class 4', 
     'Class 5-7 Girls', 
     'Class 5-7 Boys', 
     'Class 8-10 Girls', 
@@ -88,6 +89,18 @@ export class WeeklyTaskListComponent implements OnInit {
     } catch {
       return {};
     }
+  }
+
+  getGroupData(taskJsonString: string, group: string, field: string) {
+    const data = this.parseJSON(taskJsonString);
+    if (data[group]) {
+      return data[group];
+    }
+    // Fallback to legacy 'Class 3-4' if specific entry doesn't exist
+    if ((group === 'Class 3' || group === 'Class 4') && data['Class 3-4']) {
+      return data['Class 3-4'];
+    }
+    return '-';
   }
 
   goBack() {

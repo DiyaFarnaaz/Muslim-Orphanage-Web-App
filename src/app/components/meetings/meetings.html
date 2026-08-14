@@ -34,12 +34,12 @@
             <div class="task-box" *ngFor="let group of classGroups">
               <h4 class="group-title">{{ group }}</h4>
               <div class="task-content">
-                <p><strong>Lead:</strong> {{ parseJSON(m.session_lead)[group] || '-' }}</p>
-                <p><strong>Topic:</strong> {{ parseJSON(m.session_topic)[group] || '-' }}</p>
-                <p><strong>Activity:</strong> {{ parseJSON(m.activity)[group] || '-' }}</p>
-                <p><strong>Gifts:</strong> {{ parseJSON(m.gifts)[group] || '-' }}</p>
-                <p><strong>Props:</strong> {{ parseJSON(m.props)[group] || '-' }}</p>
-                <p><strong>Additional:</strong> {{ parseJSON(m.remarks)[group] || '-' }}</p>
+                <p><strong>Lead:</strong> {{ getGroupData(m.session_lead, group) }}</p>
+                <p><strong>Topic:</strong> {{ getGroupData(m.session_topic, group) }}</p>
+                <p><strong>Activity:</strong> {{ getGroupData(m.activity, group) }}</p>
+                <p><strong>Gifts:</strong> {{ getGroupData(m.gifts, group) }}</p>
+                <p><strong>Props:</strong> {{ getGroupData(m.props, group) }}</p>
+                <p><strong>Additional:</strong> {{ getGroupData(m.remarks, group) }}</p>
               </div>
             </div>
           </div>

@@ -30,7 +30,8 @@ export class SessionReportComponent implements OnInit {
 
   classGroups: string[] = [
     'Class 1-2', 
-    'Class 3-4', 
+    'Class 3', 
+    'Class 4', 
     'Class 5-7 Girls', 
     'Class 5-7 Boys', 
     'Class 8-10 Girls', 
@@ -79,11 +80,17 @@ export class SessionReportComponent implements OnInit {
           }
         }
 
+        // Map legacy 'Class 3-4' to 'Class 3' or keep as is if it matches new values
+        let fetchedClassGroup = data.class_group || '';
+        if (fetchedClassGroup === 'Class 3-4') {
+          fetchedClassGroup = 'Class 3'; // Default fallback mapping for old records
+        }
+
         this.report = {
           session_lead_name: data.session_lead_name || '',
           topic: data.topic || '',
           session_date: formattedDate,
-          class_group: data.class_group || '',
+          class_group: fetchedClassGroup,
           activity: data.activity || '',
           winner: data.winner || '',
           feedback: data.feedback || ''

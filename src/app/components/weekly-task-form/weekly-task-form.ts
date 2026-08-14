@@ -20,20 +20,20 @@ export class WeeklyTaskFormComponent implements OnInit {
     startDate: '',
     endDate: '',
     giftPlanner: '',
-    props: '',          // Moved props down here
+    props: '',          
     additionalTask: ''
   };
   
   classGroups = [
     'Class 1-2', 
-    'Class 3-4', 
+    'Class 3', 
+    'Class 4', 
     'Class 5-7 Girls', 
     'Class 5-7 Boys', 
     'Class 8-10 Girls', 
     'Class 8-10 Boys'
   ];
 
-  // Removed props from class group data map
   tasksData: { [key: string]: { session_planner: string, session_topic: string, activity_planner: string, activity: string, remarks: string } } = {};
 
   constructor(
@@ -80,7 +80,7 @@ export class WeeklyTaskFormComponent implements OnInit {
         }
 
         this.weeklyTask.giftPlanner = data.gift_planner || '';
-        this.weeklyTask.props = data.props || ''; // Load shared props
+        this.weeklyTask.props = data.props || ''; 
         this.weeklyTask.additionalTask = data.additional_task || '';
 
         const parseField = (fieldData: any) => {
@@ -95,12 +95,17 @@ export class WeeklyTaskFormComponent implements OnInit {
         const remarksData = parseField(data.remarks);
 
         this.classGroups.forEach(group => {
+          // Fallback to legacy 'Class 3-4' key if specific Class 3 or Class 4 data is missing
+          const lookupKey = (group === 'Class 3' || group === 'Class 4') && !planners[group] && planners['Class 3-4'] 
+            ? 'Class 3-4' 
+            : group;
+
           this.tasksData[group] = {
-            session_planner: planners[group] || '',
-            session_topic: topics[group] || '',
-            activity_planner: activityPlanners[group] || '',
-            activity: activities[group] || '',
-            remarks: remarksData[group] || ''
+            session_planner: planners[lookupKey] || '',
+            session_topic: topics[lookupKey] || '',
+            activity_planner: activityPlanners[lookupKey] || '',
+            activity: activities[lookupKey] || '',
+            remarks: remarksData[lookupKey] || ''
           };
         });
       }
@@ -136,7 +141,7 @@ export class WeeklyTaskFormComponent implements OnInit {
       session_topic: sessionTopicObj,
       activity_planner: activityPlannerObj,
       activity: activityObj,
-      props: this.weeklyTask.props, // Saved as a shared string field now
+      props: this.weeklyTask.props, 
       remarks: remarksObj,
       gift_planner: this.weeklyTask.giftPlanner,
       additional_task: this.weeklyTask.additionalTask

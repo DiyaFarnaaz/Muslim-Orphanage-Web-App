@@ -47,12 +47,11 @@
             <div class="task-box" *ngFor="let group of gradeGroups">
               <h4 class="group-title">{{ group }}</h4>
               <div class="task-content">
-                <p><strong>Session Planner:</strong> {{ parseJSON(t.session_planner)[group] || '-' }}</p>
-                <p><strong>Topic:</strong> {{ parseJSON(t.session_topic)[group] || '-' }}</p>
-                <p><strong>Activity Planner:</strong> {{ parseJSON(t.activity_planner)[group] || '-' }}</p>
-                <p><strong>Activity:</strong> {{ parseJSON(t.activity)[group] || '-' }}</p>
-                <!-- Props removed from loop here -->
-                <p><strong>Remarks:</strong> {{ parseJSON(t.remarks)[group] || '-' }}</p>
+                <p><strong>Session Planner:</strong> {{ getGroupData(t.session_planner, group, 'session_planner') }}</p>
+                <p><strong>Topic:</strong> {{ getGroupData(t.session_topic, group, 'session_topic') }}</p>
+                <p><strong>Activity Planner:</strong> {{ getGroupData(t.activity_planner, group, 'activity_planner') }}</p>
+                <p><strong>Activity:</strong> {{ getGroupData(t.activity, group, 'activity') }}</p>
+                <p><strong>Remarks:</strong> {{ getGroupData(t.remarks, group, 'remarks') }}</p>
               </div>
             </div>
           </div>

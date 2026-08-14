@@ -89,10 +89,11 @@
         <h3>{{ isEditMode ? 'Edit Session' : 'Add New Session' }}</h3>
         
         <div class="form-group">
-          <label>Class Group</label>
-          <select [(ngModel)]="newSession.class_group" class="form-input">
-            <option *ngFor="let group of classGroups" [value]="group">{{ group }}</option>
-          </select>
+          <label>Class Group (Select or type custom)</label>
+          <input list="classGroupsList" [(ngModel)]="newSession.class_group" placeholder="Select or type class group..." class="form-input" />
+          <datalist id="classGroupsList">
+            <option *ngFor="let group of classGroups" [value]="group">
+          </datalist>
         </div>
 
         <div class="form-group">
@@ -121,10 +122,11 @@
         <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">Define upcoming roadmap objectives for a class group.</p>
         
         <div class="form-group">
-          <label>Class Group</label>
-          <select [(ngModel)]="newFuturePlan.class_group" class="form-input">
-            <option *ngFor="let group of classGroups" [value]="group">{{ group }}</option>
-          </select>
+          <label>Class Group (Select or type custom)</label>
+          <input list="classGroupsListFuture" [(ngModel)]="newFuturePlan.class_group" placeholder="Select or type class group..." class="form-input" />
+          <datalist id="classGroupsListFuture">
+            <option *ngFor="let group of classGroups" [value]="group">
+          </datalist>
         </div>
 
         <div class="form-group">
