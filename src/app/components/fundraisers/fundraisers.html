@@ -15,7 +15,7 @@
       </button>
     </div>
 
-    <!-- Dedicated Account Balances Widget (Admin Only: My Account & Hub Account) -->
+    <!-- Dedicated Account Balances Widget -->
     <div class="accounts-section" style="margin-bottom: 24px;" *ngIf="isAdmin">
       <h3 style="font-size: 1.1rem; color: #0ea5e9; margin-bottom: 12px; font-weight: 600;">🏦 Account Balances Overview</h3>
       <div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
@@ -91,6 +91,100 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- BOTTOM SECTION: Remaining Fundraiser Items & Leftovers -->
+    <div class="report-card general-info" style="margin-top: 35px; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+      <h3 style="font-size: 1.2rem; color: #1e293b; margin-bottom: 6px; font-weight: 600;">Remaining Fundraiser Items & Leftovers</h3>
+      <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
+        Track leftover stock, unassigned materials, or inventory counts from recent fundraisers.
+      </p>
+
+      <!-- Input Box Form (Admin Only) -->
+      <div *ngIf="isAdmin" style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
+        <h4 style="margin-top: 0; margin-bottom: 12px; font-size: 14px; font-weight: 600; color: #334155;">
+          {{ isEditingIndex !== null ? 'Edit Remaining Item' : 'Add New Remaining Item' }}
+        </h4>
+        
+        <div style="display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
+          <div style="flex: 2; min-width: 200px;">
+            <input 
+              type="text" 
+              [(ngModel)]="currentItem.item_name" 
+              name="itemName" 
+              placeholder="Item Name (e.g., Charity Wristbands)" 
+              style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;"
+            />
+          </div>
+          <div style="flex: 1; min-width: 120px;">
+            <input 
+              type="text" 
+              [(ngModel)]="currentItem.quantity" 
+              name="itemQuantity" 
+              placeholder="Quantity / Count" 
+              style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;"
+            />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <input 
+            type="text" 
+            [(ngModel)]="currentItem.notes" 
+            name="itemNotes" 
+            placeholder="Notes or storage location (optional)" 
+            style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box;"
+          />
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button type="button" (click)="saveItem()" style="background: #0ea5e9; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            {{ isEditingIndex !== null ? 'Update Item' : 'Add Item' }}
+          </button>
+          <button *ngIf="isEditingIndex !== null" type="button" (click)="resetForm()" style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Items List / Table View -->
+      <div *ngIf="remainingItems.length === 0" style="text-align: center; color: #94a3b8; padding: 24px; font-size: 14px;">
+        No remaining fundraiser items recorded yet.
+      </div>
+
+      <div class="table-responsive" *ngIf="remainingItems.length > 0">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+          <thead>
+            <tr style="border-bottom: 2px solid #e2e8f0; color: #475569;">
+              <th style="padding: 10px;">Item Name</th>
+              <th style="padding: 10px;">Quantity</th>
+              <th style="padding: 10px;">Notes</th>
+              <th *ngIf="isAdmin" style="padding: 10px; text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of remainingItems; let i = index" style="border-bottom: 1px solid #f1f5f9;">
+              <td style="padding: 12px 10px; font-weight: 500; color: #1e293b;">{{ item.item_name }}</td>
+              <td style="padding: 12px 10px; color: #334155;">{{ item.quantity || '-' }}</td>
+              <td style="padding: 12px 10px; color: #64748b;">{{ item.notes || '-' }}</td>
+              <td *ngIf="isAdmin" style="padding: 12px 10px; text-align: right; white-space: nowrap;">
+                <button 
+                  type="button" 
+                  (click)="editItem(i)" 
+                  style="background: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 6px; font-size: 12px;">
+                  Edit
+                </button>
+                <button 
+                  type="button" 
+                  (click)="deleteItem(item.id)" 
+                  style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Modal Popup for Editing Account Balances (Admin Only) -->

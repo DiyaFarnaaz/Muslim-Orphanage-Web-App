@@ -31,7 +31,11 @@
         <div class="session-header-row" (click)="onSelectTask(t)">
           <div>
             <h4>Weekly Plan Details</h4>
-            <p><strong>Click to view grade-wise breakdown</strong></p>
+            <!-- Display Meeting Organizer Name Here -->
+            <p *ngIf="t.meeting_organizer" style="margin: 4px 0 0 0; color: #0284c7; font-weight: 600;">
+              Meeting Organizer: {{ t.meeting_organizer }}
+            </p>
+            <p style="margin: 4px 0 0 0;"><strong>Click to view grade-wise breakdown</strong></p>
           </div>
           
           <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="editTask(t.id, $event)">
@@ -42,6 +46,11 @@
         <!-- Expanded Details Card -->
         <div class="report-card" *ngIf="selectedTask === t">
           <h3>Grade Group Breakdown</h3>
+
+          <!-- Meeting Organizer Display Inside Expanded View -->
+          <div class="organizer-badge-row" style="margin-bottom: 15px; background: #f0f4f8; padding: 10px 15px; border-radius: 6px;" *ngIf="t.meeting_organizer">
+            <p style="margin: 0;"><strong>Meeting Organizer:</strong> {{ t.meeting_organizer }}</p>
+          </div>
 
           <div class="tasks-grid">
             <div class="task-box" *ngFor="let group of gradeGroups">

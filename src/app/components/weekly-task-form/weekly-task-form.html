@@ -9,11 +9,11 @@
 
     <form (ngSubmit)="saveTask()">
       
-      <!-- General Details Card with Calendar Pickers -->
+      <!-- General Details Card with Calendar Pickers & Organizer -->
       <div class="report-card general-info">
-        <h3>General Details (Date Range)</h3>
+        <h3>General Details & Meeting Organizer</h3>
         
-        <div class="date-row">
+        <div class="date-row" style="margin-bottom: 16px;">
           <div class="field-group">
             <label for="startDate"><strong>Start Date</strong></label>
             <input 
@@ -37,6 +37,19 @@
               required
             >
           </div>
+        </div>
+
+        <!-- Meeting Organizer Field -->
+        <div class="field-group">
+          <label for="meetingOrganizer"><strong>Meeting Organizer</strong></label>
+          <input 
+            type="text" 
+            id="meetingOrganizer" 
+            class="input-field" 
+            [(ngModel)]="weeklyTask.meetingOrganizer" 
+            name="meetingOrganizer" 
+            placeholder="Enter meeting organizer name"
+          >
         </div>
       </div>
 

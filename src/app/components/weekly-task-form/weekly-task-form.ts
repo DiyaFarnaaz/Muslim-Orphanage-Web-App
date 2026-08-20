@@ -19,6 +19,7 @@ export class WeeklyTaskFormComponent implements OnInit {
   weeklyTask = {
     startDate: '',
     endDate: '',
+    meetingOrganizer: '', // Added dynamic meeting organizer
     giftPlanner: '',
     props: '',          
     additionalTask: ''
@@ -79,6 +80,7 @@ export class WeeklyTaskFormComponent implements OnInit {
           this.weeklyTask.endDate = parts[1] || '';
         }
 
+        this.weeklyTask.meetingOrganizer = data.meeting_organizer || '';
         this.weeklyTask.giftPlanner = data.gift_planner || '';
         this.weeklyTask.props = data.props || ''; 
         this.weeklyTask.additionalTask = data.additional_task || '';
@@ -95,7 +97,6 @@ export class WeeklyTaskFormComponent implements OnInit {
         const remarksData = parseField(data.remarks);
 
         this.classGroups.forEach(group => {
-          // Fallback to legacy 'Class 3-4' key if specific Class 3 or Class 4 data is missing
           const lookupKey = (group === 'Class 3' || group === 'Class 4') && !planners[group] && planners['Class 3-4'] 
             ? 'Class 3-4' 
             : group;
@@ -143,6 +144,7 @@ export class WeeklyTaskFormComponent implements OnInit {
       activity: activityObj,
       props: this.weeklyTask.props, 
       remarks: remarksObj,
+      meeting_organizer: this.weeklyTask.meetingOrganizer,
       gift_planner: this.weeklyTask.giftPlanner,
       additional_task: this.weeklyTask.additionalTask
     };

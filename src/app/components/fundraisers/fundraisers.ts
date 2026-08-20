@@ -7,6 +7,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SupabaseService } from '../../services/supabase';
 
+interface RemainingItem {
+  id?: string;
+  item_name: string;
+  quantity: string;
+  notes?: string;
+}
+
 @Component({
   selector: 'app-fundraisers',
   standalone: true,
@@ -18,7 +25,7 @@ export class FundraisersComponent implements OnInit {
   fundEntries: any[] = [];
   accounts: any[] = [];
   loading = true;
-  checkingRole = true; // Added to block rendering until role check completes
+  checkingRole = true;
 
   totalCollected = 0;
   totalUsed = 0;
@@ -29,6 +36,15 @@ export class FundraisersComponent implements OnInit {
   showAccountModal = false;
   selectedAccount: any = null;
   newAccountBalance = 0;
+
+  // Remaining Items State
+  remainingItems: RemainingItem[] = [];
+  isEditingIndex: number | null = null;
+  currentItem: RemainingItem = {
+    item_name: '',
+    quantity: '',
+    notes: ''
+  };
 
   constructor(
     private supabase: SupabaseService, 
@@ -47,7 +63,11 @@ export class FundraisersComponent implements OnInit {
 
     try {
       await this.checkAdminStatus();
-      await Promise.all([this.fetchFundEntries(), this.fetchAccounts()]);
+      await Promise.all([
+        this.fetchFundEntries(), 
+        this.fetchAccounts(),
+        this.loadRemainingItems()
+      ]);
     } catch (err) {
       console.error('Initialization error:', err);
     } finally {
@@ -69,7 +89,6 @@ export class FundraisersComponent implements OnInit {
         return;
       }
 
-      // Rely strictly on the profiles database table to avoid legacy metadata overrides
       const { data: profile, error: profileError } = await this.supabase.client
         .from('profiles')
         .select('is_admin, role')
@@ -127,6 +146,99 @@ export class FundraisersComponent implements OnInit {
     }
   }
 
+  async loadRemainingItems() {
+    try {
+      const { data, error } = await this.supabase.client
+        .from('fundraiser_remaining_items')
+        .select('*');
+
+      if (error) {
+        console.error('Error loading remaining items:', error);
+      } else {
+        this.remainingItems = data || [];
+      }
+    } catch (err) {
+      console.error('Failed to fetch remaining items:', err);
+    }
+  }
+
+  async saveItem() {
+    if (!this.isAdmin) {
+      alert('Unauthorized action.');
+      return;
+    }
+    if (!this.currentItem.item_name.trim()) {
+      alert('Please enter an item name.');
+      return;
+    }
+
+    try {
+      if (this.isEditingIndex !== null && this.currentItem.id) {
+        const { error } = await this.supabase.client
+          .from('fundraiser_remaining_items')
+          .update({
+            item_name: this.currentItem.item_name,
+            quantity: this.currentItem.quantity,
+            notes: this.currentItem.notes
+          })
+          .eq('id', this.currentItem.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await this.supabase.client
+          .from('fundraiser_remaining_items')
+          .insert([{
+            item_name: this.currentItem.item_name,
+            quantity: this.currentItem.quantity,
+            notes: this.currentItem.notes
+          }]);
+
+        if (error) throw error;
+      }
+
+      this.resetForm();
+      await this.loadRemainingItems();
+      this.cdr.detectChanges();
+    } catch (err: any) {
+      console.error('Error saving item:', err);
+      alert('Failed to save item: ' + (err.message || err));
+    }
+  }
+
+  editItem(index: number) {
+    if (!this.isAdmin) return;
+    this.isEditingIndex = index;
+    this.currentItem = { ...this.remainingItems[index] };
+  }
+
+  async deleteItem(id?: string) {
+    if (!this.isAdmin) {
+      alert('Unauthorized action.');
+      return;
+    }
+    if (!id) return;
+    if (!confirm('Are you sure you want to delete this remaining item?')) return;
+
+    try {
+      const { error } = await this.supabase.client
+        .from('fundraiser_remaining_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await this.loadRemainingItems();
+      this.cdr.detectChanges();
+    } catch (err: any) {
+      console.error('Error deleting item:', err);
+      alert('Failed to delete item: ' + (err.message || err));
+    }
+  }
+
+  resetForm() {
+    this.currentItem = { item_name: '', quantity: '', notes: '' };
+    this.isEditingIndex = null;
+  }
+
   calculateMetrics() {
     this.totalCollected = 0;
     this.totalUsed = 0;
@@ -144,7 +256,7 @@ export class FundraisersComponent implements OnInit {
   }
 
   openEditAccountModal(account: any) {
-    if (!this.isAdmin) return; // Extra layer of security
+    if (!this.isAdmin) return;
     this.selectedAccount = account;
     this.newAccountBalance = account.balance;
     this.showAccountModal = true;
