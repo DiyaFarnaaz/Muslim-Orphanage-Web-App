@@ -13,7 +13,7 @@ import { SupabaseService } from '../../services/supabase';
 })
 export class SessionProgressComponent implements OnInit {
   allSessions: any[] = [];
-  
+
   classGroups: string[] = [
     '1-2',
     '3',
@@ -28,7 +28,7 @@ export class SessionProgressComponent implements OnInit {
   filteredSessions: any[] = [];
   filteredFuturePlans: any[] = [];
   loading: boolean = true;
-  
+
   // Role tracking flags
   checkingRole: boolean = true;
   isAdmin: boolean = false;
@@ -37,6 +37,7 @@ export class SessionProgressComponent implements OnInit {
   showAddModal: boolean = false;
   isEditMode: boolean = false;
   editingSessionId: string | null = null;
+  editingSessionTable: string = 'session_progress'; // tracks which table the row being edited came from
 
   newSession = {
     class_group: '1-2',
@@ -111,9 +112,13 @@ export class SessionProgressComponent implements OnInit {
       const { data: reportSessions } = await this.supabase.client.from('sessions').select('*');
       const { data: manualSessions } = await this.supabase.client.from('session_progress').select('*');
 
-      const combined = [...(reportSessions || []), ...(manualSessions || [])];
+      // Tag each row with the table it came from, so edit/delete can target the right table
+      const taggedReport = (reportSessions || []).map(s => ({ ...s, _sourceTable: 'sessions' }));
+      const taggedManual = (manualSessions || []).map(s => ({ ...s, _sourceTable: 'session_progress' }));
 
-      this.allSessions = combined.sort((a, b) => 
+      const combined = [...taggedReport, ...taggedManual];
+
+      this.allSessions = combined.sort((a, b) =>
         new Date(b.session_date).getTime() - new Date(a.session_date).getTime()
       );
 
@@ -130,10 +135,10 @@ export class SessionProgressComponent implements OnInit {
 
   selectGroup(group: string) {
     this.selectedGroup = group;
-    
+
     this.filteredSessions = this.allSessions.filter(item => {
       const dbGroup = item.class_group ? item.class_group.trim().toLowerCase() : '';
-      
+
       if (group === '3' || group === '4') {
         const matchesCurrent = dbGroup === group.toLowerCase();
         const matchesCombined = dbGroup === '3-4' || dbGroup === '3 & 4';
@@ -145,7 +150,7 @@ export class SessionProgressComponent implements OnInit {
 
     this.filteredFuturePlans = this.allSessions.filter(item => {
       const dbGroup = item.class_group ? item.class_group.trim().toLowerCase() : '';
-      
+
       if (group === '3' || group === '4') {
         const matchesCurrent = dbGroup === group.toLowerCase();
         const matchesCombined = dbGroup === '3-4' || dbGroup === '3 & 4';
@@ -159,6 +164,7 @@ export class SessionProgressComponent implements OnInit {
   openAddModal() {
     this.isEditMode = false;
     this.editingSessionId = null;
+    this.editingSessionTable = 'session_progress';
     this.newSession = {
       class_group: this.selectedGroup || this.classGroups[0],
       session_date: new Date().toISOString().split('T')[0],
@@ -171,6 +177,7 @@ export class SessionProgressComponent implements OnInit {
     event.stopPropagation();
     this.isEditMode = true;
     this.editingSessionId = session.id;
+    this.editingSessionTable = session._sourceTable || 'session_progress';
     this.newSession = {
       class_group: session.class_group || this.classGroups[0],
       session_date: session.session_date,
@@ -182,6 +189,7 @@ export class SessionProgressComponent implements OnInit {
   closeAddModal() {
     this.showAddModal = false;
     this.editingSessionId = null;
+    this.editingSessionTable = 'session_progress';
   }
 
   async saveManualSession() {
@@ -199,8 +207,11 @@ export class SessionProgressComponent implements OnInit {
         topic: this.newSession.topic.trim()
       };
 
+      // Edits go back to whichever table the row came from; new entries always go to session_progress
+      const targetTable = this.isEditMode ? this.editingSessionTable : 'session_progress';
+
       if (this.isEditMode && this.editingSessionId) {
-        const res = await this.supabase.client.from('session_progress').update(payload).eq('id', this.editingSessionId);
+        const res = await this.supabase.client.from(targetTable).update(payload).eq('id', this.editingSessionId);
         error = res.error;
       } else {
         const res = await this.supabase.client.from('session_progress').insert([payload]);
@@ -217,6 +228,27 @@ export class SessionProgressComponent implements OnInit {
     } finally {
       this.submitting = false;
       this.cdr.detectChanges();
+    }
+  }
+
+  async deleteSessionItem(id: string, sourceTable: string, event: Event) {
+    event.stopPropagation();
+    if (!confirm('Are you sure you want to delete this session record?')) return;
+
+    try {
+      const { error } = await this.supabase.client
+        .from(sourceTable || 'session_progress')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        alert('Failed to delete from database: ' + error.message);
+      } else {
+        await this.loadAllSessions();
+        if (this.selectedGroup) this.selectGroup(this.selectedGroup);
+      }
+    } catch (err) {
+      console.error('Error deleting session:', err);
     }
   }
 
