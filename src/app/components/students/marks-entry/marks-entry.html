@@ -1,0 +1,112 @@
+<div class="card">
+  <div class="filters">
+    <div>
+      <label>Class</label>
+      <select class="input-field" [(ngModel)]="selectedClass" (change)="load()">
+        <option value="All">All Classes</option>
+        <option *ngFor="let c of classes" [value]="c">Class {{ c }}</option>
+      </select>
+    </div>
+    <div>
+      <label>Gender</label>
+      <select class="input-field" [(ngModel)]="gender" (change)="load()">
+        <option value="All">All</option>
+        <option value="Boy">Boys</option>
+        <option value="Girl">Girls</option>
+      </select>
+    </div>
+    <div class="grow">
+      <label>Search by name</label>
+      <input class="input-field" [(ngModel)]="search" placeholder="Type a name..." />
+    </div>
+  </div>
+
+  <p class="muted" *ngIf="isAdmin && isAll">
+    All Classes view: marks can't be typed here, but you can Export CSV and Import CSV
+    (file needs name, gender and class columns). Importing here saves directly.
+    Select a single class to type marks or add columns.
+  </p>
+
+  <!-- Create custom column (admin, single class only) -->
+  <div class="filters add-col" *ngIf="isAdmin && !isAll">
+    <div>
+      <label>New Column Name (e.g. Mid Term - Maths)</label>
+      <input class="input-field" [(ngModel)]="newColName" placeholder="Column name" />
+    </div>
+    <div>
+      <label>Max Marks (optional)</label>
+      <input type="number" class="input-field" [(ngModel)]="newColMax" />
+    </div>
+    <button type="button" class="save-btn small" (click)="addColumn()">+ Add Column</button>
+  </div>
+
+  <div class="toolbar">
+    <span class="muted">Showing {{ filteredStudents.length }} of {{ students.length }} students</span>
+    <span class="spacer"></span>
+    <ng-container *ngIf="isAdmin">
+      <button type="button" class="secondary-btn" (click)="exportCsv()">⬇ Export CSV</button>
+      <label class="secondary-btn file-btn">
+        ⬆ Import Marks CSV
+        <input type="file" accept=".csv" (change)="importMarks($event)" hidden />
+      </label>
+    </ng-container>
+  </div>
+
+  <!-- READ-ONLY table: volunteers, and admins in All Classes view -->
+  <div class="table-wrap" *ngIf="readOnly">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>S.No</th><th>Name</th><th>Class</th>
+          <th *ngFor="let h of allHeaders">{{ h }}</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading"><td [attr.colspan]="allHeaders.length + 4">Loading...</td></tr>
+        <tr *ngIf="!loading && filteredStudents.length === 0"><td [attr.colspan]="allHeaders.length + 4">No students found</td></tr>
+        <tr *ngFor="let s of filteredStudents; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ s.name }}</td>
+          <td>{{ s.class }}</td>
+          <td *ngFor="let h of allHeaders">{{ cell(s, h) }}</td>
+          <td><b>{{ total(s.id) }}</b></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- EDITABLE table: admins, single class -->
+  <div class="table-wrap" *ngIf="!readOnly">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Name</th>
+          <th *ngFor="let c of columns">
+            {{ c.name }}<span *ngIf="c.max_marks"> ({{ c.max_marks }})</span>
+            <button type="button" class="x-btn" title="Delete column" (click)="deleteColumn(c)">&times;</button>
+          </th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading"><td [attr.colspan]="columns.length + 3">Loading...</td></tr>
+        <tr *ngIf="!loading && filteredStudents.length === 0"><td [attr.colspan]="columns.length + 3">No students found</td></tr>
+        <tr *ngFor="let s of filteredStudents; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ s.name }}</td>
+          <td *ngFor="let c of columns">
+            <input type="number" class="mark-input" [max]="c.max_marks || null"
+                   [(ngModel)]="marks[s.id][c.id]" [name]="s.id + c.id" />
+          </td>
+          <td><b>{{ total(s.id) }}</b></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button type="button" class="save-btn" *ngIf="!readOnly" (click)="save()" [disabled]="saving || !columns.length">
+    {{ saving ? 'Saving...' : 'Save Marks' }}
+  </button>
+</div>

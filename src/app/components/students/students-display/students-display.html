@@ -1,0 +1,84 @@
+<div class="card">
+  <div class="filters">
+    <div>
+      <label>Class</label>
+      <select class="input-field" [(ngModel)]="selectedClass" (change)="load()">
+        <option value="All">All Classes</option>
+        <option *ngFor="let c of classes" [value]="c">{{ c === 'Alumni' ? 'Alumni (Passed out)' : 'Class ' + c }}</option>
+      </select>
+    </div>
+    <div>
+      <label>Gender</label>
+      <select class="input-field" [(ngModel)]="gender" (change)="load()">
+        <option value="All">All</option>
+        <option value="Boy">Boys</option>
+        <option value="Girl">Girls</option>
+      </select>
+    </div>
+    <div class="grow">
+      <label>Search by name</label>
+      <input class="input-field" [(ngModel)]="search" placeholder="Type a name..." />
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <span class="muted">
+      Showing {{ filtered.length }} of {{ students.length }}
+      (Boys: {{ boys }}, Girls: {{ girls }})
+    </span>
+    <span class="spacer"></span>
+    <ng-container *ngIf="isAdmin">
+      <button type="button" class="secondary-btn" (click)="exportCsv()">⬇ Export CSV</button>
+      <button type="button" class="secondary-btn" *ngIf="nextClass" (click)="promote()">
+        ⬆ Promote Class {{ selectedClass }} → {{ nextClass === 'Alumni' ? 'Alumni' : 'Class ' + nextClass }}
+      </button>
+    </ng-container>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>S.No</th><th>Name</th><th>Class</th><th>Gender</th>
+          <th *ngIf="isAdmin">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading"><td [attr.colspan]="isAdmin ? 5 : 4">Loading...</td></tr>
+        <tr *ngIf="!loading && filtered.length === 0"><td [attr.colspan]="isAdmin ? 5 : 4">No students found</td></tr>
+
+        <tr *ngFor="let s of filtered; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <ng-container *ngIf="editingId !== s.id; else editRow">
+            <td>{{ s.name }}</td>
+            <td>{{ s.class }}</td>
+            <td>{{ s.gender }}</td>
+            <td *ngIf="isAdmin">
+              <button type="button" class="edit-btn" (click)="startEdit(s)">Edit</button>
+              <button type="button" class="danger-btn" (click)="remove(s)">Delete</button>
+            </td>
+          </ng-container>
+
+          <ng-template #editRow>
+            <td><input class="input-field" [(ngModel)]="editData.name" /></td>
+            <td>
+              <select class="input-field" [(ngModel)]="editData.class">
+                <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
+              </select>
+            </td>
+            <td>
+              <select class="input-field" [(ngModel)]="editData.gender">
+                <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+              </select>
+            </td>
+            <td>
+              <button type="button" class="save-btn small" (click)="saveEdit()">Save</button>
+              <button type="button" class="secondary-btn" (click)="cancelEdit()">Cancel</button>
+            </td>
+          </ng-template>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

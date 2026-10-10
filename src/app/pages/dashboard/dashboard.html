@@ -48,7 +48,7 @@
 
         <!-- Overview Cards Grid -->
         <div class="dashboard-cards">
-          
+
           <!-- 1. Weekly Tasks Card -->
           <mat-card class="dash-card weekly-task-card" routerLink="/weekly-tasks">
             <div class="card-icon-wrapper weekly-task-icon-wrap">
@@ -104,10 +104,21 @@
             </mat-card-content>
           </mat-card>
 
+          <!-- 6. Students Card -->
+          <mat-card class="dash-card" routerLink="/dashboard/students">
+            <div class="card-icon-wrapper">
+              <mat-icon class="dash-icon">school</mat-icon>
+            </div>
+            <mat-card-content>
+              <h4>Students</h4>
+              <p>Display students, add them manually or by CSV, and enter marks.</p>
+            </mat-card-content>
+          </mat-card>
+
         </div>
       </div>
 
-      <!-- Child routes like VideoCallComponent render here when clicked -->
+      <!-- Child routes like VideoCallComponent and Students render here when clicked -->
       <router-outlet></router-outlet>
     </main>
   </div>
@@ -129,7 +140,7 @@
       <!-- Tab 1: Profile Details Form (Email & Role disabled/non-editable) -->
       <div class="modal-body" *ngIf="activeTab === 'details' && userProfile">
         <form (ngSubmit)="updateProfileDetails()">
-          
+
           <div class="field-group">
             <label>Email (Cannot be changed)</label>
             <input type="email" class="input-field disabled-field" [value]="userProfile.email" disabled />
@@ -169,7 +180,7 @@
       <!-- Tab 2: Password Update (Verified using Previous Password) -->
       <div class="modal-body" *ngIf="activeTab === 'password'">
         <form (ngSubmit)="updatePassword()">
-          
+
           <div class="field-group">
             <label>Previous Password</label>
             <input type="password" class="input-field" [(ngModel)]="passwordData.currentPassword" name="currentPassword" required placeholder="Enter current password" />

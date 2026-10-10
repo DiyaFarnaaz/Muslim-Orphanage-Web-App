@@ -17,6 +17,10 @@ import { WeeklyTaskFormComponent } from './components/weekly-task-form/weekly-ta
 import { SessionProgressComponent } from './pages/session-progress/session-progress';
 import { UpdatePasswordComponent } from './pages/update-password/update-password';
 import { VideoCallComponent } from './components/video-call/video-call';
+import { StudentsShellComponent } from './components/students/students-shell/students-shell';
+import { StudentsDisplayComponent } from './components/students/students-display/students-display';
+import { StudentsCreateComponent } from './components/students/students-create/students-create';
+import { MarksEntryComponent } from './components/students/marks-entry/marks-entry';
 // Guards
 import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
@@ -58,6 +62,24 @@ export const routes: Routes = [
   { path: 'add-meeting/:id', component: AddMeetingComponent, canActivate: [adminGuard] },
   { path: 'fund-entry', component: FundEntryComponent, canActivate: [adminGuard] },
   { path: 'fund-entry/:id', component: FundEntryComponent, canActivate: [adminGuard] },
+    { 
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [authGuard],
+    children: [
+      { path: 'video-call', component: VideoCallComponent },
+            {
+        path: 'students',
+        component: StudentsShellComponent,
+        children: [
+          { path: '', redirectTo: 'display', pathMatch: 'full' },
+                    { path: 'display', component: StudentsDisplayComponent },
+          { path: 'create', component: StudentsCreateComponent, canActivate: [adminGuard] },
+          { path: 'marks', component: MarksEntryComponent }
+        ]
+      }
+    ]
+  },
   
   { path: '**', redirectTo: '' }
 ];

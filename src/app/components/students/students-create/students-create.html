@@ -1,0 +1,78 @@
+<div class="grid-2">
+  <!-- Manual form -->
+  <div class="card">
+    <h3>Add Single Student</h3>
+    <form (ngSubmit)="createStudent()">
+      <div class="field-group">
+        <label>Name</label>
+        <input class="input-field" [(ngModel)]="form.name" name="name" required />
+      </div>
+      <div class="field-group">
+        <label>Class</label>
+        <select class="input-field" [(ngModel)]="form.class" name="class">
+          <option *ngFor="let c of classes" [value]="c">Class {{ c }}</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Gender</label>
+        <select class="input-field" [(ngModel)]="form.gender" name="gender">
+          <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+        </select>
+      </div>
+      <button type="submit" class="save-btn" [disabled]="saving">{{ saving ? 'Saving...' : 'Create Student' }}</button>
+    </form>
+  </div>
+
+  <!-- CSV import -->
+  <div class="card">
+    <h3>Bulk Import (CSV)</h3>
+    <p class="muted">
+      Columns: <b>name, gender</b> (Boy/Girl) and <b>class</b>.
+      Choose <b>All classes</b> below if your file has a class column for every row,
+      or pick one class to use for the whole file. Mixed boys/girls sheets are separated
+      automatically by the gender column. Duplicates are skipped.
+    </p>
+    <button type="button" class="link-btn" (click)="downloadSample()">⬇ Download sample file</button>
+
+    <div class="field-group">
+      <label>Class for this file</label>
+      <select class="input-field" [(ngModel)]="importClass" name="importClass">
+        <option value="All">All classes (use the class column in the file)</option>
+        <option *ngFor="let c of classes" [value]="c">Class {{ c }}</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label>Upload CSV</label>
+      <input type="file" accept=".csv" (change)="onFileSelected($event)" />
+    </div>
+
+    <div *ngIf="fileName">
+      <p>
+        {{ csvRows.length }} valid row(s) in <b>{{ fileName }}</b>
+        (Boys: {{ boysCount }}, Girls: {{ girlsCount }})
+      </p>
+      <ul class="errors" *ngIf="csvErrors.length">
+        <li *ngFor="let e of csvErrors">{{ e }}</li>
+      </ul>
+
+      <div class="table-wrap" *ngIf="csvRows.length">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Gender</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let r of csvRows; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>{{ r.name }}</td>
+              <td>{{ r.class || (importClass === 'All' ? '⚠ missing' : importClass) }}</td>
+              <td>{{ r.gender }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <button type="button" class="save-btn" (click)="importCsv()" [disabled]="importing || !csvRows.length">
+      {{ importing ? 'Importing...' : 'Import Students' }}
+    </button>
+  </div>
+</div>
