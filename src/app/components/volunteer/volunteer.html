@@ -73,8 +73,8 @@
             <th>Full Name</th>
             <th>Email</th>
             <th>Gender</th>
-            <th>Age</th>
-            <th>Phone Number</th>
+            <th *ngIf="isAdmin">Age</th>
+            <th *ngIf="isAdmin">Phone Number</th>
             <th *ngIf="isAdmin">Role</th>
             <th *ngIf="isAdmin">Actions</th>
           </tr>
@@ -88,8 +88,8 @@
               <td class="font-weight-bold">{{ volunteer.full_name }}</td>
               <td>{{ volunteer.email }}</td>
               <td>{{ volunteer.gender }}</td>
-              <td>{{ volunteer.age }}</td>
-              <td>{{ volunteer.phone_number }}</td>
+              <td *ngIf="isAdmin">{{ volunteer.age }}</td>
+              <td *ngIf="isAdmin">{{ volunteer.phone_number }}</td>
               <td *ngIf="isAdmin">
                 <span class="badge" [ngClass]="volunteer.role === 'admin' ? 'badge-admin' : 'badge-volunteer'">
                   {{ (volunteer.role || 'volunteer') | uppercase }}
@@ -115,10 +115,10 @@
                   <option value="other">Other</option>
                 </select>
               </td>
-              <td>
+              <td *ngIf="isAdmin">
                 <input type="number" [(ngModel)]="editForm.age" name="age_{{volunteer.id}}" class="form-input-sm">
               </td>
-              <td>
+              <td *ngIf="isAdmin">
                 <input type="text" [(ngModel)]="editForm.phone_number" name="phone_{{volunteer.id}}" class="form-input-sm">
               </td>
               <td *ngIf="isAdmin">

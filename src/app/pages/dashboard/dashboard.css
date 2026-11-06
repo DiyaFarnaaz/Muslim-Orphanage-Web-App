@@ -216,78 +216,57 @@
   line-height: 1.5;
 }
 
-/* Modal Popup Styles */
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  width: 90%;
-  max-width: 460px;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+/* Full Screen Profile Layout Styles */
+.profile-page-view {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   animation: fadeInUp 0.3s ease-out forwards;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+.profile-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
-.modal-header h3 {
-  margin: 0;
-  font-size: 18px;
+.profile-header h2 {
+  margin: 0 0 20px 0;
+  font-size: 24px;
+  font-weight: 600;
   color: #1e293b;
-}
-
-.close-modal-btn {
-  background: none;
-  border: none;
-  font-size: 26px;
-  cursor: pointer;
-  color: #6b7280;
-  line-height: 1;
 }
 
 .modal-tabs {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
 }
 
 .modal-tabs button {
   background: none;
   border: none;
-  padding: 6px 12px;
+  padding: 8px 16px;
   cursor: pointer;
   font-weight: 500;
   color: #6b7280;
   border-radius: 6px;
   font-size: 14px;
+  transition: all 0.2s;
 }
 
 .modal-tabs button.active {
   background: #eff6ff;
   color: #2563eb;
+  font-weight: 600;
 }
 
 .field-group {
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .field-group label {
@@ -295,12 +274,12 @@
   font-size: 13px;
   font-weight: 500;
   color: #374151;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .input-field {
   width: 100%;
-  padding: 10px 12px;
+  padding: 11px 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
@@ -321,7 +300,7 @@
 
 .save-btn {
   width: 100%;
-  padding: 11px;
+  padding: 12px;
   background-color: #2563eb;
   color: white;
   border: none;
@@ -329,7 +308,7 @@
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 10px;
+  margin-top: 14px;
   transition: background-color 0.2s;
 }
 
@@ -417,5 +396,13 @@
 
   .dash-card {
     padding: 18px;
+  }
+
+  .profile-page-view {
+    max-width: 100%;
+  }
+
+  .profile-card {
+    padding: 20px;
   }
 }

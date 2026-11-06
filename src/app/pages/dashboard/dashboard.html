@@ -22,15 +22,21 @@
     <!-- Clean Sidebar -->
     <nav class="sidebar mobile-animate">
       <mat-nav-list>
-        <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <a mat-list-item routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="showProfileModal = false">
           <mat-icon matListItemIcon>dashboard</mat-icon>
           <span matListItemTitle>Dashboard</span>
         </a>
-        <a mat-list-item routerLink="/volunteer" routerLinkActive="active">
+        <!-- Full Screen My Profile Option -->
+        <a mat-list-item (click)="toggleProfileModal()" [class.active]="showProfileModal" style="cursor: pointer;">
+          <mat-icon matListItemIcon>person</mat-icon>
+          <span matListItemTitle>My Profile</span>
+        </a>
+        <a mat-list-item routerLink="/volunteer" routerLinkActive="active" (click)="showProfileModal = false">
           <mat-icon matListItemIcon>group</mat-icon>
           <span matListItemTitle>Volunteers</span>
         </a>
-        <a mat-list-item routerLink="/session-progress" routerLinkActive="active">
+      
+        <a mat-list-item routerLink="/session-progress" routerLinkActive="active" (click)="showProfileModal = false">
           <mat-icon matListItemIcon>trending_up</mat-icon>
           <span matListItemTitle>Session Progress</span>
         </a>
@@ -43,7 +49,9 @@
 
     <!-- Main Content Area -->
     <main class="content mobile-animate">
-      <div *ngIf="showCards">
+      
+      <!-- Dashboard Overview Cards (Hidden when My Profile screen is open) -->
+      <div *ngIf="showCards && !showProfileModal">
         <h2>Dashboard Overview</h2>
 
         <!-- Overview Cards Grid -->
@@ -118,91 +126,90 @@
         </div>
       </div>
 
-      <!-- Child routes like VideoCallComponent and Students render here when clicked -->
+      <!-- User Profile & Settings Full Page View -->
+      <div class="profile-page-view" *ngIf="showProfileModal">
+        <div class="profile-card">
+          <div class="profile-header">
+            <h2>User Profile & Settings</h2>
+          </div>
+
+          <!-- Page Tabs Switcher -->
+          <div class="modal-tabs">
+            <button type="button" [class.active]="activeTab === 'details'" (click)="activeTab = 'details'">View & Edit Details</button>
+            <button type="button" [class.active]="activeTab === 'password'" (click)="activeTab = 'password'">Change Password</button>
+          </div>
+
+          <!-- Tab 1: Profile Details Form -->
+          <div class="modal-body" *ngIf="activeTab === 'details' && userProfile">
+            <form (ngSubmit)="updateProfileDetails()">
+
+              <div class="field-group">
+                <label>Email (Cannot be changed)</label>
+                <input type="email" class="input-field disabled-field" [value]="userProfile.email" disabled />
+              </div>
+
+              <div class="field-group">
+                <label>Role (Cannot be changed)</label>
+                <input type="text" class="input-field disabled-field" [value]="userProfile.role || 'Member'" disabled />
+              </div>
+
+              <div class="field-group">
+                <label>Full Name</label>
+                <input type="text" class="input-field" [(ngModel)]="editProfileData.full_name" name="full_name" />
+              </div>
+
+              <div class="field-group">
+                <label>Age</label>
+                <input type="number" class="input-field" [(ngModel)]="editProfileData.age" name="age" />
+              </div>
+
+              <div class="field-group">
+                <label>Gender</label>
+                <input type="text" class="input-field" [(ngModel)]="editProfileData.gender" name="gender" placeholder="Enter gender" />
+              </div>
+
+              <div class="field-group">
+                <label>Phone Number</label>
+                <input type="text" class="input-field" [(ngModel)]="editProfileData.phone_number" name="phone_number" />
+              </div>
+
+              <button type="submit" class="save-btn" [disabled]="isUpdating">
+                {{ isUpdating ? 'Saving Changes...' : 'Save Profile Details' }}
+              </button>
+            </form>
+          </div>
+
+          <!-- Tab 2: Password Update -->
+          <div class="modal-body" *ngIf="activeTab === 'password'">
+            <form (ngSubmit)="updatePassword()">
+
+              <div class="field-group">
+                <label>Previous Password</label>
+                <input type="password" class="input-field" [(ngModel)]="passwordData.currentPassword" name="currentPassword" required placeholder="Enter current password" />
+              </div>
+
+              <div class="field-group">
+                <label>New Password</label>
+                <input type="password" class="input-field" [(ngModel)]="passwordData.newPassword" name="newPassword" required placeholder="Enter new password" />
+              </div>
+
+              <div class="field-group">
+                <label>Confirm New Password</label>
+                <input type="password" class="input-field" [(ngModel)]="passwordData.confirmPassword" name="confirmPassword" required placeholder="Confirm new password" />
+              </div>
+
+              <button type="submit" class="save-btn" [disabled]="isChangingPassword">
+                {{ isChangingPassword ? 'Updating Password...' : 'Update Password' }}
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Child routes render here when clicked -->
       <router-outlet></router-outlet>
     </main>
-  </div>
-
-  <!-- User Profile & Settings Modal Window -->
-  <div class="modal-backdrop" *ngIf="showProfileModal" (click)="toggleProfileModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>User Profile & Settings</h3>
-        <button type="button" class="close-modal-btn" (click)="toggleProfileModal()">&times;</button>
-      </div>
-
-      <!-- Modal Tabs Switcher -->
-      <div class="modal-tabs">
-        <button type="button" [class.active]="activeTab === 'details'" (click)="activeTab = 'details'">View & Edit Details</button>
-        <button type="button" [class.active]="activeTab === 'password'" (click)="activeTab = 'password'">Change Password</button>
-      </div>
-
-      <!-- Tab 1: Profile Details Form (Email & Role disabled/non-editable) -->
-      <div class="modal-body" *ngIf="activeTab === 'details' && userProfile">
-        <form (ngSubmit)="updateProfileDetails()">
-
-          <div class="field-group">
-            <label>Email (Cannot be changed)</label>
-            <input type="email" class="input-field disabled-field" [value]="userProfile.email" disabled />
-          </div>
-
-          <div class="field-group">
-            <label>Role (Cannot be changed)</label>
-            <input type="text" class="input-field disabled-field" [value]="userProfile.role || 'Member'" disabled />
-          </div>
-
-          <div class="field-group">
-            <label>Full Name</label>
-            <input type="text" class="input-field" [(ngModel)]="editProfileData.full_name" name="full_name" />
-          </div>
-
-          <div class="field-group">
-            <label>Age</label>
-            <input type="number" class="input-field" [(ngModel)]="editProfileData.age" name="age" />
-          </div>
-
-          <div class="field-group">
-            <label>Gender</label>
-            <input type="text" class="input-field" [(ngModel)]="editProfileData.gender" name="gender" placeholder="Enter gender" />
-          </div>
-
-          <div class="field-group">
-            <label>Phone Number</label>
-            <input type="text" class="input-field" [(ngModel)]="editProfileData.phone_number" name="phone_number" />
-          </div>
-
-          <button type="submit" class="save-btn" [disabled]="isUpdating">
-            {{ isUpdating ? 'Saving Changes...' : 'Save Profile Details' }}
-          </button>
-        </form>
-      </div>
-
-      <!-- Tab 2: Password Update (Verified using Previous Password) -->
-      <div class="modal-body" *ngIf="activeTab === 'password'">
-        <form (ngSubmit)="updatePassword()">
-
-          <div class="field-group">
-            <label>Previous Password</label>
-            <input type="password" class="input-field" [(ngModel)]="passwordData.currentPassword" name="currentPassword" required placeholder="Enter current password" />
-          </div>
-
-          <div class="field-group">
-            <label>New Password</label>
-            <input type="password" class="input-field" [(ngModel)]="passwordData.newPassword" name="newPassword" required placeholder="Enter new password" />
-          </div>
-
-          <div class="field-group">
-            <label>Confirm New Password</label>
-            <input type="password" class="input-field" [(ngModel)]="passwordData.confirmPassword" name="confirmPassword" required placeholder="Confirm new password" />
-          </div>
-
-          <button type="submit" class="save-btn" [disabled]="isChangingPassword">
-            {{ isChangingPassword ? 'Updating Password...' : 'Update Password' }}
-          </button>
-        </form>
-      </div>
-
-    </div>
   </div>
 
   <footer class="footer">&copy; 2026 Muslim Orphanage Portal</footer>
