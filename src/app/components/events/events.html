@@ -32,10 +32,13 @@
             </div>
           </div>
           
-          <!-- Edit button with higher z-index -->
-          <div class="session-action-wrapper">
+          <!-- Action buttons container (Edit & Delete side by side) -->
+          <div class="session-action-wrapper" style="display: flex; gap: 8px; align-items: center;">
             <button type="button" class="edit-action-btn" (click)="editEvent(session.id, $event)">
               Edit
+            </button>
+            <button type="button" class="delete-action-btn" (click)="deleteEvent(session.id, $event)" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">
+              Delete
             </button>
           </div>
         </div>

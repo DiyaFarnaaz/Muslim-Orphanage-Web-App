@@ -10,62 +10,60 @@
     </a>
   </div>
 
-  <!-- Loading State -->
   <div *ngIf="loading" class="loader">
     Loading weekly tasks...
   </div>
 
-  <!-- Empty State -->
   <div *ngIf="!loading && getKeys(groupedTasks).length === 0" class="date-card text-center">
     <p class="empty-text">No weekly task plans found.</p>
     <p *ngIf="isAdmin" class="empty-subtext">Click "+ Add Weekly Plan" above to create your first plan.</p>
   </div>
 
-  <!-- Grouped Date Cards -->
   <div class="date-card" *ngFor="let date of getKeys(groupedTasks)">
     <h3>{{ date }}</h3>
-    
+
     <div class="session-list">
       <div class="session-item" *ngFor="let t of groupedTasks[date]">
-        
+
         <div class="session-header-row" (click)="onSelectTask(t)">
           <div>
             <h4>Weekly Plan Details</h4>
-            <!-- Display Meeting Organizer Name Here -->
             <p *ngIf="t.meeting_organizer" style="margin: 4px 0 0 0; color: #0284c7; font-weight: 600;">
               Meeting Organizer: {{ t.meeting_organizer }}
             </p>
             <p style="margin: 4px 0 0 0;"><strong>Click to view grade-wise breakdown</strong></p>
           </div>
-          
-          <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="editTask(t.id, $event)">
-            Edit Plan
-          </button>
+
+          <div class="session-action-wrapper" style="display: flex; gap: 8px; align-items: center;">
+            <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="editTask(t.id, $event)">
+              Edit Plan
+            </button>
+            <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="deleteTask(t.id, $event)" style="background-color: #ef4444; border-color: #ef4444;">
+              Delete
+            </button>
+          </div>
         </div>
 
-        <!-- Expanded Details Card -->
         <div class="report-card" *ngIf="selectedTask === t">
           <h3>Grade Group Breakdown</h3>
 
-          <!-- Meeting Organizer Display Inside Expanded View -->
           <div class="organizer-badge-row" style="margin-bottom: 15px; background: #f0f4f8; padding: 10px 15px; border-radius: 6px;" *ngIf="t.meeting_organizer">
             <p style="margin: 0;"><strong>Meeting Organizer:</strong> {{ t.meeting_organizer }}</p>
           </div>
 
           <div class="tasks-grid">
-            <div class="task-box" *ngFor="let group of gradeGroups">
+            <div class="task-box" *ngFor="let group of getGroupNames(t)">
               <h4 class="group-title">{{ group }}</h4>
               <div class="task-content">
-                <p><strong>Session Planner:</strong> {{ getGroupData(t.session_planner, group, 'session_planner') }}</p>
-                <p><strong>Topic:</strong> {{ getGroupData(t.session_topic, group, 'session_topic') }}</p>
-                <p><strong>Activity Planner:</strong> {{ getGroupData(t.activity_planner, group, 'activity_planner') }}</p>
-                <p><strong>Activity:</strong> {{ getGroupData(t.activity, group, 'activity') }}</p>
-                <p><strong>Remarks:</strong> {{ getGroupData(t.remarks, group, 'remarks') }}</p>
+                <p><strong>Session Planner:</strong> {{ getGroupData(t.session_planner, group) }}</p>
+                <p><strong>Topic:</strong> {{ getGroupData(t.session_topic, group) }}</p>
+                <p><strong>Activity Planner:</strong> {{ getGroupData(t.activity_planner, group) }}</p>
+                <p><strong>Activity:</strong> {{ getGroupData(t.activity, group) }}</p>
+                <p><strong>Remarks:</strong> {{ getGroupData(t.remarks, group) }}</p>
               </div>
             </div>
           </div>
 
-          <!-- Shared Bottom Information (Gift Planner, Props, Additional Task) -->
           <div class="shared-summary-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
             <p><strong>Gift Planner:</strong> {{ t.gift_planner || 'None' }}</p>
             <p style="margin-top: 8px;"><strong>Props:</strong> {{ t.props || 'None' }}</p>

@@ -247,3 +247,12 @@ textarea.input-field {
     padding: 10px;
   }
 }
+.group-header { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.group-header select { flex: 1; }
+.remove-btn { background: none; border: none; color: #c00000; font-size: 20px; cursor: pointer; }
+.group-title { color: #c00000; text-decoration: underline; margin: 10px 0; }
+.add-group-btn {
+  width: 100%; padding: 12px; margin: 12px 0;
+  border: 2px dashed #4472c4; background: none;
+  color: #4472c4; font-weight: 600; border-radius: 8px; cursor: pointer;
+}

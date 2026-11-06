@@ -17,6 +17,9 @@ export class SessionReportComponent implements OnInit {
   sessionId: string | null = null;
   isSubmitting: boolean = false;
   isLoading: boolean = true; 
+  
+  isCustomClass: boolean = false;
+  customClassInput: string = '';
 
   report = {
     session_lead_name: '',
@@ -28,15 +31,15 @@ export class SessionReportComponent implements OnInit {
     feedback: ''
   };
 
-  classGroups: string[] = [
-    'Class 1-2', 
-    'Class 3', 
-    'Class 4', 
-    'Class 5-7 Girls', 
-    'Class 5-7 Boys', 
-    'Class 8-10 Girls', 
-    'Class 8-10 Boys'
+  private readonly groupOrder = [
+    'Class 1-4 Below Avg', 'Class 5-9 Below Avg',
+    'Class 1-2', 'Class 3', 'Class 4', 'Class 3-4',
+    'Class 5-7', 'Class 5-7 Girls', 'Class 5-7 Boys',
+    'Class 8-9 Girls', 'Class 8-9 Boys',
+    'Class 8-10 Girls', 'Class 8-10 Boys'
   ];
+
+  classGroups: string[] = [...this.groupOrder, 'Other (type manually)...'];
 
   constructor(
     private supabase: SupabaseService,
@@ -64,12 +67,7 @@ export class SessionReportComponent implements OnInit {
         .eq('id', id)
         .single();
 
-      if (error) {
-        console.error('Supabase query error:', error);
-        throw error;
-      }
-
-      console.log('Fetched session data successfully:', data);
+      if (error) throw error;
 
       if (data) {
         let formattedDate = new Date().toISOString().split('T')[0];
@@ -80,21 +78,24 @@ export class SessionReportComponent implements OnInit {
           }
         }
 
-        // Map legacy 'Class 3-4' to 'Class 3' or keep as is if it matches new values
         let fetchedClassGroup = data.class_group || '';
-        if (fetchedClassGroup === 'Class 3-4') {
-          fetchedClassGroup = 'Class 3'; // Default fallback mapping for old records
+        
+        // If the saved class is not in the standard preset list, treat it as custom
+        if (fetchedClassGroup && !this.groupOrder.includes(fetchedClassGroup)) {
+          this.isCustomClass = true;
+          this.customClassInput = fetchedClassGroup;
+          this.report.class_group = 'Other (type manually)...';
+        } else {
+          this.report.class_group = fetchedClassGroup;
+          this.isCustomClass = false;
         }
 
-        this.report = {
-          session_lead_name: data.session_lead_name || '',
-          topic: data.topic || '',
-          session_date: formattedDate,
-          class_group: fetchedClassGroup,
-          activity: data.activity || '',
-          winner: data.winner || '',
-          feedback: data.feedback || ''
-        };
+        this.report.session_lead_name = data.session_lead_name || '';
+        this.report.topic = data.topic || '';
+        this.report.session_date = formattedDate;
+        this.report.activity = data.activity || '';
+        this.report.winner = data.winner || '';
+        this.report.feedback = data.feedback || '';
       }
     } catch (err: any) {
       console.error('Error loading session report for edit:', err);
@@ -105,6 +106,18 @@ export class SessionReportComponent implements OnInit {
     }
   }
 
+  // Handle dropdown change immediately using ngModelChange
+  onClassGroupChange(value: string) {
+    if (value === 'Other (type manually)...') {
+      this.isCustomClass = true;
+      this.customClassInput = '';
+    } else {
+      this.isCustomClass = false;
+      this.customClassInput = '';
+    }
+    this.cdr.detectChanges();
+  }
+
   goBack() {
     this.router.navigate(['/events']);
   }
@@ -112,18 +125,31 @@ export class SessionReportComponent implements OnInit {
   async submitReport() {
     this.isSubmitting = true;
     try {
+      const payload = { ...this.report };
+      
+      // If "Other" is selected, use the typed custom class value
+      if (payload.class_group === 'Other (type manually)...') {
+        const customVal = this.customClassInput.trim();
+        if (!customVal) {
+          alert('Please enter a custom class group name.');
+          this.isSubmitting = false;
+          return;
+        }
+        payload.class_group = customVal;
+      }
+
       let error;
       if (this.isEditMode && this.sessionId) {
         const res = await this.supabase.client
           .from('sessions')
-          .update(this.report)
+          .update(payload)
           .eq('id', this.sessionId);
         error = res.error;
         if (!error) alert('Session report updated successfully!');
       } else {
         const res = await this.supabase.client
           .from('sessions')
-          .insert([this.report]);
+          .insert([payload]);
         error = res.error;
         if (!error) alert('Session report created successfully!');
       }
@@ -135,6 +161,7 @@ export class SessionReportComponent implements OnInit {
       alert('Error: ' + (err.message || 'Could not save record.'));
     } finally {
       this.isSubmitting = false;
+      this.cdr.detectChanges();
     }
   }
 }

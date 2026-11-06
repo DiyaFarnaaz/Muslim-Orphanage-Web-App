@@ -7,102 +7,84 @@
     <h2>{{ isEditMode ? 'Edit Session Plan' : 'Add New Session Plan' }}</h2>
 
     <form (ngSubmit)="saveMeeting()">
-      <!-- General Details Card -->
       <div class="report-card general-info">
         <h3>General Details</h3>
-        
         <div class="field-group">
           <label for="meeting_date">Meeting Date</label>
-          <input 
-            type="date" 
-            id="meeting_date" 
-            class="input-field" 
-            [(ngModel)]="meeting.meeting_date" 
-            name="meeting_date" 
-            required>
+          <input type="date" id="meeting_date" class="input-field"
+                 [(ngModel)]="meeting.meeting_date" name="meeting_date" required>
         </div>
       </div>
 
-      <!-- Class Group Cards -->
-      <div *ngFor="let group of classGroups" class="report-card group-card">
-        <h3 class="group-title">{{ group }}</h3>
+      <div *ngFor="let e of entries; let i = index" class="report-card group-card">
+
+        <div class="group-header">
+          <select class="input-field" [(ngModel)]="e.selected"
+                  [ngModelOptions]="{standalone: true}">
+            <option value="" disabled>Select class…</option>
+            <option *ngFor="let g of presetGroups" [value]="g">{{ g }}</option>
+            <option [value]="OTHER">Other (type manually)…</option>
+          </select>
+          <button type="button" class="remove-btn" (click)="removeEntry(i)">✕</button>
+        </div>
+
+        <input *ngIf="e.selected === OTHER" type="text" class="input-field"
+               [(ngModel)]="e.customName" [ngModelOptions]="{standalone: true}"
+               placeholder="Type class name, e.g. Class 6 Boys">
+
+        <h3 class="group-title" *ngIf="entryName(e)">{{ entryName(e) }}</h3>
 
         <div class="field-group">
-          <label>Session Lead(s)</label>
-          <input 
-            type="text" 
-            class="input-field" 
-            [(ngModel)]="tasksData[group].session_lead" 
-            [name]="'lead_' + group" 
-            placeholder="Leads names...">
+          <label>Session Lead(s) / Volunteers</label>
+          <input type="text" class="input-field" [(ngModel)]="e.session_lead"
+                 [ngModelOptions]="{standalone: true}" placeholder="e.g. Shafiya, Reha">
         </div>
 
         <div class="field-group">
           <label>Session Topic</label>
-          <textarea 
-            class="input-field textarea-field" 
-            [(ngModel)]="tasksData[group].session_topic" 
-            [name]="'topic_' + group" 
-            rows="3" 
-            placeholder="Topic details and guidelines..."></textarea>
+          <textarea class="input-field textarea-field" [(ngModel)]="e.session_topic"
+                    [ngModelOptions]="{standalone: true}" rows="3"
+                    placeholder="Topic details and guidelines..."></textarea>
         </div>
 
         <div class="field-group">
           <label>Activity & Games</label>
-          <textarea 
-            class="input-field textarea-field" 
-            [(ngModel)]="tasksData[group].activity" 
-            [name]="'activity_' + group" 
-            rows="3" 
-            placeholder="Activities..."></textarea>
+          <textarea class="input-field textarea-field" [(ngModel)]="e.activity"
+                    [ngModelOptions]="{standalone: true}" rows="3"
+                    placeholder="Activities..."></textarea>
         </div>
 
         <div class="field-row-double">
           <div class="field-group">
             <label>Gifts</label>
-            <input 
-              type="text" 
-              class="input-field" 
-              [(ngModel)]="tasksData[group].gifts" 
-              [name]="'gifts_' + group" 
-              placeholder="Gifts required...">
+            <input type="text" class="input-field" [(ngModel)]="e.gifts"
+                   [ngModelOptions]="{standalone: true}" placeholder="Gifts required...">
           </div>
-
           <div class="field-group">
             <label>Props</label>
-            <input 
-              type="text" 
-              class="input-field" 
-              [(ngModel)]="tasksData[group].props" 
-              [name]="'props_' + group" 
-              placeholder="Props required...">
+            <input type="text" class="input-field" [(ngModel)]="e.props"
+                   [ngModelOptions]="{standalone: true}" placeholder="Props required...">
           </div>
         </div>
 
         <div class="field-group">
           <label>Remarks</label>
-          <input 
-            type="text" 
-            class="input-field" 
-            [(ngModel)]="tasksData[group].remarks" 
-            [name]="'remarks_' + group" 
-            placeholder="Add remarks...">
+          <input type="text" class="input-field" [(ngModel)]="e.remarks"
+                 [ngModelOptions]="{standalone: true}" placeholder="Add remarks...">
         </div>
 
         <div class="field-group">
           <label>Session Documents</label>
-          <input 
-            type="file" 
-            class="input-field file-input" 
-            multiple 
-            (change)="onFilesSelected($event, group)">
-          <small class="file-success-text" *ngIf="tasksData[group].docCount > 0">
-            {{ tasksData[group].docCount }} file(s) attached successfully
+          <input type="file" class="input-field file-input" multiple
+                 (change)="onFilesSelected($event, e)">
+          <small class="file-success-text" *ngIf="docCount(e) > 0">
+            {{ docCount(e) }} file(s) attached
           </small>
         </div>
       </div>
 
-      <!-- Save Button Container -->
+      <button type="button" class="add-group-btn" (click)="addEntry()">+ Add another class</button>
+
       <div class="field-group">
         <button type="submit" class="save-btn" [disabled]="isSubmitting">
           {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Session Plan' : 'Save Session Plan') }}
@@ -112,8 +94,6 @@
   </div>
 
   <ng-template #loadingTemplate>
-    <div class="loading-state">
-      <p>Loading session plan details...</p>
-    </div>
+    <div class="loading-state"><p>Loading session plan details...</p></div>
   </ng-template>
 </div>

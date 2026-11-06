@@ -64,6 +64,29 @@ export class EventsComponent implements OnInit {
     this.router.navigate(['/session-report'], { queryParams: { id: eventId } });
   }
 
+  async deleteEvent(eventId: string, event: MouseEvent) {
+    event.stopPropagation(); // Prevents expanding/collapsing the accordion card
+    if (confirm('Are you sure you want to delete this session report?')) {
+      try {
+        const { error } = await this.supabase.client
+          .from('sessions')
+          .delete()
+          .eq('id', eventId);
+
+        if (error) throw error;
+
+        alert('Session report deleted successfully!');
+        if (this.selectedEvent?.id === eventId) {
+          this.selectedEvent = null;
+        }
+        await this.loadReports();
+      } catch (err: any) {
+        console.error('Error deleting session report:', err);
+        alert('Could not delete session report: ' + (err.message || err));
+      }
+    }
+  }
+
   getKeys(obj: any): string[] {
     return Object.keys(obj);
   }

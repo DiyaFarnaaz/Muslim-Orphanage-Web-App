@@ -7,12 +7,11 @@ export class StudentService {
   private supabase = inject(SupabaseService);
 
   classes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
-  filterClasses = [...this.classes, 'Alumni'];   // Alumni = passed out after class 10
+  filterClasses = [...this.classes, 'Alumni'];
   genders = ['Boy', 'Girl'];
 
   private get db() { return this.supabase.client; }
 
-  // ---------- helpers ----------
   nextClass(c: string): string | null {
     const i = this.classes.indexOf(c);
     if (i < 0) return null;
@@ -24,7 +23,7 @@ export class StudentService {
   }
 
   downloadCsv(filename: string, rows: any[]) {
-    const csv = '\ufeff' + Papa.unparse(rows);   // BOM so Excel reads special characters
+    const csv = '\ufeff' + Papa.unparse(rows);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -32,34 +31,60 @@ export class StudentService {
     a.click();
     URL.revokeObjectURL(a.href);
   }
-    async isAdmin(): Promise<boolean> {
+
+  async isAdmin(): Promise<boolean> {
     const { data: { user } } = await this.db.auth.getUser();
     if (!user) return false;
     const { data } = await this.db.from('profiles').select('role').eq('id', user.id).maybeSingle();
     return (data?.role || '').toString().toLowerCase() === 'admin';
   }
 
+  // ---------- custom batches (remedial groups, prize winners, etc.) ----------
+  async getCustomBatches(): Promise<string[]> {
+    const { data, error } = await this.db.from('custom_batches').select('name').order('name');
+    if (error) {
+      return ['Below avg 1-4', 'Below avg 5-9 [Girls]', 'Below avg 5-9 [Boys]'];
+    }
+    return (data || []).map((b: any) => b.name);
+  }
+
+  async addCustomBatch(name: string) {
+    const { error } = await this.db.from('custom_batches').insert({ name: name.trim() });
+    if (error) throw error;
+  }
+
+  async deleteCustomBatch(name: string) {
+    const { error } = await this.db.from('custom_batches').delete().eq('name', name);
+    if (error) throw error;
+  }
+
   // ---------- students ----------
-        async getStudents(cls: string, gender: string) {
+  async getStudents(cls: string, gender: string, batch?: string) {
     let q = this.db.from('students').select('*').order('name');
-    q = cls === 'All' ? q.in('class', this.classes) : q.eq('class', cls);
-    if (gender !== 'All') q = q.eq('gender', gender);
+    
+    if (cls !== 'All') {
+      q = q.eq('class', cls);
+    }
+    if (gender !== 'All') {
+      q = q.eq('gender', gender);
+    }
+
     const { data, error } = await q;
     if (error) throw error;
-    const list = data || [];
-    // class 1..10 in order, then by name
+    let list = data || [];
+
+    if (batch && batch !== 'All') {
+      list = list.filter((s: any) => {
+        const studentBatches = (s.batches || '').split(',').map((b: string) => b.trim());
+        return studentBatches.includes(batch);
+      });
+    }
+
     return list.sort((a: any, b: any) =>
       (Number(a.class) || 99) - (Number(b.class) || 99) || a.name.localeCompare(b.name));
   }
 
-  async getAllColumns() {
-    const { data, error } = await this.db.from('mark_columns').select('*').order('created_at');
-    if (error) throw error;
-    return data || [];
-  }
-
-  /** Inserts only students that don't already exist (same name + class + gender). */
-  async addStudentsUnique(rows: { name: string; class: string; gender: string }[]) {
+  async addStudentsUnique(rows: { name: string; class: string; gender: string; batches?: string }[]) {
     const existing = new Set<string>();
     for (const c of [...new Set(rows.map(r => r.class))]) {
       const list = await this.getStudents(c, 'All');
@@ -80,7 +105,7 @@ export class StudentService {
     return { added: fresh.length, skipped };
   }
 
-  async updateStudent(id: string, changes: { name: string; class: string; gender: string }) {
+  async updateStudent(id: string, changes: { name: string; class: string; gender: string; batches?: string }) {
     const { error } = await this.db.from('students').update(changes).eq('id', id);
     if (error) throw error;
   }
@@ -95,7 +120,13 @@ export class StudentService {
     if (error) throw error;
   }
 
-  // ---------- marks ----------
+  // ---------- marks & columns ----------
+  async getAllColumns() {
+    const { data, error } = await this.db.from('mark_columns').select('*').order('created_at');
+    if (error) throw error;
+    return data || [];
+  }
+
   async getColumns(cls: string) {
     const { data, error } = await this.db.from('mark_columns').select('*')
       .eq('class', cls).order('created_at');

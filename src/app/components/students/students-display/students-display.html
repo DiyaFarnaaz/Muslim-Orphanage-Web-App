@@ -1,12 +1,24 @@
 <div class="card">
   <div class="filters">
     <div>
-      <label>Class</label>
+      <label>Class / Batch</label>
       <select class="input-field" [(ngModel)]="selectedClass" (change)="load()">
         <option value="All">All Classes</option>
-        <option *ngFor="let c of classes" [value]="c">{{ c === 'Alumni' ? 'Alumni (Passed out)' : 'Class ' + c }}</option>
+        
+        <!-- Standard Classes & Alumni Group -->
+        <optgroup label="Standard Classes">
+          <option *ngFor="let c of baseClasses" [value]="c">
+            {{ c === 'Alumni' ? 'Alumni (Passed out)' : 'Class ' + c }}
+          </option>
+        </optgroup>
+
+        <!-- Custom Batches Group -->
+        <optgroup label="Custom Batches & Remedial Groups" *ngIf="customBatches.length">
+          <option *ngFor="let b of customBatches" [value]="b">📌 {{ b }}</option>
+        </optgroup>
       </select>
     </div>
+
     <div>
       <label>Gender</label>
       <select class="input-field" [(ngModel)]="gender" (change)="load()">
@@ -15,6 +27,7 @@
         <option value="Girl">Girls</option>
       </select>
     </div>
+    
     <div class="grow">
       <label>Search by name</label>
       <input class="input-field" [(ngModel)]="search" placeholder="Type a name..." />
@@ -39,13 +52,13 @@
     <table class="data-table">
       <thead>
         <tr>
-          <th>S.No</th><th>Name</th><th>Class</th><th>Gender</th>
+          <th>S.No</th><th>Name</th><th>Class</th><th>Gender</th><th>Assigned Batches</th>
           <th *ngIf="isAdmin">Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngIf="loading"><td [attr.colspan]="isAdmin ? 5 : 4">Loading...</td></tr>
-        <tr *ngIf="!loading && filtered.length === 0"><td [attr.colspan]="isAdmin ? 5 : 4">No students found</td></tr>
+        <tr *ngIf="loading"><td [attr.colspan]="isAdmin ? 6 : 5">Loading...</td></tr>
+        <tr *ngIf="!loading && filtered.length === 0"><td [attr.colspan]="isAdmin ? 6 : 5">No students found</td></tr>
 
         <tr *ngFor="let s of filtered; let i = index">
           <td>{{ i + 1 }}</td>
@@ -54,6 +67,7 @@
             <td>{{ s.name }}</td>
             <td>{{ s.class }}</td>
             <td>{{ s.gender }}</td>
+            <td><span style="background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 12px;">{{ s.batches || 'None' }}</span></td>
             <td *ngIf="isAdmin">
               <button type="button" class="edit-btn" (click)="startEdit(s)">Edit</button>
               <button type="button" class="danger-btn" (click)="remove(s)">Delete</button>
@@ -64,13 +78,21 @@
             <td><input class="input-field" [(ngModel)]="editData.name" /></td>
             <td>
               <select class="input-field" [(ngModel)]="editData.class">
-                <option *ngFor="let c of classes" [value]="c">{{ c }}</option>
+                <option *ngFor="let c of baseClasses" [value]="c">{{ c }}</option>
               </select>
             </td>
             <td>
               <select class="input-field" [(ngModel)]="editData.gender">
                 <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
               </select>
+            </td>
+            <td>
+              <div style="font-size: 11px; font-weight: bold; margin-bottom: 2px;">Batches:</div>
+              <div *ngFor="let b of customBatches" style="font-size: 12px;">
+                <label style="cursor: pointer; font-weight: normal;">
+                  <input type="checkbox" [checked]="editData.batchesArray.includes(b)" (change)="toggleBatchSelection(b)" /> {{ b }}
+                </label>
+              </div>
             </td>
             <td>
               <button type="button" class="save-btn small" (click)="saveEdit()">Save</button>

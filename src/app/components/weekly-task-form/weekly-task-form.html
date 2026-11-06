@@ -1,5 +1,4 @@
 <div class="page-container mobile-animate">
-  <!-- Navigation Header Wrapper -->
   <div class="header-nav">
     <button type="button" (click)="goBack()" class="back-btn">&larr; Back</button>
   </div>
@@ -8,164 +7,117 @@
     <h2>{{ isEditMode ? 'Edit Weekly Plan' : 'Add New Weekly Plan' }}</h2>
 
     <form (ngSubmit)="saveTask()">
-      
-      <!-- General Details Card with Calendar Pickers & Organizer -->
+
       <div class="report-card general-info">
         <h3>General Details & Meeting Organizer</h3>
-        
+
         <div class="date-row" style="margin-bottom: 16px;">
           <div class="field-group">
             <label for="startDate"><strong>Start Date</strong></label>
-            <input 
-              type="date" 
-              id="startDate" 
-              class="input-field" 
-              [(ngModel)]="weeklyTask.startDate" 
-              name="startDate" 
-              required
-            >
+            <input type="date" id="startDate" class="input-field"
+                   [(ngModel)]="weeklyTask.startDate" name="startDate" required>
           </div>
-
           <div class="field-group">
             <label for="endDate"><strong>End Date</strong></label>
-            <input 
-              type="date" 
-              id="endDate" 
-              class="input-field" 
-              [(ngModel)]="weeklyTask.endDate" 
-              name="endDate" 
-              required
-            >
+            <input type="date" id="endDate" class="input-field"
+                   [(ngModel)]="weeklyTask.endDate" name="endDate" required>
           </div>
         </div>
 
-        <!-- Meeting Organizer Field -->
         <div class="field-group">
           <label for="meetingOrganizer"><strong>Meeting Organizer</strong></label>
-          <input 
-            type="text" 
-            id="meetingOrganizer" 
-            class="input-field" 
-            [(ngModel)]="weeklyTask.meetingOrganizer" 
-            name="meetingOrganizer" 
-            placeholder="Enter meeting organizer name"
-          >
+          <input type="text" id="meetingOrganizer" class="input-field"
+                 [(ngModel)]="weeklyTask.meetingOrganizer" name="meetingOrganizer"
+                 placeholder="Enter meeting organizer name">
         </div>
       </div>
 
-      <!-- Grade Groups Breakdown -->
+      <!-- Class groups -->
       <div class="grade-sections">
-        <div class="task-box report-card" *ngFor="let group of classGroups">
-          <h4 class="group-title">{{ group }}</h4>
-          
-          <div class="field-group">
-            <label>Session Planner:</label>
-            <input 
-              type="text" 
-              [(ngModel)]="tasksData[group].session_planner" 
-              [name]="'planner_' + group" 
-              placeholder="Enter planner name" 
-              class="input-field"
-            />
+        <div class="task-box report-card" *ngFor="let e of entries; let i = index">
+
+          <div class="group-header">
+            <select class="input-field" [(ngModel)]="e.selected"
+                    [ngModelOptions]="{standalone: true}">
+              <option value="" disabled>Select class…</option>
+              <option *ngFor="let g of presetGroups" [value]="g">{{ g }}</option>
+              <option [value]="OTHER">Other (type manually)…</option>
+            </select>
+            <button type="button" class="remove-btn" (click)="removeEntry(i)">✕</button>
           </div>
 
-          <div class="field-group">
-            <label>Topic:</label>
-            <input 
-              type="text" 
-              [(ngModel)]="tasksData[group].session_topic" 
-              [name]="'topic_' + group" 
-              placeholder="Enter session topic" 
-              class="input-field"
-            />
+          <input *ngIf="e.selected === OTHER" type="text" class="input-field"
+                 [(ngModel)]="e.customName" [ngModelOptions]="{standalone: true}"
+                 placeholder="Type class name, e.g. Class 6 Boys">
+
+          <h4 class="group-title" *ngIf="entryName(e)">{{ entryName(e) }}:</h4>
+
+          <div class="field-row-double">
+            <div class="field-group">
+              <label>Session Planner (name)</label>
+              <input type="text" class="input-field" [(ngModel)]="e.session_planner"
+                     [ngModelOptions]="{standalone: true}" placeholder="e.g. XYZ">
+            </div>
+            <div class="field-group">
+              <label>Session Topic</label>
+              <input type="text" class="input-field" [(ngModel)]="e.session_topic"
+                     [ngModelOptions]="{standalone: true}" placeholder="e.g. Alphabets">
+            </div>
           </div>
 
           <div class="field-row-double">
             <div class="field-group">
-              <label>Activity Planner:</label>
-              <input 
-                type="text" 
-                [(ngModel)]="tasksData[group].activity_planner" 
-                [name]="'activity_planner_' + group" 
-                placeholder="Enter activity planner" 
-                class="input-field"
-              />
+              <label>Games / Activities (name)</label>
+              <input type="text" class="input-field" [(ngModel)]="e.activity_planner"
+                     [ngModelOptions]="{standalone: true}" placeholder="e.g. abc">
             </div>
-
             <div class="field-group">
-              <label>Activity:</label>
-              <input 
-                type="text" 
-                [(ngModel)]="tasksData[group].activity" 
-                [name]="'activity_' + group" 
-                placeholder="Enter activity description" 
-                class="input-field"
-              />
+              <label>Activity details</label>
+              <input type="text" class="input-field" [(ngModel)]="e.activity"
+                     [ngModelOptions]="{standalone: true}" placeholder="Activity description">
             </div>
           </div>
 
           <div class="field-group">
-            <label>Remarks:</label>
-            <input 
-              type="text" 
-              [(ngModel)]="tasksData[group].remarks" 
-              [name]="'remarks_' + group" 
-              placeholder="Enter remarks" 
-              class="input-field"
-            />
+            <label>Remarks</label>
+            <input type="text" class="input-field" [(ngModel)]="e.remarks"
+                   [ngModelOptions]="{standalone: true}" placeholder="Enter remarks">
           </div>
         </div>
+
+        <button type="button" class="add-group-btn" (click)="addEntry()">+ Add another class</button>
       </div>
 
-      <!-- Footer Shared Inputs: Gift Planner, Props, & Additional Task -->
       <div class="report-card general-info">
         <h3>Shared Plan Details</h3>
-        
+
         <div class="field-group" style="margin-bottom: 16px;">
           <label for="giftPlanner"><strong>Gift Planner</strong></label>
-          <textarea 
-            id="giftPlanner"
-            class="input-field"
-            [(ngModel)]="weeklyTask.giftPlanner"
-            name="giftPlanner"
-            rows="3"
-            placeholder="Enter gift planning details for the week..."
-          ></textarea>
+          <textarea id="giftPlanner" class="input-field" [(ngModel)]="weeklyTask.giftPlanner"
+                    name="giftPlanner" rows="3"
+                    placeholder="Enter gift planning details for the week..."></textarea>
         </div>
 
         <div class="field-group" style="margin-bottom: 16px;">
           <label for="sharedProps"><strong>Props</strong></label>
-          <textarea 
-            id="sharedProps"
-            class="input-field"
-            [(ngModel)]="weeklyTask.props"
-            name="sharedProps"
-            rows="3"
-            placeholder="Enter shared props needed for the week..."
-          ></textarea>
+          <textarea id="sharedProps" class="input-field" [(ngModel)]="weeklyTask.props"
+                    name="sharedProps" rows="3"
+                    placeholder="Enter shared props needed for the week..."></textarea>
         </div>
 
         <div class="field-group">
           <label for="additionalTask"><strong>Additional Task</strong></label>
-          <textarea 
-            id="additionalTask"
-            class="input-field"
-            [(ngModel)]="weeklyTask.additionalTask"
-            name="additionalTask"
-            rows="3"
-            placeholder="Enter any additional tasks..."
-          ></textarea>
+          <textarea id="additionalTask" class="input-field" [(ngModel)]="weeklyTask.additionalTask"
+                    name="additionalTask" rows="3"
+                    placeholder="Enter any additional tasks..."></textarea>
         </div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="action-buttons-row">
         <button type="submit" class="save-btn" [disabled]="isSubmitting">
           {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Plan' : 'Save Plan') }}
         </button>
-        <button type="button" (click)="goBack()" class="cancel-btn">
-          Cancel
-        </button>
+        <button type="button" (click)="goBack()" class="cancel-btn">Cancel</button>
       </div>
 
     </form>

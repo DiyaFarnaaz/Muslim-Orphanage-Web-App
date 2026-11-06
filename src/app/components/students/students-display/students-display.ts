@@ -16,7 +16,8 @@ export class StudentsDisplayComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
 
-  classes = this.svc.filterClasses;
+  baseClasses = this.svc.filterClasses; // Classes 1-10 + Alumni
+  customBatches: string[] = [];
   genders = this.svc.genders;
 
   isAdmin = false;
@@ -29,8 +30,15 @@ export class StudentsDisplayComponent implements OnInit {
   editingId: string | null = null;
   editData: any = {};
 
+  // Combine base classes and custom batches into one dropdown list
+  get allDropdownClasses() {
+    return [...this.baseClasses, ...this.customBatches];
+  }
+
   async ngOnInit() {
     this.isAdmin = await this.svc.isAdmin();
+    this.customBatches = await this.svc.getCustomBatches();
+    
     const q = this.route.snapshot.queryParamMap;
     this.selectedClass = q.get('class') || '1';
     this.gender = q.get('gender') || 'All';
@@ -49,7 +57,13 @@ export class StudentsDisplayComponent implements OnInit {
     this.loading = true;
     this.editingId = null;
     try {
-      this.students = await this.svc.getStudents(this.selectedClass, this.gender);
+      // If the selectedClass is a custom batch, pass it as the batch filter; otherwise as class filter
+      const isBatch = this.customBatches.includes(this.selectedClass);
+      this.students = await this.svc.getStudents(
+        isBatch ? 'All' : this.selectedClass, 
+        this.gender, 
+        isBatch ? this.selectedClass : undefined
+      );
     } catch (e: any) {
       alert('Failed to load students: ' + (e.message || e));
     } finally {
@@ -58,22 +72,38 @@ export class StudentsDisplayComponent implements OnInit {
     }
   }
 
-  // ---- edit (admin only) ----
   startEdit(s: any) {
     if (!this.isAdmin) return;
     this.editingId = s.id;
-    this.editData = { name: s.name, class: s.class, gender: s.gender };
+    this.editData = { 
+      name: s.name, 
+      class: s.class, 
+      gender: s.gender,
+      batchesArray: (s.batches || '').split(',').map((b: string) => b.trim()).filter(Boolean)
+    };
   }
+
   cancelEdit() { this.editingId = null; }
+
+  toggleBatchSelection(batch: string) {
+    const idx = this.editData.batchesArray.indexOf(batch);
+    if (idx > -1) {
+      this.editData.batchesArray.splice(idx, 1);
+    } else {
+      this.editData.batchesArray.push(batch);
+    }
+  }
 
   async saveEdit() {
     if (!this.isAdmin) return;
     if (!this.editData.name?.trim()) { alert('Name cannot be empty'); return; }
     try {
+      const batchString = this.editData.batchesArray.join(', ');
       await this.svc.updateStudent(this.editingId!, {
         name: this.editData.name.trim(),
         class: this.editData.class,
-        gender: this.editData.gender
+        gender: this.editData.gender,
+        batches: batchString
       });
       await this.load();
     } catch (e: any) { alert('Failed to update: ' + (e.message || e)); }
@@ -88,7 +118,6 @@ export class StudentsDisplayComponent implements OnInit {
     } catch (e: any) { alert(e.message || e); }
   }
 
-  // ---- promote whole class (admin only) ----
   async promote() {
     if (!this.isAdmin) return;
     const next = this.nextClass;
@@ -97,7 +126,7 @@ export class StudentsDisplayComponent implements OnInit {
       const all = await this.svc.getStudents(this.selectedClass, 'All');
       if (!all.length) { alert('No students in this class'); return; }
       const label = next === 'Alumni' ? 'Alumni (passed out)' : 'Class ' + next;
-      if (!confirm(`Move all ${all.length} students (boys and girls) of Class ${this.selectedClass} to ${label}?`)) return;
+      if (!confirm(`Move all ${all.length} students of Class ${this.selectedClass} to ${label}?`)) return;
       await this.svc.promoteClass(this.selectedClass, next);
       this.selectedClass = next;
       this.gender = 'All';
@@ -105,11 +134,10 @@ export class StudentsDisplayComponent implements OnInit {
     } catch (e: any) { alert('Promotion failed: ' + (e.message || e)); }
   }
 
-  // ---- export (admin only) ----
   exportCsv() {
     if (!this.isAdmin) return;
     if (!this.filtered.length) { alert('Nothing to export'); return; }
-    const rows = this.filtered.map(s => ({ name: s.name, gender: s.gender, class: s.class }));
-    this.svc.downloadCsv(`students_class_${this.selectedClass}_${this.gender}.csv`, rows);
+    const rows = this.filtered.map(s => ({ name: s.name, gender: s.gender, class: s.class, batches: s.batches }));
+    this.svc.downloadCsv(`students_export_${this.selectedClass}.csv`, rows);
   }
 }

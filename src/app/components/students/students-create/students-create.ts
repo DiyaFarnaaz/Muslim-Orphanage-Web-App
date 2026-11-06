@@ -16,7 +16,7 @@ export class StudentsCreateComponent {
   private svc = inject(StudentService);
   private router = inject(Router);
 
-  classes = this.svc.classes;
+  classes = this.svc.classes; // Strict classes 1-10
   genders = this.svc.genders;
 
   form = { name: '', class: '1', gender: 'Boy' };

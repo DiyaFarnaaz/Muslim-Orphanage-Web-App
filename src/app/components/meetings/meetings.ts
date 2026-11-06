@@ -14,21 +14,20 @@ import { SupabaseService } from '../../services/supabase';
 export class MeetingsComponent implements OnInit {
   groupedMeetings: { [date: string]: any[] } = {};
   selectedMeeting: any = null;
-  
-  classGroups = [
-    'Class 1-2', 
-    'Class 3', 
-    'Class 4', 
-    'Class 5-7 Girls', 
-    'Class 5-7 Boys', 
-    'Class 8-10 Girls', 
-    'Class 8-10 Boys'
+
+  // Display order; any custom class names go after these
+  private readonly groupOrder = [
+    'Class 1-4 Below Avg', 'Class 5-9 Below Avg',
+    'Class 1-2', 'Class 3', 'Class 4', 'Class 3-4',
+    'Class 5-7', 'Class 5-7 Girls', 'Class 5-7 Boys',
+    'Class 8-9 Girls', 'Class 8-9 Boys',
+    'Class 8-10 Girls', 'Class 8-10 Boys'
   ];
 
   isAdmin: boolean = false;
 
   constructor(
-    private supabase: SupabaseService, 
+    private supabase: SupabaseService,
     private cdr: ChangeDetectorRef,
     private location: Location,
     private router: Router
@@ -85,6 +84,19 @@ export class MeetingsComponent implements OnInit {
     }
   }
 
+  // All class names saved in this meeting (preset + custom), sorted
+  getGroupNames(meeting: any): string[] {
+    const names = new Set<string>();
+    ['session_lead', 'session_topic', 'activity', 'gifts', 'props', 'remarks'].forEach(f =>
+      Object.keys(this.parseJSON(meeting[f])).forEach(k => names.add(k))
+    );
+    const rank = (n: string) => {
+      const i = this.groupOrder.indexOf(n);
+      return i === -1 ? 999 : i;
+    };
+    return [...names].sort((a, b) => rank(a) - rank(b));
+  }
+
   getGroupData(jsonField: any, group: string): string {
     const data = this.parseJSON(jsonField);
     if (data[group]) {
@@ -98,7 +110,7 @@ export class MeetingsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/dashboard']); 
+    this.router.navigate(['/dashboard']);
   }
 
   onSelectMeeting(meeting: any): void {
@@ -108,6 +120,29 @@ export class MeetingsComponent implements OnInit {
   editMeeting(meetingId: string, event: Event) {
     event.stopPropagation();
     this.router.navigate(['/add-meeting', meetingId]);
+  }
+
+  async deleteMeeting(meetingId: string, event: Event) {
+    event.stopPropagation();
+    if (confirm('Are you sure you want to delete this session plan?')) {
+      try {
+        const { error } = await this.supabase.client
+          .from('meetings')
+          .delete()
+          .eq('id', meetingId);
+
+        if (error) throw error;
+
+        alert('Session plan deleted successfully!');
+        if (this.selectedMeeting?.id === meetingId) {
+          this.selectedMeeting = null;
+        }
+        await this.loadMeetings();
+      } catch (err: any) {
+        console.error('Error deleting session plan:', err);
+        alert('Could not delete session plan: ' + (err.message || err));
+      }
+    }
   }
 
   getKeys(obj: any): string[] {

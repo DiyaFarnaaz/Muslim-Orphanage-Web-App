@@ -1,0 +1,37 @@
+<div class="card">
+  <h3>Manage Custom Batches / Remedial Groups</h3>
+  <p class="muted">
+    Create and manage custom groups (e.g., <b>Below avg 1-4</b>, <b>Below avg 5-9 [Girls]</b>, <b>Prize Winners</b>) 
+    that can be assigned to students alongside their core classes.
+  </p>
+
+  <div class="field-group" style="display: flex; gap: 10px; margin-top: 15px;" *ngIf="isAdmin">
+    <input class="input-field" [(ngModel)]="newBatchName" placeholder="Enter new batch name..." />
+    <button type="button" class="save-btn" (click)="createBatch()" style="white-space: nowrap;">+ Create Batch</button>
+  </div>
+
+  <div class="table-wrap" style="margin-top: 20px;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Batch Name</th>
+          <th *ngIf="isAdmin">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="loading"><td [attr.colspan]="isAdmin ? 3 : 2">Loading batches...</td></tr>
+        <tr *ngIf="!loading && batches.length === 0"><td [attr.colspan]="isAdmin ? 3 : 2">No custom batches found.</td></tr>
+        
+        <tr *ngFor="let b of batches; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td><b>{{ b }}</b></td>
+          <td *ngIf="isAdmin">
+            <button type="button" class="edit-btn" (click)="editBatch(b)">Edit</button>
+            <button type="button" class="danger-btn" (click)="deleteBatch(b)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

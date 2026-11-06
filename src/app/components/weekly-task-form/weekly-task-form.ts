@@ -4,6 +4,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../services/supabase';
 
+interface GroupEntry {
+  selected: string;      // preset name, or OTHER
+  customName: string;    // used when selected === OTHER
+  session_planner: string;
+  session_topic: string;
+  activity_planner: string;
+  activity: string;
+  remarks: string;
+}
+
 @Component({
   selector: 'app-weekly-task-form',
   standalone: true,
@@ -16,26 +26,33 @@ export class WeeklyTaskFormComponent implements OnInit {
   isSubmitting = false;
   taskId: string | null = null;
 
+  readonly OTHER = '__other__';
+
   weeklyTask = {
     startDate: '',
     endDate: '',
-    meetingOrganizer: '', // Added dynamic meeting organizer
+    meetingOrganizer: '',
     giftPlanner: '',
-    props: '',          
+    props: '',
     additionalTask: ''
   };
-  
-  classGroups = [
-    'Class 1-2', 
-    'Class 3', 
-    'Class 4', 
-    'Class 5-7 Girls', 
-    'Class 5-7 Boys', 
-    'Class 8-10 Girls', 
-    'Class 8-10 Boys'
+
+  presetGroups = [
+    'Class 1-4 Below Avg', 'Class 5-9 Below Avg',
+    'Class 1-2', 'Class 3', 'Class 4', 'Class 3-4',
+    'Class 5-7', 'Class 5-7 Girls', 'Class 5-7 Boys',
+    'Class 8-9 Girls', 'Class 8-9 Boys',
+    'Class 8-10 Girls', 'Class 8-10 Boys'
   ];
 
-  tasksData: { [key: string]: { session_planner: string, session_topic: string, activity_planner: string, activity: string, remarks: string } } = {};
+  // Cards shown by default on a NEW plan
+  defaultGroups = [
+    'Class 1-2', 'Class 3', 'Class 4',
+    'Class 5-7 Girls', 'Class 5-7 Boys',
+    'Class 8-10 Girls', 'Class 8-10 Boys'
+  ];
+
+  entries: GroupEntry[] = [];
 
   constructor(
     private supabase: SupabaseService,
@@ -43,23 +60,35 @@ export class WeeklyTaskFormComponent implements OnInit {
     private router: Router,
     private location: Location,
     private cdr: ChangeDetectorRef
-  ) {
-    this.classGroups.forEach(group => {
-      this.tasksData[group] = {
-        session_planner: '',
-        session_topic: '',
-        activity_planner: '',
-        activity: '',
-        remarks: ''
-      };
-    });
+  ) {}
+
+  private blankEntry(name = ''): GroupEntry {
+    const isPreset = this.presetGroups.includes(name);
+    return {
+      selected: name === '' ? '' : (isPreset ? name : this.OTHER),
+      customName: isPreset ? '' : name,
+      session_planner: '',
+      session_topic: '',
+      activity_planner: '',
+      activity: '',
+      remarks: ''
+    };
   }
+
+  entryName(e: GroupEntry): string {
+    return (e.selected === this.OTHER ? e.customName : e.selected).trim();
+  }
+
+  addEntry() { this.entries.push(this.blankEntry()); }
+  removeEntry(i: number) { this.entries.splice(i, 1); }
 
   async ngOnInit() {
     this.taskId = this.route.snapshot.paramMap.get('id');
     if (this.taskId) {
       this.isEditMode = true;
       await this.loadTaskData(this.taskId);
+    } else {
+      this.entries = this.defaultGroups.map(g => this.blankEntry(g));
     }
   }
 
@@ -82,7 +111,7 @@ export class WeeklyTaskFormComponent implements OnInit {
 
         this.weeklyTask.meetingOrganizer = data.meeting_organizer || '';
         this.weeklyTask.giftPlanner = data.gift_planner || '';
-        this.weeklyTask.props = data.props || ''; 
+        this.weeklyTask.props = data.props || '';
         this.weeklyTask.additionalTask = data.additional_task || '';
 
         const parseField = (fieldData: any) => {
@@ -96,19 +125,20 @@ export class WeeklyTaskFormComponent implements OnInit {
         const activities = parseField(data.activity);
         const remarksData = parseField(data.remarks);
 
-        this.classGroups.forEach(group => {
-          const lookupKey = (group === 'Class 3' || group === 'Class 4') && !planners[group] && planners['Class 3-4'] 
-            ? 'Class 3-4' 
-            : group;
+        const names = new Set<string>([
+          ...Object.keys(planners), ...Object.keys(topics),
+          ...Object.keys(activityPlanners), ...Object.keys(activities),
+          ...Object.keys(remarksData)
+        ]);
 
-          this.tasksData[group] = {
-            session_planner: planners[lookupKey] || '',
-            session_topic: topics[lookupKey] || '',
-            activity_planner: activityPlanners[lookupKey] || '',
-            activity: activities[lookupKey] || '',
-            remarks: remarksData[lookupKey] || ''
-          };
-        });
+        this.entries = [...names].map(name => ({
+          ...this.blankEntry(name),
+          session_planner: planners[name] || '',
+          session_topic: topics[name] || '',
+          activity_planner: activityPlanners[name] || '',
+          activity: activities[name] || '',
+          remarks: remarksData[name] || ''
+        }));
       }
     } catch (err) {
       console.error('Failed to load task details:', err);
@@ -128,13 +158,22 @@ export class WeeklyTaskFormComponent implements OnInit {
     const activityObj: { [key: string]: string } = {};
     const remarksObj: { [key: string]: string } = {};
 
-    this.classGroups.forEach(group => {
-      sessionPlannerObj[group] = this.tasksData[group].session_planner;
-      sessionTopicObj[group] = this.tasksData[group].session_topic;
-      activityPlannerObj[group] = this.tasksData[group].activity_planner;
-      activityObj[group] = this.tasksData[group].activity;
-      remarksObj[group] = this.tasksData[group].remarks;
-    });
+    const used = new Set<string>();
+    for (const e of this.entries) {
+      const name = this.entryName(e);
+      if (!name) continue; // skip blank cards
+      if (used.has(name)) {
+        alert(`"${name}" is added twice. Please merge or rename it.`);
+        this.isSubmitting = false;
+        return;
+      }
+      used.add(name);
+      sessionPlannerObj[name] = e.session_planner;
+      sessionTopicObj[name] = e.session_topic;
+      activityPlannerObj[name] = e.activity_planner;
+      activityObj[name] = e.activity;
+      remarksObj[name] = e.remarks;
+    }
 
     const payload = {
       week_date_range: dateRangeStr,
@@ -142,7 +181,7 @@ export class WeeklyTaskFormComponent implements OnInit {
       session_topic: sessionTopicObj,
       activity_planner: activityPlannerObj,
       activity: activityObj,
-      props: this.weeklyTask.props, 
+      props: this.weeklyTask.props,
       remarks: remarksObj,
       meeting_organizer: this.weeklyTask.meetingOrganizer,
       gift_planner: this.weeklyTask.giftPlanner,
@@ -155,13 +194,11 @@ export class WeeklyTaskFormComponent implements OnInit {
           .from('weekly_tasks')
           .update(payload)
           .eq('id', this.taskId);
-
         if (error) throw error;
       } else {
         const { error } = await this.supabase.client
           .from('weekly_tasks')
           .insert([payload]);
-
         if (error) throw error;
       }
 

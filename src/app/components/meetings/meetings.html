@@ -12,26 +12,31 @@
 
   <div class="date-card" *ngFor="let date of getKeys(groupedMeetings)">
     <h3>{{ date | date: 'fullDate' }}</h3>
-    
+
     <div class="session-list">
       <div class="session-item" *ngFor="let m of groupedMeetings[date]">
-        
+
         <div class="session-header-row" (click)="onSelectMeeting(m)">
           <div>
             <h4>Session Plan</h4>
             <p><strong>Click to view class-wise details</strong></p>
           </div>
-          
-          <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="editMeeting(m.id, $event)">
-            Edit
-          </button>
+
+          <div class="session-action-wrapper" style="display: flex; gap: 8px; align-items: center;">
+            <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="editMeeting(m.id, $event)">
+              Edit
+            </button>
+            <button *ngIf="isAdmin" type="button" class="edit-action-btn" (click)="deleteMeeting(m.id, $event)" style="background-color: #ef4444; border-color: #ef4444;">
+              Delete
+            </button>
+          </div>
         </div>
 
         <div class="report-card" *ngIf="selectedMeeting === m">
           <h3>Details</h3>
 
           <div class="tasks-grid">
-            <div class="task-box" *ngFor="let group of classGroups">
+            <div class="task-box" *ngFor="let group of getGroupNames(m)">
               <h4 class="group-title">{{ group }}</h4>
               <div class="task-content">
                 <p><strong>Lead:</strong> {{ getGroupData(m.session_lead, group) }}</p>

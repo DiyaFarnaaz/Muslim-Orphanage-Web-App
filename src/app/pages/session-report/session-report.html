@@ -25,12 +25,23 @@
           <input type="date" [(ngModel)]="report.session_date" name="session_date">
         </div>
 
+        <!-- Class Group with integrated custom input right below it -->
         <div class="form-group">
           <label>Class Group</label>
-          <select [(ngModel)]="report.class_group" name="class_group">
+          <select [(ngModel)]="report.class_group" (ngModelChange)="onClassGroupChange($event)" name="class_group" required>
             <option value="" disabled>Select Class Group</option>
             <option *ngFor="let group of classGroups" [value]="group">{{ group }}</option>
           </select>
+
+          <!-- Custom class name input appears directly below the dropdown -->
+          <input 
+            type="text" 
+            [(ngModel)]="customClassInput" 
+            name="customClassInput" 
+            placeholder="Type class name, e.g. Class 6 Boys" 
+            *ngIf="isCustomClass" 
+            [required]="isCustomClass"
+            style="margin-top: 8px;">
         </div>
 
         <div class="form-group">
@@ -49,7 +60,7 @@
         <textarea [(ngModel)]="report.feedback" name="feedback" rows="4" placeholder="Enter session feedback..."></textarea>
       </div>
 
-      <button type="submit" [disabled]="isSubmitting">
+      <button type="submit" [disabled]="isSubmitting" class="submit-btn">
         {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Report' : 'Submit Report') }}
       </button>
     </form>

@@ -21,6 +21,8 @@ import { StudentsShellComponent } from './components/students/students-shell/stu
 import { StudentsDisplayComponent } from './components/students/students-display/students-display';
 import { StudentsCreateComponent } from './components/students/students-create/students-create';
 import { MarksEntryComponent } from './components/students/marks-entry/marks-entry';
+import { BatchesComponent } from './dashboard/students/batches/batches'; // <-- Import Batches Component
+
 // Guards
 import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
@@ -35,16 +37,6 @@ export const routes: Routes = [
   { path: 'update-password', component: UpdatePasswordComponent },
   { path: 'session-progress', component: SessionProgressComponent },
   { path: 'volunteer', component: VolunteerComponent },
-  
-  // Protected Dashboard with Child Routes
-  { 
-    path: 'dashboard', 
-    component: DashboardComponent, 
-    canActivate: [authGuard],
-    children: [
-      { path: 'video-call', component: VideoCallComponent }
-    ]
-  },
   
   { path: 'events', component: EventsComponent, canActivate: [authGuard] },
   { path: 'session-report', component: SessionReportComponent, canActivate: [authGuard] },
@@ -62,19 +54,21 @@ export const routes: Routes = [
   { path: 'add-meeting/:id', component: AddMeetingComponent, canActivate: [adminGuard] },
   { path: 'fund-entry', component: FundEntryComponent, canActivate: [adminGuard] },
   { path: 'fund-entry/:id', component: FundEntryComponent, canActivate: [adminGuard] },
-    { 
+  
+  { 
     path: 'dashboard', 
     component: DashboardComponent, 
     canActivate: [authGuard],
     children: [
       { path: 'video-call', component: VideoCallComponent },
-            {
+      {
         path: 'students',
         component: StudentsShellComponent,
         children: [
           { path: '', redirectTo: 'display', pathMatch: 'full' },
-                    { path: 'display', component: StudentsDisplayComponent },
+          { path: 'display', component: StudentsDisplayComponent },
           { path: 'create', component: StudentsCreateComponent, canActivate: [adminGuard] },
+          { path: 'batches', component: BatchesComponent, canActivate: [adminGuard] }, // <-- Added route here
           { path: 'marks', component: MarksEntryComponent }
         ]
       }

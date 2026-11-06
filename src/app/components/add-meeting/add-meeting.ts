@@ -2,7 +2,20 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseService } from '../../services/supabase';
+
+interface MeetingEntry {
+  selected: string;
+  customName: string;
+  session_lead: string;
+  session_topic: string;
+  activity: string;
+  gifts: string;
+  props: string;
+  remarks: string;
+  files: File[];
+  docUrls: string[];
+}
 
 @Component({
   selector: 'app-add-meeting',
@@ -12,55 +25,61 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
   styleUrls: ['./add-meeting.css']
 })
 export class AddMeetingComponent implements OnInit {
-  private supabase: SupabaseClient;
-
-  isEditMode: boolean = false;
+  isEditMode = false;
   meetingId: string | null = null;
-  isSubmitting: boolean = false;
-  isLoading: boolean = true; 
+  isSubmitting = false;
+  isLoading = true;
 
-  classGroups: string[] = [
-    'Class 1-2', 
-    'Class 3', 
-    'Class 4', 
-    'Class 5-7 Girls', 
-    'Class 5-7 Boys', 
-    'Class 8-10 Girls', 
-    'Class 8-10 Boys'
-  ]; 
+  readonly OTHER = '__other__';
+
+  presetGroups = [
+    'Class 1-4 Below Avg', 'Class 5-9 Below Avg',
+    'Class 1-2', 'Class 3', 'Class 4', 'Class 3-4',
+    'Class 5-7', 'Class 5-7 Girls', 'Class 5-7 Boys',
+    'Class 8-9 Girls', 'Class 8-9 Boys',
+    'Class 8-10 Girls', 'Class 8-10 Boys'
+  ];
+
+  defaultGroups = [
+    'Class 1-2', 'Class 3', 'Class 4',
+    'Class 5-7 Girls', 'Class 5-7 Boys',
+    'Class 8-10 Girls', 'Class 8-10 Boys'
+  ];
 
   meeting = {
     meeting_date: new Date().toISOString().split('T')[0]
   };
 
-  tasksData: { [key: string]: any } = {};
-  selectedFiles: { [key: string]: File[] } = {};
-  uploadedDocUrls: { [key: string]: string[] } = {};
+  entries: MeetingEntry[] = [];
 
   constructor(
-    private route: ActivatedRoute, 
+    private supabase: SupabaseService,
+    private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef
-  ) {
-    this.supabase = createClient(
-      'https://mzbncwsizcsandcptylq.supabase.co', 
-      'sb_publishable_lS4H48WeVoLRzIBpyg5IZQ_3uNthNyy'
-    );
-    
-    this.classGroups.forEach(group => {
-      this.tasksData[group] = {
-        session_lead: '',
-        session_topic: '',
-        activity: '',
-        gifts: '',
-        props: '',
-        remarks: '',
-        docCount: 0
-      };
-      this.selectedFiles[group] = [];
-      this.uploadedDocUrls[group] = [];
-    });
+  ) {}
+
+  private blankEntry(name = ''): MeetingEntry {
+    const isPreset = this.presetGroups.includes(name);
+    return {
+      selected: name === '' ? '' : (isPreset ? name : this.OTHER),
+      customName: isPreset ? '' : name,
+      session_lead: '', session_topic: '', activity: '',
+      gifts: '', props: '', remarks: '',
+      files: [], docUrls: []
+    };
   }
+
+  entryName(e: MeetingEntry): string {
+    return (e.selected === this.OTHER ? e.customName : e.selected).trim();
+  }
+
+  docCount(e: MeetingEntry): number {
+    return e.files.length + e.docUrls.length;
+  }
+
+  addEntry() { this.entries.push(this.blankEntry()); }
+  removeEntry(i: number) { this.entries.splice(i, 1); }
 
   async ngOnInit() {
     this.meetingId = this.route.snapshot.paramMap.get('id');
@@ -68,13 +87,14 @@ export class AddMeetingComponent implements OnInit {
       this.isEditMode = true;
       await this.loadMeetingData(this.meetingId);
     } else {
-      this.isLoading = false; 
+      this.entries = this.defaultGroups.map(g => this.blankEntry(g));
+      this.isLoading = false;
     }
   }
 
   async loadMeetingData(id: string) {
     try {
-      const { data, error } = await this.supabase
+      const { data, error } = await this.supabase.client
         .from('meetings')
         .select('*')
         .eq('id', id)
@@ -98,46 +118,42 @@ export class AddMeetingComponent implements OnInit {
         const remarksMap = parseField(data.remarks);
         const docs = parseField(data.doc_url);
 
-        this.classGroups.forEach(group => {
-          // Fallback to legacy 'Class 3-4' if specific Class 3 or Class 4 data is missing
-          const lookupKey = (group === 'Class 3' || group === 'Class 4') && !leads[group] && leads['Class 3-4'] 
-            ? 'Class 3-4' 
-            : group;
+        const names = new Set<string>([
+          ...Object.keys(leads), ...Object.keys(topics), ...Object.keys(activities),
+          ...Object.keys(giftsMap), ...Object.keys(propsMap),
+          ...Object.keys(remarksMap), ...Object.keys(docs)
+        ]);
 
-          this.tasksData[group] = {
-            session_lead: leads[lookupKey] || '',
-            session_topic: topics[lookupKey] || '',
-            activity: activities[lookupKey] || '',
-            gifts: giftsMap[lookupKey] || '',
-            props: propsMap[lookupKey] || '',
-            remarks: remarksMap[lookupKey] || '',
-            docCount: 0
+        this.entries = [...names].map(name => {
+          const d = docs[name];
+          const urls = typeof d === 'string'
+            ? d.split(',').filter((u: string) => u.trim() !== '')
+            : [];
+          return {
+            ...this.blankEntry(name),
+            session_lead: leads[name] || '',
+            session_topic: topics[name] || '',
+            activity: activities[name] || '',
+            gifts: giftsMap[name] || '',
+            props: propsMap[name] || '',
+            remarks: remarksMap[name] || '',
+            docUrls: urls
           };
-          
-          const docTarget = docs[lookupKey] || docs[group];
-          if (docTarget) {
-            const urlArray = typeof docTarget === 'string' ? docTarget.split(',').filter((u: string) => u.trim() !== '') : [];
-            this.uploadedDocUrls[group] = urlArray;
-            this.tasksData[group].docCount = urlArray.length;
-          } else {
-            this.uploadedDocUrls[group] = [];
-          }
         });
       }
     } catch (err: any) {
       console.error('Error loading session plan for edit:', err);
       alert('Could not load session details: ' + (err.message || err));
     } finally {
-      this.isLoading = false; 
+      this.isLoading = false;
       this.cdr.detectChanges();
     }
   }
 
-  onFilesSelected(event: any, group: string) {
+  onFilesSelected(event: any, e: MeetingEntry) {
     const files = event.target.files;
     if (files) {
-      this.selectedFiles[group] = Array.from(files);
-      this.tasksData[group].docCount = this.selectedFiles[group].length;
+      e.files = Array.from(files);
     }
   }
 
@@ -152,15 +168,24 @@ export class AddMeetingComponent implements OnInit {
       const remarksMap: any = {};
       const docUrlsMap: any = {};
 
-      this.classGroups.forEach(group => {
-        sessionLeads[group] = this.tasksData[group].session_lead;
-        sessionTopics[group] = this.tasksData[group].session_topic;
-        activitiesMap[group] = this.tasksData[group].activity;
-        giftsMap[group] = this.tasksData[group].gifts;
-        propsMap[group] = this.tasksData[group].props;
-        remarksMap[group] = this.tasksData[group].remarks;
-        docUrlsMap[group] = this.uploadedDocUrls[group].join(',');
-      });
+      const used = new Set<string>();
+      for (const e of this.entries) {
+        const name = this.entryName(e);
+        if (!name) continue;
+        if (used.has(name)) {
+          alert(`"${name}" is added twice. Please merge or rename it.`);
+          this.isSubmitting = false;
+          return;
+        }
+        used.add(name);
+        sessionLeads[name] = e.session_lead;
+        sessionTopics[name] = e.session_topic;
+        activitiesMap[name] = e.activity;
+        giftsMap[name] = e.gifts;
+        propsMap[name] = e.props;
+        remarksMap[name] = e.remarks;
+        docUrlsMap[name] = e.docUrls.join(',');
+      }
 
       const payload = {
         meeting_date: this.meeting.meeting_date,
@@ -174,18 +199,13 @@ export class AddMeetingComponent implements OnInit {
       };
 
       if (this.isEditMode && this.meetingId) {
-        const { error } = await this.supabase
-          .from('meetings')
-          .update(payload)
-          .eq('id', this.meetingId);
-
+        const { error } = await this.supabase.client
+          .from('meetings').update(payload).eq('id', this.meetingId);
         if (error) throw error;
         alert('Session plan updated successfully!');
       } else {
-        const { error } = await this.supabase
-          .from('meetings')
-          .insert([payload]);
-
+        const { error } = await this.supabase.client
+          .from('meetings').insert([payload]);
         if (error) throw error;
         alert('Session plan created successfully!');
       }
@@ -200,6 +220,6 @@ export class AddMeetingComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/meetings']); 
+    this.router.navigate(['/meetings']);
   }
 }
